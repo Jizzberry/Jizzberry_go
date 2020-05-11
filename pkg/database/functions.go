@@ -3,43 +3,50 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"github.com/golang-migrate/migrate/v4"
-	sqlite3mig "github.com/golang-migrate/migrate/v4/database/sqlite3"
+	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
+	"github.com/gobuffalo/packr/v2"
 	_ "github.com/mattn/go-sqlite3"
-	"path/filepath"
+	"github.com/rubenv/sql-migrate"
 )
 
-func getConn(databasePath string) *sql.DB {
+func GetConn(databasePath string) *sql.DB {
+
 	conn, err := sql.Open("sqlite3", databasePath)
 
 	if err != nil {
-		fmt.Print("getConn(): %q\n", err)
+		fmt.Print("getConn():", err)
 	}
+
 	return conn
 }
 
 func RunMigrations() {
-	databasePath := filepath.FromSlash("../assets/database/jizzberry_data.db")
+	dataDatabasepath := router.GetDatabase("files")
+	actorsDatabasepath := router.GetDatabase("actors")
 
-	conn := getConn(databasePath)
-
-	driver, err := sqlite3mig.WithInstance(conn, &sqlite3mig.Config{})
-
-	if err != nil {
-		fmt.Printf("RunMigrations(): %s\n", err)
+	migrationsData := &migrate.PackrMigrationSource{
+		Box: packr.New("migrationsData", "./migrations/jizzberry_data"),
 	}
 
-	_, err = migrate.NewWithDatabaseInstance(
-		"file://"+filepath.FromSlash("./migrations"),
-		"ql",
-		driver,
-	)
-
-	if err != nil {
-		fmt.Printf("RunMigrations(): %s\n", err)
+	migrationsActors := &migrate.PackrMigrationSource{
+		Box: packr.New("migrationsActors", "./migrations/actors"),
 	}
+
+	doMigrate(migrationsData, dataDatabasepath)
+	doMigrate(migrationsActors, actorsDatabasepath)
+
 }
 
-func main() {
-	RunMigrations()
+func doMigrate(migrations *migrate.PackrMigrationSource, databasePath string) {
+	conn := GetConn(databasePath)
+
+	n, err := migrate.Exec(conn, "sqlite3", migrations, migrate.Up)
+
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	conn.Close()
+	fmt.Printf("Applied %d migrations!\n", n)
+
 }
