@@ -9,8 +9,8 @@ import (
 )
 
 type Tags struct {
-	GeneratedID int64
-	Tags        string
+	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
+	Tags        string `row:"tags" type:"like" json:"generated_id"`
 }
 
 type TagsModel struct {

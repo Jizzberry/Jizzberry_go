@@ -12,13 +12,13 @@ import (
 var mutexFiles = &sync.Mutex{}
 
 type Files struct {
-	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true"`
-	FileName    string `row:"file_name" type:"like"`
-	FilePath    string `row:"file_path" type:"like"`
-	DateCreated string `row:"date_created" type:"exact"`
-	FileSize    string `row:"file_size" type:"exact"`
-	Length      string `row:"length" type:"exact"`
-	Tags        string `row:"tags" type:"like"`
+	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
+	FileName    string `row:"file_name" type:"like" json:"file_name"`
+	FilePath    string `row:"file_path" type:"like" json:"file_path"`
+	DateCreated string `row:"date_created" type:"exact" json:"date_created"`
+	FileSize    string `row:"file_size" type:"exact" json:"file_size"`
+	Length      string `row:"length" type:"exact" json:"length"`
+	Tags        string `row:"tags" type:"like" json:"tags"`
 }
 
 type FilesModel struct {

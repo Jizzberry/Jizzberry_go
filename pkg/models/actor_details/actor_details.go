@@ -12,14 +12,14 @@ import (
 var mutexDetails = &sync.Mutex{}
 
 type ActorDetails struct {
-	GeneratedId int64  `row:"generated_id" type:"exact" pk:"true"`
-	SceneId     int64  `row:"scene_id" type:"exact"`
-	ActorId     int64  `row:"actor_id" type:"exact"`
-	Name        string `row:"name" type:"like"`
-	Birthday    string `row:"born" type:"like"`
-	Birthplace  string `row:"birthplace" type:"like"`
-	Height      string `row:"height" type:"exact"`
-	Weight      string `row:"weight" type:"exact"`
+	GeneratedId int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
+	SceneId     int64  `row:"scene_id" type:"exact" json:"scene_id"`
+	ActorId     int64  `row:"actor_id" type:"exact" json:"actor_id"`
+	Name        string `row:"name" type:"like" json:"name"`
+	Birthday    string `row:"born" type:"like" json:"birthday"`
+	Birthplace  string `row:"birthplace" type:"like" json:"birthplace"`
+	Height      string `row:"height" type:"exact" json:"height"`
+	Weight      string `row:"weight" type:"exact" json:"weight"`
 }
 
 type ActorDetailsModel struct {
@@ -84,7 +84,7 @@ func (a ActorDetailsModel) Get(d ActorDetails) []ActorDetails {
 
 	query, args := models.QueryBuilderGet(d, tableName)
 
-	row, err := a.conn.Query(query, args)
+	row, err := a.conn.Query(query, args...)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -92,12 +92,13 @@ func (a ActorDetailsModel) Get(d ActorDetails) []ActorDetails {
 	allDetails := make([]ActorDetails, 0)
 	for row.Next() {
 		details := ActorDetails{}
-		err := row.Scan(&details.SceneId, &details.ActorId, &details.Name, &details.Birthday, &details.Birthplace, &details.Height, &details.Weight)
+		err := row.Scan(&details.GeneratedId, &details.SceneId, &details.ActorId, &details.Name, &details.Birthday, &details.Birthplace, &details.Height, &details.Weight)
 		if err != nil {
 			fmt.Println(err)
 		}
 		allDetails = append(allDetails, details)
 	}
+	mutexDetails.Unlock()
 	return allDetails
 }
 
