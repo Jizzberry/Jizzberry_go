@@ -33,9 +33,12 @@ func ScrapeActor(sceneId int64, actors actor.Actor) *actor_details.ActorDetails 
 		}
 	}
 	if actors.GeneratedID > 0 {
-		details := detailsModel.Get(actors.GeneratedID)
-		details.SceneId = sceneId
-		return details
+		details := detailsModel.Get(actor_details.ActorDetails{ActorId: actors.GeneratedID})
+		if len(details) > 0 {
+			details[0].SceneId = sceneId
+			return &details[0]
+		}
+		return &actor_details.ActorDetails{}
 	} else {
 		details := actor_details.ActorDetails{}
 		details.Name = actors.Name

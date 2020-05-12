@@ -5,19 +5,21 @@ import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
+	"github.com/Jizzberry/Jizzberry-go/pkg/models"
 	"sync"
 )
 
 var mutexDetails = &sync.Mutex{}
 
 type ActorDetails struct {
-	SceneId    int64
-	ActorId    int64
-	Name       string
-	Birthday   string
-	Birthplace string
-	Height     string
-	Weight     string
+	GeneratedId int64  `row:"generated_id" type:"exact" pk:"true"`
+	SceneId     int64  `row:"scene_id" type:"exact"`
+	ActorId     int64  `row:"actor_id" type:"exact"`
+	Name        string `row:"name" type:"like"`
+	Birthday    string `row:"born" type:"like"`
+	Birthplace  string `row:"birthplace" type:"like"`
+	Height      string `row:"height" type:"exact"`
+	Weight      string `row:"weight" type:"exact"`
 }
 
 type ActorDetailsModel struct {
@@ -34,15 +36,17 @@ func (a ActorDetailsModel) Close() {
 	a.conn.Close()
 }
 
-func (a ActorDetailsModel) Create(details *ActorDetails) int64 {
+func (a ActorDetailsModel) Create(details ActorDetails) int64 {
 	mutexDetails.Lock()
 
 	if a.isEmpty() {
 		database.RunMigrations()
 	}
 
-	row, err := a.conn.Exec(`INSERT INTO actor_details (actor_id, scene_id, name, born, birthplace, height, weight) values (?, ?, ?, ?, ?, ?, ?)`,
-		details.ActorId, details.SceneId, details.Name, details.Birthday, details.Birthplace, details.Height, details.Weight)
+	tableName := "actor_details"
+	query, args := models.QueryBuilderCreate(details, tableName)
+
+	row, err := a.conn.Exec(query, args...)
 
 	mutexDetails.Unlock()
 
@@ -55,34 +59,46 @@ func (a ActorDetailsModel) Create(details *ActorDetails) int64 {
 	return genID
 }
 
-func (a ActorDetailsModel) Delete(sceneId int64) {
+func (a ActorDetailsModel) Delete(details ActorDetails) {
 	if a.isEmpty() {
 		database.RunMigrations()
 		return
 	}
 
-	_, err := a.conn.Exec(`DELETE FROM actor_details WHERE scene_id = ?`, sceneId)
+	tableName := "actor_details"
+
+	query, args := models.QueryBuilderDelete(details, tableName)
+	fmt.Println(query)
+
+	_, err := a.conn.Exec(query, args...)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-func (a ActorDetailsModel) Get(actorId int64) *ActorDetails {
+func (a ActorDetailsModel) Get(d ActorDetails) []ActorDetails {
 	mutexDetails.Lock()
-	row, err := a.conn.Query(`SELECT actor_id, name, born, birthplace, height, weight FROM actor_details WHERE actor_id = ?`, actorId)
+
+	tableName := "actor_details"
+
+	query, args := models.QueryBuilderGet(d, tableName)
+
+	row, err := a.conn.Query(query, args)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	details := ActorDetails{}
+	allDetails := make([]ActorDetails, 0)
 	for row.Next() {
-		err := row.Scan(&details.ActorId, &details.Name, &details.Birthday, &details.Birthplace, &details.Height, &details.Weight)
+		details := ActorDetails{}
+		err := row.Scan(&details.SceneId, &details.ActorId, &details.Name, &details.Birthday, &details.Birthplace, &details.Height, &details.Weight)
 		if err != nil {
 			fmt.Println(err)
 		}
+		allDetails = append(allDetails, details)
 	}
-	return &details
+	return allDetails
 }
 
 func (a ActorDetailsModel) IsExists(actorId int64) bool {

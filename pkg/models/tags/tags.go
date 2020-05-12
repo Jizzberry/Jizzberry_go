@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
+	"github.com/Jizzberry/Jizzberry-go/pkg/models"
 )
 
 type Tags struct {
@@ -75,7 +76,9 @@ func (t TagsModel) Create(tags *Tags) int64 {
 		return genId
 	}
 
-	row, err := t.conn.Exec(`INSERT INTO tags (tag) values(?)`, tags.Tags)
+	query, args := models.QueryBuilderCreate(tags, "tags")
+
+	row, err := t.conn.Exec(query, args...)
 
 	if err != nil {
 		fmt.Println(err)

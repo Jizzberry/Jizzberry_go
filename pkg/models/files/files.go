@@ -5,19 +5,20 @@ import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
-	"strings"
+	"github.com/Jizzberry/Jizzberry-go/pkg/models"
 	"sync"
 )
 
 var mutexFiles = &sync.Mutex{}
 
 type Files struct {
-	GeneratedID int64
-	FileName    string
-	FilePath    string
-	DateCreated string
-	FileSize    string
-	Length      string
+	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true"`
+	FileName    string `row:"file_name" type:"like"`
+	FilePath    string `row:"file_path" type:"like"`
+	DateCreated string `row:"date_created" type:"exact"`
+	FileSize    string `row:"file_size" type:"exact"`
+	Length      string `row:"length" type:"exact"`
+	Tags        string `row:"tags" type:"like"`
 }
 
 type FilesModel struct {
@@ -34,7 +35,7 @@ func (f FilesModel) Close() {
 	f.conn.Close()
 }
 
-func (f FilesModel) Create(files *Files) int64 {
+func (f FilesModel) Create(files Files) int64 {
 	mutexFiles.Lock()
 	genId, exists := f.IsExists(files.FilePath)
 
@@ -43,7 +44,10 @@ func (f FilesModel) Create(files *Files) int64 {
 		return genId
 	}
 
-	row, err := f.conn.Exec(`INSERT INTO files (file_name, file_path, date_created, file_size, length) values(?, ?, ?, ?, ?)`, files.FileName, files.FilePath, files.DateCreated, files.FileSize, files.Length)
+	tableName := "files"
+	query, args := models.QueryBuilderCreate(files, tableName)
+
+	row, err := f.conn.Exec(query, args...)
 
 	mutexFiles.Unlock()
 
@@ -57,37 +61,68 @@ func (f FilesModel) Create(files *Files) int64 {
 	return genID
 }
 
-func (f FilesModel) Update(files Files) int64 {
-	rows, err := f.conn.Exec(`UPDATE files SET file_name = ?, file_path = ? WHERE generated_id = ?`, files.FileName, files.FilePath, files.GeneratedID)
+func (f FilesModel) Delete(files Files) {
+	mutexFiles.Lock()
+
+	if f.isEmpty() {
+		mutexFiles.Unlock()
+		return
+	}
+	tableName := "files"
+	query, args := models.QueryBuilderDelete(files, tableName)
+
+	if query == "" {
+		return
+	}
+
+	_, err := f.conn.Exec(query, args...)
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	genId, _ := rows.RowsAffected()
-	return genId
 }
 
-func (f FilesModel) SetTags(tags []string, genId int64) {
-	_, err := f.conn.Exec(`UPDATE files SET tags = ? WHERE generated_id = ?`, strings.Join(tags, ", "), genId)
+func (f FilesModel) Update(files Files) {
+	mutexFiles.Lock()
+
+	if f.isEmpty() {
+		mutexFiles.Unlock()
+		return
+	}
+	tableName := "files"
+	query, args := models.QueryBuilderUpdate(files, tableName)
+	fmt.Println(query)
+
+	if query == "" {
+		return
+	}
+
+	_, err := f.conn.Exec(query, args...)
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-func (f FilesModel) GetTags(genId int64) []string {
-	rows, err := f.conn.Query(`SELECT tags FROM files WHERE generated_id = ?`, genId)
+func (f FilesModel) Get(filesQuery Files) []Files {
+	tableName := "files"
+
+	query, args := models.QueryBuilderGet(filesQuery, tableName)
+
+	row, err := f.conn.Query(query, args...)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	tags := ""
-	for rows.Next() {
-		err := rows.Scan(&tags)
+	allFiles := make([]Files, 0)
+	for row.Next() {
+		files := Files{}
+		err := row.Scan(&files.GeneratedID, &files.FileName, &files.FilePath, &files.DateCreated, &files.FileSize, &files.Length, &files.Tags)
 		if err != nil {
 			fmt.Println(err)
 		}
+		allFiles = append(allFiles, files)
 	}
-	return strings.Split(tags, ", ")
+
+	return allFiles
 }
 
 func (f FilesModel) isEmpty() bool {
@@ -130,20 +165,4 @@ func (f FilesModel) IsExists(filePath string) (int64, bool) {
 	}
 
 	return -1, false
-}
-
-func (f FilesModel) Get(genId int64) *Files {
-	row, err := f.conn.Query(`SELECT generated_id, file_name, file_path, date_created, file_size, length FROM files WHERE generated_id = ?`, genId)
-	if err != nil {
-		fmt.Println(err)
-	}
-	files := Files{}
-	for row.Next() {
-		err := row.Scan(&files.GeneratedID, &files.FileName, &files.FilePath, &files.DateCreated, &files.FileSize, &files.Length)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-
-	return &files
 }

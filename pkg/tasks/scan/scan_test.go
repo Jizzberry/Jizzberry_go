@@ -30,13 +30,12 @@ func TestScan_Stop(t *testing.T) {
 
 func TestScan_Start(t *testing.T) {
 	dir, _ := ioutil.TempDir("", "")
-	t.Log(dir)
 	runTestRW(t, dir)
 
-	//err := cleanDir(dir)
-	//if err != nil {
-	//	t.Error(err)
-	//}
+	err := cleanDir(dir)
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func runTestRW(t *testing.T, dir string) {

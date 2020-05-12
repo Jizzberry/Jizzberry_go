@@ -48,13 +48,14 @@ func worker(paths []string, ctx context.Context) {
 						files.FileSize = strconv.FormatInt(info.Size(), 10)
 						files.DateCreated = strconv.FormatInt(info.ModTime().Unix(), 10)
 						files.FilePath = f
-						genId := filesModel.Create(&files)
+						files.Tags = ""
+						genId := filesModel.Create(files)
 						ffmpeg.GenerateThumbnail(genId, f, 30)
 
 						data := tasks.MatchName(info.Name())
 
 						for _, a := range data.Actors {
-							actor_details.Initialize().Create(scrapers.ScrapeActor(genId, a))
+							actor_details.Initialize().Create(*scrapers.ScrapeActor(genId, a))
 						}
 					}
 					wg.Done()
