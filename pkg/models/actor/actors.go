@@ -5,17 +5,14 @@ import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
+	"github.com/Jizzberry/Jizzberry-go/pkg/models"
 )
 
 type Actor struct {
-	GeneratedID int64
-	Name        string
-	UrlID       string
-	Website     string
-}
-
-type Actors struct {
-	Actors []Actor
+	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
+	Name        string `row:"name" type:"like" json:"name"`
+	UrlID       string `row:"url_id" type:"exact" json:"url_id"`
+	Website     string `row:"website" type:"exact" json:"website"`
 }
 
 type ActorsModel struct {
@@ -32,7 +29,7 @@ func (a ActorsModel) Close() {
 	a.conn.Close()
 }
 
-func (a ActorsModel) Create(actors Actors) {
+func (a ActorsModel) Create(actors []Actor) {
 	tx, err := a.conn.Begin()
 
 	if err != nil {
@@ -44,7 +41,7 @@ func (a ActorsModel) Create(actors Actors) {
 		database.RunMigrations()
 	}
 
-	for _, act := range actors.Actors {
+	for _, act := range actors {
 		_, err := tx.Exec(`INSERT INTO actors (name, website, urlid) SELECT ?, ?, ? WHERE NOT EXISTS(SELECT 1 FROM actors WHERE name = ?)`, act.Name, act.Website, act.UrlID, act.Name)
 		if err != nil {
 			fmt.Println(err)
@@ -55,6 +52,7 @@ func (a ActorsModel) Create(actors Actors) {
 	err = tx.Commit()
 	if err != nil {
 		fmt.Println(err)
+		tx.Rollback()
 	}
 
 	defer a.Close()
@@ -74,7 +72,7 @@ func (a ActorsModel) GetExact(name string) Actor {
 	return actor
 }
 
-func (a ActorsModel) Get(names []string) [][]Actor {
+func (a ActorsModel) GetFromTitle(names []string) [][]Actor {
 	final := make([][]Actor, len(names))
 	for i, name := range names {
 		rows, err := a.conn.Query(`SELECT generated_id, name, website, urlid FROM actors WHERE (name LIKE ? COLLATE NOCASE) 
@@ -96,6 +94,28 @@ func (a ActorsModel) Get(names []string) [][]Actor {
 		final[i] = fetched
 	}
 	return final
+}
+
+func (a ActorsModel) Get(actor Actor) []Actor {
+	tableName := "actors"
+	query, args := models.QueryBuilderGet(actor, tableName)
+
+	rows, err := a.conn.Query(query, args...)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	allActors := make([]Actor, 0)
+	for rows.Next() {
+		actor := Actor{}
+		err := rows.Scan(&actor.GeneratedID, &actor.Name, &actor.UrlID, &actor.UrlID)
+		if err != nil {
+			fmt.Println(err)
+		}
+		allActors = append(allActors, actor)
+	}
+
+	return allActors
 }
 
 func (a ActorsModel) isEmpty() bool {

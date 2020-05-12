@@ -54,7 +54,7 @@ func worker(paths []string, ctx context.Context) {
 
 						data := tasks.MatchName(info.Name())
 
-						for _, a := range data.Actors {
+						for _, a := range data {
 							actor_details.Initialize().Create(*scrapers.ScrapeActor(genId, a))
 						}
 					}
