@@ -5,7 +5,7 @@ import (
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks/scan"
+	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scan"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -70,10 +70,10 @@ func runTestCancel(t *testing.T, dir string) {
 		t.Error(err)
 	}
 
-	_, cancel := scan.Scan{}.Start([]string{dir})
-
+	cancel, _ := scan.Scan{}.Start([]string{dir})
+	tmp := *cancel
 	time.Sleep(3 * time.Second)
-	cancel()
+	tmp()
 }
 
 func cleanDir(dir string) error {
