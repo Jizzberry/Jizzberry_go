@@ -32,6 +32,7 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 	)
 
 	c.OnHTML("body", func(element *colly.HTMLElement) {
+		fmt.Println("scraping")
 		actorSlice := make([]actor.Actor, 0)
 		element.ForEach("a[data-mxptype=Pornstar]", func(i int, element1 *colly.HTMLElement) {
 			// Scrape only actor having full name
@@ -48,6 +49,14 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 
 	c.OnError(func(response *colly.Response, err error) {
 		fmt.Println(err, response.StatusCode)
+	})
+
+	c.OnRequest(func(request *colly.Request) {
+		select {
+		case <-ctx.Done():
+			request.Abort()
+			return
+		}
 	})
 
 	for i := 0; i < 1754; i++ {

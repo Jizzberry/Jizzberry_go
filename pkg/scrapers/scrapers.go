@@ -6,6 +6,7 @@ import (
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/pornhub"
+	"sync"
 )
 
 var actorScrapers = make([]factory.ActorsImpl, 0)
@@ -48,10 +49,16 @@ func ScrapeActor(sceneId int64, actors actor.Actor) *actor_details.ActorDetails 
 
 }
 
-func ScrapeActorList(ctx context.Context) {
+func ScrapeActorList(ctx context.Context, progress *int) {
+	tmp := make(chan int, len(actorScrapers))
+	progressMutex := sync.Mutex{}
 	for _, i := range actorScrapers {
 		go func(i factory.ActorsImpl) {
 			i.ScrapeActorList(ctx)
+			tmp <- 1
+			progressMutex.Lock()
+			*progress = int(float32(len(tmp)) / float32(len(actorScrapers)) * 100)
+			progressMutex.Unlock()
 		}(i)
 	}
 }

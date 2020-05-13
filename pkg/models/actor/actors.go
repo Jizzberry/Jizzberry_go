@@ -11,7 +11,7 @@ import (
 type Actor struct {
 	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
 	Name        string `row:"name" type:"like" json:"name"`
-	UrlID       string `row:"url_id" type:"exact" json:"url_id"`
+	UrlID       string `row:"urlid" type:"exact" json:"urlid"`
 	Website     string `row:"website" type:"exact" json:"website"`
 }
 
@@ -108,7 +108,7 @@ func (a ActorsModel) Get(actor Actor) []Actor {
 	allActors := make([]Actor, 0)
 	for rows.Next() {
 		actor := Actor{}
-		err := rows.Scan(&actor.GeneratedID, &actor.Name, &actor.UrlID, &actor.UrlID)
+		err := rows.Scan(&actor.GeneratedID, &actor.Name, &actor.UrlID, &actor.Website)
 		if err != nil {
 			fmt.Println(err)
 		}

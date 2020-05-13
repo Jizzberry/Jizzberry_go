@@ -8,8 +8,9 @@ import (
 type ScrapeActors struct {
 }
 
-func (s ScrapeActors) Start() context.CancelFunc {
+func (s ScrapeActors) Start() (*context.CancelFunc, *int) {
+	var progress int
 	ctx, cancel := context.WithCancel(context.Background())
-	scrapers.ScrapeActorList(ctx)
-	return cancel
+	scrapers.ScrapeActorList(ctx, &progress)
+	return &cancel, &progress
 }

@@ -1,13 +1,14 @@
 package rename
 
 import (
+	"context"
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/config"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks"
+	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks"
 	"github.com/go-ole/go-ole"
 	"github.com/zetamatta/go-windows-shortcut"
 	"io"
@@ -75,7 +76,7 @@ func GetRenameResult(query string) map[string]factory.VideoDetails {
 	for website, a := range getBestResult(calcTaglen(query, result)) {
 		details := scrapers.ScrapeVideo(a.Url)
 
-		for _, actor := range tasks.MatchName(a.Name).Actors {
+		for _, actor := range tasks.MatchName(a.Name) {
 			if !sliceContains(details.Actors, actor.Name) {
 				details.Actors = append(details.Actors, actor.Name)
 			}
@@ -110,7 +111,7 @@ func updateDb(sceneId int64, newPath string, actors []string) error {
 	actorDetails.Delete(actor_details.ActorDetails{SceneId: sceneId})
 	for _, a := range actors {
 		data := tasks.MatchActorExact(a)
-		for _, a := range data.Actors {
+		for _, a := range *data {
 			scraped := scrapers.ScrapeActor(sceneId, a)
 			actor_details.Initialize().Create(*scraped)
 		}
@@ -159,7 +160,7 @@ func makeFolders(folders []string) error {
 	return nil
 }
 
-func (r Rename) Start(sceneId int64, title string, actors []string) {
+func (r Rename) Start(sceneId int64, title string, actors []string) context.CancelFunc {
 
 	title = FormatTitle(title, sceneId, actors)
 
@@ -167,7 +168,7 @@ func (r Rename) Start(sceneId int64, title string, actors []string) {
 	err := makeFolders(folders)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return nil
 	}
 
 	originalPaths := files.Initialize().Get(files.Files{GeneratedID: sceneId})
@@ -185,14 +186,14 @@ func (r Rename) Start(sceneId int64, title string, actors []string) {
 
 			if isFileExists(folders[i]) {
 				fmt.Println("file already exists")
-				return
+				return nil
 			}
 		}
 
 		err = moveFile(originalPath, folders[0])
 		if err != nil {
 			fmt.Println(err)
-			return
+			return nil
 		}
 
 		for i := 1; i < len(folders); i++ {
@@ -207,6 +208,7 @@ func (r Rename) Start(sceneId int64, title string, actors []string) {
 			fmt.Println(err)
 		}
 	}
+	return nil
 }
 
 func FormatTitle(title string, sceneId int64, actors []string) string {
