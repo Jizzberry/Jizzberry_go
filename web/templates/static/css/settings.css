@@ -1,0 +1,68 @@
+.heading {
+  margin-left: 36px;
+}
+
+.relative-task {
+  margin-top: 46px;
+  margin-left: 36px;
+}
+
+.text-right {
+  margin-left: 56px;
+}
+
+.task-progress-container {
+  background: #F4F4F4;
+  border-radius: 18px;
+  height: 111px;
+  width: 972px;
+}
+
+.progress-bar {
+  transition: 0.1s;
+  position: absolute;
+  margin-top: 21px;
+  margin-left: 18px;
+  width: 0px;
+  height: 0px;
+  background: linear-gradient(270deg, #FF0E60 2.57%, #FFB251 100%);
+  border-radius: 18px;
+}
+
+.progress-bar-bg {
+  transition: 0.1s;
+  position: absolute;
+  width: 847px;
+  height: 0px;
+  margin-top: 21px;
+  margin-left: 18px;
+  background: #FFC9E3;
+  border-radius: 18px;
+}
+
+.progress-footer {
+  margin-top: -48px;
+  margin-left: 18px;
+}
+
+.drop-container {
+  height: 0px;
+  width: 972px;
+  margin-top: 24px;
+  overflow: hidden;
+  transition: 0.3s;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.footer-right {
+  margin-left: 540px;
+}
+
+.dropdown-icon {
+  font-size: 27px;
+  transition: 0.3s;
+}
+

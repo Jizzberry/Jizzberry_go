@@ -12,14 +12,17 @@ func GetDatabase(table string) string {
 	case "files":
 		return filepath.FromSlash(databaseDir + "/jizzberry_data.db")
 
-	case "actors":
-		return filepath.FromSlash(databaseDir + "/actors.db")
-
 	case "actor_details":
 		return filepath.FromSlash(databaseDir + "/jizzberry_data.db")
 
 	case "tags":
 		return filepath.FromSlash(databaseDir + "/jizzberry_data.db")
+
+	case "actors":
+		return filepath.FromSlash(databaseDir + "/actors.db")
+
+	case "auth":
+		return filepath.FromSlash(databaseDir + "/auth.db")
 	}
 
 	file, _ := ioutil.TempFile(databaseDir, "tmp.db")

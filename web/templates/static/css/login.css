@@ -1,0 +1,45 @@
+.bg-img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: -1;
+}
+
+.login-container {
+  margin: 200px auto auto;
+  height: 700px;
+  width: 380px;
+}
+
+.top-header {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: inherit;
+}
+
+.txt-logo-container {
+  margin: auto;
+  /*margin-left: 50%;*/
+}
+
+.center-container {
+  text-align: center;
+}
+
+.relative-login-container {
+  margin-top: 64px;
+}
+
+.form-control {
+  margin-top: 50px;
+}
+
+.sign-in-button {
+  background-image: linear-gradient(90deg, #FF5555, #7BC8FF);
+  height: calc(1.5em + .75rem + 2px);
+  font-size: 21px;
+  border: none;
+}
+
