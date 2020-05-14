@@ -100,7 +100,6 @@ func verifyDatabase(n int) error {
 			return err
 		}
 	}
-	fmt.Println(rowsAffected)
 
 	if rowsAffected != n {
 		return fmt.Errorf("not all files were scanned")

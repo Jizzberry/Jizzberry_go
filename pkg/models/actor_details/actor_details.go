@@ -68,7 +68,6 @@ func (a ActorDetailsModel) Delete(details ActorDetails) {
 	tableName := "actor_details"
 
 	query, args := models.QueryBuilderDelete(details, tableName)
-	fmt.Println(query)
 
 	_, err := a.conn.Exec(query, args...)
 

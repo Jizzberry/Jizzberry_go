@@ -2,7 +2,6 @@ package scan
 
 import (
 	"context"
-	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/ffmpeg"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	files2 "github.com/Jizzberry/Jizzberry-go/pkg/models/files"
@@ -28,7 +27,8 @@ func worker(paths []string, ctx context.Context, progress *int) {
 	files := make([]string, 0)
 
 	for _, item := range paths {
-		files = append(files, getAllFiles(item)...)
+		tmp, _ := getAllFiles(item)
+		files = append(files, tmp...)
 	}
 	progressMutex := sync.Mutex{}
 	tmp := make(chan int, len(files))
@@ -48,7 +48,6 @@ func worker(paths []string, ctx context.Context, progress *int) {
 				<-maxController
 				return
 			default:
-				fmt.Println("scanning")
 				filesModel := files2.Initialize()
 				file := files2.Files{}
 
@@ -92,15 +91,19 @@ func (s Scan) Start(paths []string) (*context.CancelFunc, *int) {
 	return &cancel, &progress
 }
 
-func getAllFiles(path string) []string {
+func getAllFiles(path string) ([]string, error) {
 	fileList := make([]string, 0)
-	filepath.Walk(path, func(filePath string, f os.FileInfo, err error) error {
+	err := filepath.Walk(path, func(filePath string, f os.FileInfo, err error) error {
 		if f.IsDir() == false && isValidExt(filepath.Ext(filePath)) == true {
 			fileList = append(fileList, filePath)
 		}
 		return nil
 	})
-	return fileList
+
+	if err != nil {
+		return fileList, err
+	}
+	return fileList, nil
 }
 
 func isValidExt(ext string) bool {

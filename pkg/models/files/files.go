@@ -90,7 +90,6 @@ func (f FilesModel) Update(files Files) {
 	}
 	tableName := "files"
 	query, args := models.QueryBuilderUpdate(files, tableName)
-	fmt.Println(query)
 
 	if query == "" {
 		return

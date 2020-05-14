@@ -41,7 +41,6 @@ func QueryBuilderGet(i interface{}, tableName string) (string, []interface{}) {
 		query += " WHERE " + searchByRow + " LIKE ? COLLATE NOCASE"
 	}
 	args := []interface{}{v.Field(searchByIndex).Interface()}
-	fmt.Println(query)
 	return query, args
 }
 
@@ -61,7 +60,7 @@ func QueryBuilderCreate(i interface{}, tableName string) (string, []interface{})
 		}
 
 		if row != "" {
-			if i != 1 {
+			if valuesCount != 0 {
 				query += ", " + row
 			} else {
 				query += row

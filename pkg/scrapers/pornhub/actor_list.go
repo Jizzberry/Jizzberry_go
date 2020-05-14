@@ -12,7 +12,6 @@ import (
 )
 
 func (p Pornhub) ScrapeActorList(ctx context.Context) {
-	fmt.Println("entered scraper")
 	c := colly.NewCollector(colly.AllowURLRevisit(),
 		colly.UserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11"))
 
@@ -32,7 +31,6 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 	)
 
 	c.OnHTML("body", func(element *colly.HTMLElement) {
-		fmt.Println("scraping")
 		actorSlice := make([]actor.Actor, 0)
 		element.ForEach("a[data-mxptype=Pornstar]", func(i int, element1 *colly.HTMLElement) {
 			// Scrape only actor having full name
