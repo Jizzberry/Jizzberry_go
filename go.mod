@@ -11,7 +11,7 @@ require (
 	github.com/markbates/pkger v0.15.1
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/rubenv/sql-migrate v0.0.0-20200429072036-ae26b214fa43
-	github.com/spf13/viper v1.3.2
+	github.com/spf13/viper v1.7.0
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8
 	github.com/zetamatta/go-windows-shortcut v0.0.0-20200324140129-c189109eb763
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
