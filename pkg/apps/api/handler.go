@@ -37,8 +37,8 @@ func (a Api) Register(r *mux.Router) {
 	apiRouter.HandleFunc("/actor_details", actorDetailHandler).Methods("GET")
 	apiRouter.HandleFunc("/actors", actorsHandler).Methods("GET")
 	apiRouter.HandleFunc("/scrapeActors", scrapeActorHandler).Methods("GET")
-	apiRouter.HandleFunc("/startScanTask", scanHandler).Methods("POST")
-	apiRouter.HandleFunc("/startScrapeTask", scrapeActorListHandler).Methods("POST")
+	apiRouter.HandleFunc("/startScanTask", scanHandler).Methods("POST", "GET")
+	apiRouter.HandleFunc("/startScrapeTask", scrapeActorListHandler).Methods("POST", "GET")
 	apiRouter.HandleFunc("/progress", getProgress).Methods("GET")
 }
 
@@ -172,6 +172,9 @@ func scrapeActorHandler(w http.ResponseWriter, r *http.Request) {
 func scanHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	uid := manager.StartScan()
+
+	fmt.Println("started scan", uid)
+
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
 	encoder.Encode(&task{Uid: uid})

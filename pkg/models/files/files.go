@@ -2,14 +2,19 @@ package files
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models"
 	"sync"
 )
 
 var mutexFiles = &sync.Mutex{}
+
+const (
+	tableName = "files"
+	component = "filesModel"
+)
 
 type Files struct {
 	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
@@ -27,7 +32,7 @@ type FilesModel struct {
 
 func Initialize() *FilesModel {
 	return &FilesModel{
-		conn: database.GetConn(router.GetDatabase("files")),
+		conn: database.GetConn(router.GetDatabase(tableName)),
 	}
 }
 
@@ -44,7 +49,6 @@ func (f FilesModel) Create(files Files) int64 {
 		return genId
 	}
 
-	tableName := "files"
 	query, args := models.QueryBuilderCreate(files, tableName)
 
 	row, err := f.conn.Exec(query, args...)
@@ -52,7 +56,8 @@ func (f FilesModel) Create(files Files) int64 {
 	mutexFiles.Unlock()
 
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
+		return 0
 	}
 
 	genID, _ := row.LastInsertId()
@@ -68,7 +73,7 @@ func (f FilesModel) Delete(files Files) {
 		mutexFiles.Unlock()
 		return
 	}
-	tableName := "files"
+
 	query, args := models.QueryBuilderDelete(files, tableName)
 
 	if query == "" {
@@ -77,7 +82,7 @@ func (f FilesModel) Delete(files Files) {
 
 	_, err := f.conn.Exec(query, args...)
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 	}
 }
 
@@ -88,7 +93,7 @@ func (f FilesModel) Update(files Files) {
 		mutexFiles.Unlock()
 		return
 	}
-	tableName := "files"
+
 	query, args := models.QueryBuilderUpdate(files, tableName)
 
 	if query == "" {
@@ -97,26 +102,25 @@ func (f FilesModel) Update(files Files) {
 
 	_, err := f.conn.Exec(query, args...)
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 	}
 }
 
 func (f FilesModel) Get(filesQuery Files) []Files {
-	tableName := "files"
-
 	query, args := models.QueryBuilderGet(filesQuery, tableName)
+	allFiles := make([]Files, 0)
 
 	row, err := f.conn.Query(query, args...)
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
+		return allFiles
 	}
 
-	allFiles := make([]Files, 0)
 	for row.Next() {
 		files := Files{}
 		err := row.Scan(&files.GeneratedID, &files.FileName, &files.FilePath, &files.DateCreated, &files.FileSize, &files.Length, &files.Tags)
 		if err != nil {
-			fmt.Println(err)
+			logging.LogError(err.Error(), component)
 		}
 		allFiles = append(allFiles, files)
 	}
@@ -125,17 +129,19 @@ func (f FilesModel) Get(filesQuery Files) []Files {
 }
 
 func (f FilesModel) isEmpty() bool {
-	rows, err := f.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name='files'`)
+	rows, err := f.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name=?`, tableName)
 
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 		return true
 	}
-	defer rows.Close()
 	var count int
 
 	for rows.Next() {
-		rows.Scan(&count)
+		err := rows.Scan(&count)
+		if err != nil {
+			logging.LogError(err.Error(), component)
+		}
 	}
 
 	if count < 0 {
@@ -152,11 +158,15 @@ func (f FilesModel) IsExists(filePath string) (int64, bool) {
 
 	fetch, err := f.conn.Query(`SELECT generated_id FROM files WHERE file_path = ?`, filePath)
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
+		return -1, false
 	}
 	var genId int64 = -1
 	for fetch.Next() {
-		fetch.Scan(&genId)
+		err := fetch.Scan(&genId)
+		if err != nil {
+			logging.LogError(err.Error(), component)
+		}
 	}
 
 	if genId > -1 {

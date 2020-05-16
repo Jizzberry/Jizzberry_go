@@ -5,8 +5,14 @@ import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models"
 	"sync"
+)
+
+const (
+	tableName = "actor_details"
+	component = "actorDetailsModel"
 )
 
 var mutexDetails = &sync.Mutex{}
@@ -28,12 +34,15 @@ type ActorDetailsModel struct {
 
 func Initialize() *ActorDetailsModel {
 	return &ActorDetailsModel{
-		conn: database.GetConn(router.GetDatabase("actor_details")),
+		conn: database.GetConn(router.GetDatabase(tableName)),
 	}
 }
 
 func (a ActorDetailsModel) Close() {
-	a.conn.Close()
+	err := a.conn.Close()
+	if err != nil {
+		logging.LogError(err.Error(), component)
+	}
 }
 
 func (a ActorDetailsModel) Create(details ActorDetails) int64 {
@@ -43,7 +52,6 @@ func (a ActorDetailsModel) Create(details ActorDetails) int64 {
 		database.RunMigrations()
 	}
 
-	tableName := "actor_details"
 	query, args := models.QueryBuilderCreate(details, tableName)
 
 	row, err := a.conn.Exec(query, args...)
@@ -51,7 +59,8 @@ func (a ActorDetailsModel) Create(details ActorDetails) int64 {
 	mutexDetails.Unlock()
 
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
+		return 0
 	}
 
 	genID, _ := row.LastInsertId()
@@ -65,35 +74,33 @@ func (a ActorDetailsModel) Delete(details ActorDetails) {
 		return
 	}
 
-	tableName := "actor_details"
-
 	query, args := models.QueryBuilderDelete(details, tableName)
 
 	_, err := a.conn.Exec(query, args...)
 
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 	}
 }
 
 func (a ActorDetailsModel) Get(d ActorDetails) []ActorDetails {
 	mutexDetails.Lock()
 
-	tableName := "actor_details"
+	allDetails := make([]ActorDetails, 0)
 
 	query, args := models.QueryBuilderGet(d, tableName)
 
 	row, err := a.conn.Query(query, args...)
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
+		return allDetails
 	}
 
-	allDetails := make([]ActorDetails, 0)
 	for row.Next() {
 		details := ActorDetails{}
 		err := row.Scan(&details.GeneratedId, &details.SceneId, &details.ActorId, &details.Name, &details.Birthday, &details.Birthplace, &details.Height, &details.Weight)
 		if err != nil {
-			fmt.Println(err)
+			logging.LogError(err.Error(), component)
 		}
 		allDetails = append(allDetails, details)
 	}
@@ -105,10 +112,10 @@ func (a ActorDetailsModel) IsExists(actorId int64) bool {
 	rows, err := a.conn.Query(`SELECT actor_id FROM actor_details WHERE actor_id=?`, actorId)
 
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 		return false
 	}
-	defer rows.Close()
+
 	if rows.NextResultSet() {
 		return true
 	}
@@ -122,11 +129,13 @@ func (a ActorDetailsModel) isEmpty() bool {
 		fmt.Println(err)
 		return true
 	}
-	defer rows.Close()
 	var count int
 
 	for rows.Next() {
-		rows.Scan(&count)
+		err := rows.Scan(&count)
+		if err != nil {
+			logging.LogError(err.Error(), component)
+		}
 	}
 
 	if count < 0 {

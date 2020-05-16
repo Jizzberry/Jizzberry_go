@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/config"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
 )
+
+const component = "FFMPEG"
 
 func GenerateThumbnail(generatedId int64, path string, interval int64) {
 	outFile := filepath.FromSlash(helpers.GetWorkingDirectory() + "/assets/thumbnails/" + strconv.FormatInt(generatedId, 10) + ".png")
@@ -25,8 +28,7 @@ func GenerateThumbnail(generatedId int64, path string, interval int64) {
 	err := cmd.Run()
 
 	if err != nil {
-		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-		os.Remove(outFile)
+		_ = os.Remove(outFile)
 	}
 }
 
@@ -40,7 +42,7 @@ func GetLength(path string) string {
 	err := cmd.Run()
 
 	if err != nil {
-		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+		logging.LogError(fmt.Sprint(err)+": "+strings.TrimSpace(stderr.String()), component)
 	}
 
 	return strings.Split(out.String(), ".")[0]

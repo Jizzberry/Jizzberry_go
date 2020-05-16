@@ -3,6 +3,7 @@ package pornhub
 import (
 	"context"
 	"fmt"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/queue"
@@ -46,7 +47,7 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 	})
 
 	c.OnError(func(response *colly.Response, err error) {
-		fmt.Println(err, response.StatusCode)
+		logging.LogError(err.Error(), p.GetWebsite())
 	})
 
 	c.OnRequest(func(request *colly.Request) {
@@ -61,12 +62,12 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 		url := "https://www.pornhub.com/pornstars?o=t&page=" + strconv.Itoa(i)
 		err := q.AddURL(url)
 		if err != nil {
-			fmt.Println(err)
+			logging.LogError(err.Error(), p.GetWebsite())
 		}
 	}
 	err = q.Run(c)
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), p.GetWebsite())
 	}
 }
 

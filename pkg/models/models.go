@@ -1,10 +1,12 @@
 package models
 
 import (
-	"fmt"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"reflect"
 	"regexp"
 )
+
+const component = "QueryBuilder"
 
 func QueryBuilderGet(i interface{}, tableName string) (string, []interface{}) {
 	t := reflect.TypeOf(i)
@@ -149,7 +151,7 @@ func checkEmpty(value reflect.Value) bool {
 	// Checks int
 	matchedInt, err := regexp.MatchString("int", value.Type().String())
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 	}
 	if matchedInt {
 		return value.IsZero()
@@ -158,7 +160,7 @@ func checkEmpty(value reflect.Value) bool {
 	//else check string
 	matchedString, err := regexp.MatchString("string", value.Type().String())
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 	}
 	if matchedString {
 		return value.String() == ""

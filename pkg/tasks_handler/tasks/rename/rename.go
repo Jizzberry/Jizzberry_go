@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/config"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
@@ -17,6 +18,8 @@ import (
 	"regexp"
 	"strings"
 )
+
+const component = "Rename"
 
 type Rename struct {
 }
@@ -167,7 +170,7 @@ func (r Rename) Start(sceneId int64, title string, actors []string) context.Canc
 	folders := getFolder(sceneId, actors, title)
 	err := makeFolders(folders)
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 		return nil
 	}
 
@@ -181,31 +184,31 @@ func (r Rename) Start(sceneId int64, title string, actors []string) context.Canc
 			var err error
 			folders[i], err = filepath.Abs(filepath.FromSlash(folders[i] + "/" + title + ext))
 			if err != nil {
-				fmt.Println(err)
+				logging.LogError(err.Error(), component)
 			}
 
 			if isFileExists(folders[i]) {
-				fmt.Println("file already exists")
+				logging.LogError(fmt.Sprintf("file already exists: %s", folders[i]), component)
 				return nil
 			}
 		}
 
 		err = moveFile(originalPath, folders[0])
 		if err != nil {
-			fmt.Println(err)
+			logging.LogError(err.Error(), component)
 			return nil
 		}
 
 		for i := 1; i < len(folders); i++ {
 			err := makeShortcut(folders[0], folders[i])
 			if err != nil {
-				fmt.Println(err)
+				logging.LogError(err.Error(), component)
 			}
 		}
 
 		err = updateDb(sceneId, folders[0], actors)
 		if err != nil {
-			fmt.Println(err)
+			logging.LogError(err.Error(), component)
 		}
 	}
 	return nil
@@ -217,7 +220,7 @@ func FormatTitle(title string, sceneId int64, actors []string) string {
 		r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
 
 		if err != nil {
-			fmt.Println(err)
+			logging.LogError(err.Error(), component+" - FormatTitle")
 			return title
 		}
 
@@ -267,7 +270,7 @@ func getFolder(sceneId int64, actors []string, title string) []string {
 	r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
 
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component+" - getFolder")
 	}
 
 	basePath := getBasePath(sceneId)

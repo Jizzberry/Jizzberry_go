@@ -2,10 +2,15 @@ package tags
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models"
+)
+
+const (
+	tableName = "tags"
+	component = "tagsModel"
 )
 
 type Tags struct {
@@ -19,7 +24,7 @@ type TagsModel struct {
 
 func Initialize() *TagsModel {
 	return &TagsModel{
-		conn: database.GetConn(router.GetDatabase("tags")),
+		conn: database.GetConn(router.GetDatabase(tableName)),
 	}
 }
 
@@ -28,17 +33,20 @@ func (t TagsModel) Close() {
 }
 
 func (t TagsModel) isEmpty() bool {
-	rows, err := t.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name='tags'`)
+	rows, err := t.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name=?`, tableName)
 
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 		return true
 	}
-	defer rows.Close()
+
 	var count int
 
 	for rows.Next() {
-		rows.Scan(&count)
+		err := rows.Scan(&count)
+		if err != nil {
+			logging.LogError(err.Error(), component)
+		}
 	}
 
 	if count < 0 {
@@ -55,11 +63,15 @@ func (t TagsModel) IsExists(filePath string) (int64, bool) {
 
 	fetch, err := t.conn.Query(`SELECT generated_id FROM tags WHERE tag = ?`, filePath)
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
+		return -1, false
 	}
 	var genId int64 = -1
 	for fetch.Next() {
-		fetch.Scan(&genId)
+		err := fetch.Scan(&genId)
+		if err != nil {
+			logging.LogError(err.Error(), component)
+		}
 	}
 
 	if genId > -1 {
@@ -76,12 +88,13 @@ func (t TagsModel) Create(tags *Tags) int64 {
 		return genId
 	}
 
-	query, args := models.QueryBuilderCreate(tags, "tags")
+	query, args := models.QueryBuilderCreate(tags, tableName)
 
 	row, err := t.conn.Exec(query, args...)
 
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
+		return 0
 	}
 
 	genID, _ := row.LastInsertId()
@@ -94,6 +107,6 @@ func (t TagsModel) Delete(tag string) {
 	_, err := t.conn.Exec(`DELETE FROM tags WHERE tag = ?`, tag)
 
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 	}
 }

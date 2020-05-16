@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/config"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/xi2/xz"
 	"io"
 	"net/http"
@@ -192,7 +193,7 @@ func getExecs(path string, file string) string {
 	})
 
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 	}
 	return execPath
 }
@@ -211,9 +212,12 @@ func IsExists() error {
 	execPathProbe := getExecs(filepath.Dir(config.GetFFPROBEPath()), "ffprobe")
 
 	if execPathFFMPEG == "" || execPathProbe == "" {
+		logging.LogWarning("couldn't find ffmpeg or ffprobe executables", component)
+
 		err := DownloadAndExtract()
 
 		if err != nil {
+			logging.LogError(err.Error(), component)
 			return err
 		}
 

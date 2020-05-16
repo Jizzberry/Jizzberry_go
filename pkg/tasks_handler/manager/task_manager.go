@@ -2,8 +2,8 @@ package manager
 
 import (
 	"context"
-	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/config"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/rename"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scan"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scrapeActors"
@@ -23,7 +23,7 @@ var GlobalTasksStorage = TasksStorage{
 func StartScan() string {
 	uid, err := uuid.NewRandom()
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), "Manager - Scan")
 	}
 	cancel, progress := scan.Scan{}.Start(config.GetVideoPaths())
 	GlobalTasksStorage.Cancel[uid.String()] = cancel
@@ -34,7 +34,7 @@ func StartScan() string {
 func StartScrapeActors() string {
 	uid, err := uuid.NewRandom()
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), "Manager - ScrapeActors")
 	}
 	cancel, progress := scrapeActors.ScrapeActors{}.Start()
 	GlobalTasksStorage.Cancel[uid.String()] = cancel

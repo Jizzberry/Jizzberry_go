@@ -2,7 +2,9 @@ package scan
 
 import (
 	"context"
+	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/ffmpeg"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	files2 "github.com/Jizzberry/Jizzberry-go/pkg/models/files"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
@@ -14,6 +16,8 @@ import (
 	"strings"
 	"sync"
 )
+
+const component = "Scan"
 
 type Scan struct {
 }
@@ -27,7 +31,10 @@ func worker(paths []string, ctx context.Context, progress *int) {
 	files := make([]string, 0)
 
 	for _, item := range paths {
-		tmp, _ := getAllFiles(item)
+		tmp, err := getAllFiles(item)
+		if err != nil {
+			logging.LogError(err.Error(), component)
+		}
 		files = append(files, tmp...)
 	}
 	progressMutex := sync.Mutex{}
@@ -70,6 +77,10 @@ func worker(paths []string, ctx context.Context, progress *int) {
 					for _, a := range data {
 						actor_details.Initialize().Create(*scrapers.ScrapeActor(genId, a))
 					}
+
+					logging.LogInfo(fmt.Sprintf("scanned %s successfully", f), component)
+				} else {
+					logging.LogInfo(fmt.Sprintf("skipped %s", f), component)
 				}
 				wg.Done()
 				tmp <- 1

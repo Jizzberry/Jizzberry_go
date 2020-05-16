@@ -3,6 +3,7 @@ package config
 import (
 	"crypto/rand"
 	"fmt"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/spf13/viper"
 	"os"
 )
@@ -13,6 +14,8 @@ const (
 	SessionsKey = "sessions"
 	LoginURL    = "/auth/login/"
 	PrevURLKey  = "prevurl"
+
+	component = "Config"
 )
 
 func init() {
@@ -92,7 +95,7 @@ func GenerateRandomKey(l int) string {
 	b := make([]byte, l)
 	_, err := rand.Read(b)
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err.Error(), component)
 	}
 	return string(b)
 }

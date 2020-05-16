@@ -1,7 +1,7 @@
 package pornhub
 
 import (
-	"fmt"
+	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/gocolly/colly/v2"
 	"strings"
@@ -47,7 +47,7 @@ func v2(e *colly.HTMLElement, actorDetails *actor_details.ActorDetails) {
 	})
 }
 
-func getDetails(url string) actor_details.ActorDetails {
+func getDetails(url string) (actor_details.ActorDetails, error) {
 	c := colly.NewCollector()
 
 	actorDetails := actor_details.ActorDetails{}
@@ -62,16 +62,20 @@ func getDetails(url string) actor_details.ActorDetails {
 
 	err := c.Visit(url)
 	if err != nil {
-		fmt.Println(err)
+		return actorDetails, err
 	}
 	c.Wait()
 
-	return actorDetails
+	return actorDetails, nil
 }
 
 func (p Pornhub) ScrapeActor(name string) actor_details.ActorDetails {
 	name = strings.ReplaceAll(name, " ", "-")
-	return getDetails("https://www.pornhub.com/pornstar/" + name)
+	details, err := getDetails("https://www.pornhub.com/pornstar/" + name)
+	if err != nil {
+		logging.LogError(err.Error(), p.GetWebsite())
+	}
+	return details
 }
 
 func (p Pornhub) GetWebsite() string {
