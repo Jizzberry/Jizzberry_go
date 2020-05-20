@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -8,7 +9,15 @@ import (
 func CreateDirs() {
 	basePath := GetWorkingDirectory()
 
-	os.MkdirAll(basePath+filepath.FromSlash("/assets/database"), os.ModePerm)
-	os.MkdirAll(basePath+filepath.FromSlash("/assets/ffmpeg"), os.ModePerm)
-	os.MkdirAll(basePath+filepath.FromSlash("/assets/thumbnails"), os.ModePerm)
+	makeDir(basePath + filepath.FromSlash("/assets/database"))
+	makeDir(basePath + filepath.FromSlash("/assets/ffmpeg"))
+	makeDir(basePath + filepath.FromSlash("/assets/thumbnails"))
+	makeDir(basePath + filepath.FromSlash("/logs"))
+}
+
+func makeDir(dir string) {
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
