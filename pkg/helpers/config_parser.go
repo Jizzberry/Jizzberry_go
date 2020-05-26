@@ -1,9 +1,8 @@
-package config
+package helpers
 
 import (
 	"crypto/rand"
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/spf13/viper"
 	"os"
 )
@@ -15,18 +14,20 @@ const (
 	LoginURL    = "/auth/login/"
 	PrevURLKey  = "prevurl"
 
+	ThumbnailPath = "./assets/thumbnails"
+
 	component = "Config"
 )
 
 func init() {
-	viper.SetConfigName("config")
+	viper.SetConfigName("helpers")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
 
 	writeInitial()
 
-	err := viper.ReadInConfig() // Find and read the config file
-	if err != nil {             // Handle errors reading the config file
+	err := viper.ReadInConfig() // Find and read the helpers file
+	if err != nil {             // Handle errors reading the helpers file
 		fmt.Println(err)
 	}
 }
@@ -84,9 +85,9 @@ func WriteFolderRenameFormatter(path string) {
 }
 
 func write() {
-	if err := viper.SafeWriteConfigAs("./config.yaml"); err != nil {
+	if err := viper.SafeWriteConfigAs("./helpers.yaml"); err != nil {
 		if os.IsNotExist(err) {
-			err = viper.WriteConfigAs("./config.yaml")
+			err = viper.WriteConfigAs("./helpers.yaml")
 		}
 	}
 }
@@ -95,7 +96,7 @@ func GenerateRandomKey(l int) string {
 	b := make([]byte, l)
 	_, err := rand.Read(b)
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		LogError(err.Error(), component)
 	}
 	return string(b)
 }

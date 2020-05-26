@@ -1,7 +1,6 @@
-package logging
+package helpers
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/sirupsen/logrus"
 	"github.com/t-tomalak/logrus-easy-formatter"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -12,7 +11,7 @@ import (
 var logger *logrus.Logger
 
 func Init() {
-	var dir = helpers.GetWorkingDirectory() + "/logs"
+	var dir = GetWorkingDirectory() + "/logs"
 
 	logger = &logrus.Logger{
 		Out:   os.Stderr,

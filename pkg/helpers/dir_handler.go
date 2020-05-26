@@ -9,10 +9,10 @@ import (
 func CreateDirs() {
 	basePath := GetWorkingDirectory()
 
-	makeDir(basePath + filepath.FromSlash("/assets/database"))
-	makeDir(basePath + filepath.FromSlash("/assets/ffmpeg"))
-	makeDir(basePath + filepath.FromSlash("/assets/thumbnails"))
-	makeDir(basePath + filepath.FromSlash("/logs"))
+	makeDir(basePath + filepath.FromSlash("./assets/database"))
+	makeDir(basePath + filepath.FromSlash("./assets/ffmpeg"))
+	makeDir(basePath + filepath.FromSlash(ThumbnailPath))
+	makeDir(basePath + filepath.FromSlash("./logs"))
 }
 
 func makeDir(dir string) {
