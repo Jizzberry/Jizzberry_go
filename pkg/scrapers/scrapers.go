@@ -24,6 +24,7 @@ func ScrapeActor(sceneId int64, actors actor.Actor) *actor_details.ActorDetails 
 		for _, i := range actorScrapers {
 			if i.GetWebsite() == actors.Website {
 				details := i.ScrapeActor(actors.Name)
+				i.ScrapeImage(actors.Name, actors.GeneratedID)
 
 				//Manually set name just in case of connection error
 				details.Name = actors.Name

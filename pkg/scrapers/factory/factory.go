@@ -9,6 +9,7 @@ type ActorsImpl interface {
 	GetWebsite() string
 	ScrapeActor(name string) actor_details.ActorDetails
 	ScrapeActorList(ctx context.Context)
+	ScrapeImage(name string, actorId int64)
 }
 
 type VideosImpl interface {
