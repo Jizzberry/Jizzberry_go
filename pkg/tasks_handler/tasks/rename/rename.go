@@ -3,8 +3,7 @@ package rename
 import (
 	"context"
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/config"
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
@@ -170,7 +169,7 @@ func (r Rename) Start(sceneId int64, title string, actors []string) context.Canc
 	folders := getFolder(sceneId, actors, title)
 	err := makeFolders(folders)
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return nil
 	}
 
@@ -184,43 +183,43 @@ func (r Rename) Start(sceneId int64, title string, actors []string) context.Canc
 			var err error
 			folders[i], err = filepath.Abs(filepath.FromSlash(folders[i] + "/" + title + ext))
 			if err != nil {
-				logging.LogError(err.Error(), component)
+				helpers.LogError(err.Error(), component)
 			}
 
 			if isFileExists(folders[i]) {
-				logging.LogError(fmt.Sprintf("file already exists: %s", folders[i]), component)
+				helpers.LogError(fmt.Sprintf("file already exists: %s", folders[i]), component)
 				return nil
 			}
 		}
 
 		err = moveFile(originalPath, folders[0])
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 			return nil
 		}
 
 		for i := 1; i < len(folders); i++ {
 			err := makeShortcut(folders[0], folders[i])
 			if err != nil {
-				logging.LogError(err.Error(), component)
+				helpers.LogError(err.Error(), component)
 			}
 		}
 
 		err = updateDb(sceneId, folders[0], actors)
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 		}
 	}
 	return nil
 }
 
 func FormatTitle(title string, sceneId int64, actors []string) string {
-	formatter := config.GetFileRenameFormatter()
+	formatter := helpers.GetFileRenameFormatter()
 	if formatter != "" {
 		r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
 
 		if err != nil {
-			logging.LogError(err.Error(), component+" - FormatTitle")
+			helpers.LogError(err.Error(), component+" - FormatTitle")
 			return title
 		}
 
@@ -254,7 +253,7 @@ func getBasePath(sceneId int64) string {
 	scenePaths := files.Initialize().Get(files.Files{GeneratedID: sceneId})
 	if len(scenePaths) > 0 {
 		scenePath := scenePaths[0].FilePath
-		videoPaths := config.GetVideoPaths()
+		videoPaths := helpers.GetVideoPaths()
 
 		for _, p := range videoPaths {
 			if strings.Contains(scenePath, p) {
@@ -266,11 +265,11 @@ func getBasePath(sceneId int64) string {
 }
 
 func getFolder(sceneId int64, actors []string, title string) []string {
-	formatter := config.GetFolderRenameFormatter()
+	formatter := helpers.GetFolderRenameFormatter()
 	r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
 
 	if err != nil {
-		logging.LogError(err.Error(), component+" - getFolder")
+		helpers.LogError(err.Error(), component+" - getFolder")
 	}
 
 	basePath := getBasePath(sceneId)

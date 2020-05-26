@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -36,7 +36,7 @@ func (a AuthModel) Create(auth Auth) {
 
 	_, err := a.conn.Exec(query, args...)
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
@@ -46,7 +46,7 @@ func (a AuthModel) Get(auth Auth) []Auth {
 
 	rows, err := a.conn.Query(query, args...)
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return result
 	}
 
@@ -54,7 +54,7 @@ func (a AuthModel) Get(auth Auth) []Auth {
 		scan := Auth{}
 		err := rows.Scan(&scan.Username, &scan.Password)
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 		}
 		result = append(result, scan)
 	}
@@ -64,7 +64,7 @@ func (a AuthModel) Get(auth Auth) []Auth {
 func hashPassword(password string) string {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 	}
 
 	return string(hash)

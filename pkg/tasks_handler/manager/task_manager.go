@@ -2,12 +2,10 @@ package manager
 
 import (
 	"context"
-	"github.com/Jizzberry/Jizzberry-go/pkg/config"
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/rename"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scan"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scrapeActors"
-	"github.com/google/uuid"
 )
 
 type TasksStorage struct {
@@ -21,25 +19,40 @@ var GlobalTasksStorage = TasksStorage{
 }
 
 func StartScan() string {
-	uid, err := uuid.NewRandom()
-	if err != nil {
-		logging.LogError(err.Error(), "Manager - Scan")
+	uid := "scan"
+
+	if isTaskActive(uid) {
+		return uid
 	}
-	cancel, progress := scan.Scan{}.Start(config.GetVideoPaths())
-	GlobalTasksStorage.Cancel[uid.String()] = cancel
-	GlobalTasksStorage.Progress[uid.String()] = progress
-	return uid.String()
+
+	cancel, progress := scan.Scan{}.Start(helpers.GetVideoPaths())
+	GlobalTasksStorage.Cancel[uid] = cancel
+	GlobalTasksStorage.Progress[uid] = progress
+	return uid
+}
+
+func isTaskActive(uid string) bool {
+	if _, ok := GlobalTasksStorage.Cancel[uid]; ok {
+		if val, ok := GlobalTasksStorage.Progress[uid]; ok {
+			if *val != 100 {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func StartScrapeActors() string {
-	uid, err := uuid.NewRandom()
-	if err != nil {
-		logging.LogError(err.Error(), "Manager - ScrapeActors")
+	uid := "scrapeActorsList"
+
+	if isTaskActive(uid) {
+		return uid
 	}
+
 	cancel, progress := scrapeActors.ScrapeActors{}.Start()
-	GlobalTasksStorage.Cancel[uid.String()] = cancel
-	GlobalTasksStorage.Progress[uid.String()] = progress
-	return uid.String()
+	GlobalTasksStorage.Cancel[uid] = cancel
+	GlobalTasksStorage.Progress[uid] = progress
+	return uid
 }
 
 //Rename shouldn't be stopped
@@ -52,7 +65,7 @@ func GetProgress(uid string) int {
 		progress := *val
 		return progress
 	}
-	return 0
+	return -1
 }
 
 func StopTask(uid string) {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models"
 	"sync"
 )
@@ -41,7 +41,7 @@ func Initialize() *ActorDetailsModel {
 func (a ActorDetailsModel) Close() {
 	err := a.conn.Close()
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
@@ -59,7 +59,7 @@ func (a ActorDetailsModel) Create(details ActorDetails) int64 {
 	mutexDetails.Unlock()
 
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return 0
 	}
 
@@ -79,7 +79,7 @@ func (a ActorDetailsModel) Delete(details ActorDetails) {
 	_, err := a.conn.Exec(query, args...)
 
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
@@ -92,7 +92,7 @@ func (a ActorDetailsModel) Get(d ActorDetails) []ActorDetails {
 
 	row, err := a.conn.Query(query, args...)
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return allDetails
 	}
 
@@ -100,7 +100,7 @@ func (a ActorDetailsModel) Get(d ActorDetails) []ActorDetails {
 		details := ActorDetails{}
 		err := row.Scan(&details.GeneratedId, &details.SceneId, &details.ActorId, &details.Name, &details.Birthday, &details.Birthplace, &details.Height, &details.Weight)
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 		}
 		allDetails = append(allDetails, details)
 	}
@@ -108,11 +108,22 @@ func (a ActorDetailsModel) Get(d ActorDetails) []ActorDetails {
 	return allDetails
 }
 
+func (a ActorDetailsModel) GetUnique() []ActorDetails {
+	allActors := a.Get(ActorDetails{})
+	uniqueActors := make([]ActorDetails, 0)
+	for _, a := range allActors {
+		if !contains(uniqueActors, a.ActorId) {
+			uniqueActors = append(uniqueActors, a)
+		}
+	}
+	return uniqueActors
+}
+
 func (a ActorDetailsModel) IsExists(actorId int64) bool {
 	rows, err := a.conn.Query(`SELECT actor_id FROM actor_details WHERE actor_id=?`, actorId)
 
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return false
 	}
 
@@ -134,7 +145,7 @@ func (a ActorDetailsModel) isEmpty() bool {
 	for rows.Next() {
 		err := rows.Scan(&count)
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 		}
 	}
 
@@ -142,4 +153,14 @@ func (a ActorDetailsModel) isEmpty() bool {
 		return true
 	}
 	return false
+}
+
+func contains(slice []ActorDetails, actorId int64) bool {
+	set := make(map[int64]struct{}, len(slice))
+	for _, s := range slice {
+		set[s.ActorId] = struct{}{}
+	}
+
+	_, ok := set[actorId]
+	return ok
 }

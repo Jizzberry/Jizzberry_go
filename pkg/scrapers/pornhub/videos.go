@@ -1,7 +1,7 @@
 package pornhub
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
 	"github.com/gocolly/colly/v2"
 	"regexp"
@@ -34,7 +34,7 @@ func (p Pornhub) ScrapeVideo(url string) factory.VideoDetails {
 
 	err := c.Visit(strings.TrimSpace(url))
 	if err != nil {
-		logging.LogError(err.Error(), p.GetWebsite())
+		helpers.LogError(err.Error(), p.GetWebsite())
 	}
 	c.Wait()
 
@@ -60,7 +60,7 @@ func (p Pornhub) QueryVideos(query string) []factory.Videos {
 	query = strings.ReplaceAll(strings.ReplaceAll(query, " ", "+"), "-", "+")
 	err := c.Visit("https://www.pornhub.com/video/search?search=" + query)
 	if err != nil {
-		logging.LogError(err.Error(), p.GetWebsite())
+		helpers.LogError(err.Error(), p.GetWebsite())
 	}
 
 	return videos
@@ -69,7 +69,7 @@ func (p Pornhub) QueryVideos(query string) []factory.Videos {
 func (p Pornhub) ParseUrl(url string) bool {
 	found, err := regexp.MatchString("pornhub", url)
 	if err != nil {
-		logging.LogError(err.Error(), p.GetWebsite())
+		helpers.LogError(err.Error(), p.GetWebsite()+" Scraper")
 	}
 	return found
 }

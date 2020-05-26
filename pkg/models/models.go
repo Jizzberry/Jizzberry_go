@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"reflect"
 	"regexp"
 )
@@ -151,7 +151,7 @@ func checkEmpty(value reflect.Value) bool {
 	// Checks int
 	matchedInt, err := regexp.MatchString("int", value.Type().String())
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 	}
 	if matchedInt {
 		return value.IsZero()
@@ -160,7 +160,7 @@ func checkEmpty(value reflect.Value) bool {
 	//else check string
 	matchedString, err := regexp.MatchString("string", value.Type().String())
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 	}
 	if matchedString {
 		return value.String() == ""

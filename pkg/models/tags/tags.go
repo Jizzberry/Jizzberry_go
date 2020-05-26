@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models"
 )
 
@@ -15,7 +15,7 @@ const (
 
 type Tags struct {
 	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
-	Tags        string `row:"tags" type:"like" json:"generated_id"`
+	Name        string `row:"tag" type:"like" json:"generated_id"`
 }
 
 type TagsModel struct {
@@ -36,7 +36,7 @@ func (t TagsModel) isEmpty() bool {
 	rows, err := t.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name=?`, tableName)
 
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return true
 	}
 
@@ -45,7 +45,7 @@ func (t TagsModel) isEmpty() bool {
 	for rows.Next() {
 		err := rows.Scan(&count)
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 		}
 	}
 
@@ -63,14 +63,14 @@ func (t TagsModel) IsExists(filePath string) (int64, bool) {
 
 	fetch, err := t.conn.Query(`SELECT generated_id FROM tags WHERE tag = ?`, filePath)
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return -1, false
 	}
 	var genId int64 = -1
 	for fetch.Next() {
 		err := fetch.Scan(&genId)
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 		}
 	}
 
@@ -81,8 +81,8 @@ func (t TagsModel) IsExists(filePath string) (int64, bool) {
 	return -1, false
 }
 
-func (t TagsModel) Create(tags *Tags) int64 {
-	genId, exists := t.IsExists(tags.Tags)
+func (t TagsModel) Create(tags Tags) int64 {
+	genId, exists := t.IsExists(tags.Name)
 
 	if exists {
 		return genId
@@ -93,7 +93,7 @@ func (t TagsModel) Create(tags *Tags) int64 {
 	row, err := t.conn.Exec(query, args...)
 
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return 0
 	}
 
@@ -107,6 +107,28 @@ func (t TagsModel) Delete(tag string) {
 	_, err := t.conn.Exec(`DELETE FROM tags WHERE tag = ?`, tag)
 
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 	}
+}
+
+func (t TagsModel) Get(tagsQuery Tags) []Tags {
+	query, args := models.QueryBuilderGet(tagsQuery, tableName)
+	allTags := make([]Tags, 0)
+
+	row, err := t.conn.Query(query, args...)
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+		return allTags
+	}
+
+	for row.Next() {
+		tags := Tags{}
+		err := row.Scan(&tags.GeneratedID, &tags.Name)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
+		allTags = append(allTags, tags)
+	}
+
+	return allTags
 }

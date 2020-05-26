@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/ffmpeg"
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	files2 "github.com/Jizzberry/Jizzberry-go/pkg/models/files"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
@@ -33,7 +33,7 @@ func worker(paths []string, ctx context.Context, progress *int) {
 	for _, item := range paths {
 		tmp, err := getAllFiles(item)
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 		}
 		files = append(files, tmp...)
 	}
@@ -78,9 +78,9 @@ func worker(paths []string, ctx context.Context, progress *int) {
 						actor_details.Initialize().Create(*scrapers.ScrapeActor(genId, a))
 					}
 
-					logging.LogInfo(fmt.Sprintf("scanned %s successfully", f), component)
+					helpers.LogInfo(fmt.Sprintf("scanned %s successfully", f), component)
 				} else {
-					logging.LogInfo(fmt.Sprintf("skipped %s", f), component)
+					helpers.LogInfo(fmt.Sprintf("skipped %s", f), component)
 				}
 				wg.Done()
 				tmp <- 1

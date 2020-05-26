@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models"
 	"sync"
 )
@@ -56,7 +56,7 @@ func (f FilesModel) Create(files Files) int64 {
 	mutexFiles.Unlock()
 
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return 0
 	}
 
@@ -82,7 +82,7 @@ func (f FilesModel) Delete(files Files) {
 
 	_, err := f.conn.Exec(query, args...)
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
@@ -102,7 +102,7 @@ func (f FilesModel) Update(files Files) {
 
 	_, err := f.conn.Exec(query, args...)
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
@@ -112,7 +112,7 @@ func (f FilesModel) Get(filesQuery Files) []Files {
 
 	row, err := f.conn.Query(query, args...)
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return allFiles
 	}
 
@@ -120,7 +120,7 @@ func (f FilesModel) Get(filesQuery Files) []Files {
 		files := Files{}
 		err := row.Scan(&files.GeneratedID, &files.FileName, &files.FilePath, &files.DateCreated, &files.FileSize, &files.Length, &files.Tags)
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 		}
 		allFiles = append(allFiles, files)
 	}
@@ -132,7 +132,7 @@ func (f FilesModel) isEmpty() bool {
 	rows, err := f.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name=?`, tableName)
 
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return true
 	}
 	var count int
@@ -140,7 +140,7 @@ func (f FilesModel) isEmpty() bool {
 	for rows.Next() {
 		err := rows.Scan(&count)
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 		}
 	}
 
@@ -158,14 +158,14 @@ func (f FilesModel) IsExists(filePath string) (int64, bool) {
 
 	fetch, err := f.conn.Query(`SELECT generated_id FROM files WHERE file_path = ?`, filePath)
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 		return -1, false
 	}
 	var genId int64 = -1
 	for fetch.Next() {
 		err := fetch.Scan(&genId)
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 		}
 	}
 

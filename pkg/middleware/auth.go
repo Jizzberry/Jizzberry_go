@@ -3,7 +3,7 @@ package middleware
 import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/apps/authentication"
-	"github.com/Jizzberry/Jizzberry-go/pkg/config"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -14,8 +14,8 @@ func AuthMiddleware() mux.MiddlewareFunc {
 			if authentication.ValidateSession(w, r) {
 				next.ServeHTTP(w, r)
 			} else {
-				session, _ := authentication.SessionsStore.Get(r, config.SessionsKey)
-				session.Values[config.PrevURLKey] = r.URL.Path
+				session, _ := authentication.SessionsStore.Get(r, helpers.SessionsKey)
+				session.Values[helpers.PrevURLKey] = r.URL.Path
 				err := session.Save(r, w)
 				if err != nil {
 					fmt.Println(err)

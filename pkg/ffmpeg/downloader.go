@@ -4,9 +4,7 @@ import (
 	"archive/tar"
 	"archive/zip"
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/config"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
 	"github.com/xi2/xz"
 	"io"
 	"net/http"
@@ -193,7 +191,7 @@ func getExecs(path string, file string) string {
 	})
 
 	if err != nil {
-		logging.LogError(err.Error(), component)
+		helpers.LogError(err.Error(), component)
 	}
 	return execPath
 }
@@ -208,16 +206,16 @@ func isValidExt(ext string) bool {
 }
 
 func IsExists() error {
-	execPathFFMPEG := getExecs(filepath.Dir(config.GetFFMPEGPath()), "ffmpeg")
-	execPathProbe := getExecs(filepath.Dir(config.GetFFPROBEPath()), "ffprobe")
+	execPathFFMPEG := getExecs(filepath.Dir(helpers.GetFFMPEGPath()), "ffmpeg")
+	execPathProbe := getExecs(filepath.Dir(helpers.GetFFPROBEPath()), "ffprobe")
 
 	if execPathFFMPEG == "" || execPathProbe == "" {
-		logging.LogWarning("couldn't find ffmpeg or ffprobe executables", component)
+		helpers.LogWarning("couldn't find ffmpeg or ffprobe executables", component)
 
 		err := DownloadAndExtract()
 
 		if err != nil {
-			logging.LogError(err.Error(), component)
+			helpers.LogError(err.Error(), component)
 			return err
 		}
 
@@ -225,7 +223,7 @@ func IsExists() error {
 		execPathProbe = getExecs("", "ffprobe")
 		execPathFFMPEG = getExecs("", "ffmpeg")
 	}
-	config.WriteFFMPEGPath(execPathFFMPEG)
-	config.WriteFFPROBEPath(execPathProbe)
+	helpers.WriteFFMPEGPath(execPathFFMPEG)
+	helpers.WriteFFPROBEPath(execPathProbe)
 	return nil
 }

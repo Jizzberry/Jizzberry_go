@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/config"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/auth"
 	"github.com/gorilla/mux"
@@ -14,13 +13,13 @@ import (
 type Authentication struct {
 }
 
-type Login struct {
+type Context struct {
 	Error string
 }
 
 const baseURL = "/auth"
 
-var SessionsStore = sessions.NewCookieStore(config.GetSessionsKey())
+var SessionsStore = sessions.NewCookieStore(helpers.GetSessionsKey())
 
 func (a Authentication) Register(r *mux.Router) {
 	authRouter := r.PathPrefix(baseURL).Subrouter()
@@ -32,7 +31,7 @@ func (a Authentication) Register(r *mux.Router) {
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "text/html")
 
-	session, _ := SessionsStore.Get(r, config.SessionsKey)
+	session, _ := SessionsStore.Get(r, helpers.SessionsKey)
 
 	// If user is already logged in, don't show login page again until logout
 	if ValidateSession(w, r) {
@@ -45,19 +44,19 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	username := r.FormValue(config.Usernamekey)
-	password := r.FormValue(config.PasswordKey)
+	username := r.FormValue(helpers.Usernamekey)
+	password := r.FormValue(helpers.PasswordKey)
 
 	if username != "" && password != "" {
 		if userIsValid(username, password) {
 
-			session.Values[config.Usernamekey] = username
-			prevURL := session.Values[config.PrevURLKey]
+			session.Values[helpers.Usernamekey] = username
+			prevURL := session.Values[helpers.PrevURLKey]
 
 			session.Options.MaxAge = 30 * 60
 
 			if prevURL != nil {
-				session.Values[config.PrevURLKey] = nil
+				session.Values[helpers.PrevURLKey] = nil
 				err := session.Save(r, w)
 
 				if err != nil {
@@ -78,7 +77,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err := helpers.Render(w, http.StatusOK, "login", Login{Error: "Couldn't validate"})
+		err := helpers.Render(w, http.StatusOK, "login", Context{Error: "Couldn't validate"})
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -91,13 +90,13 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := SessionsStore.Get(r, config.SessionsKey)
+	session, err := SessionsStore.Get(r, helpers.SessionsKey)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	delete(session.Values, config.Usernamekey)
+	delete(session.Values, helpers.Usernamekey)
 	session.Options.MaxAge = -1
 
 	err = session.Save(r, w)
@@ -107,7 +106,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, config.LoginURL, http.StatusFound)
+	http.Redirect(w, r, helpers.LoginURL, http.StatusFound)
 }
 
 func userIsValid(username string, password string) bool {
@@ -127,7 +126,7 @@ func userIsValid(username string, password string) bool {
 }
 
 func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
-	session, err := SessionsStore.Get(r, config.SessionsKey)
+	session, err := SessionsStore.Get(r, helpers.SessionsKey)
 	if err != nil {
 		return false
 	}
@@ -136,7 +135,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	val := session.Values[config.Usernamekey]
+	val := session.Values[helpers.Usernamekey]
 
 	if val != nil {
 		user := auth.Initialize().Get(auth.Auth{Username: val.(string)})

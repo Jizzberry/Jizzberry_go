@@ -2,8 +2,7 @@ package pornhub
 
 import (
 	"context"
-	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/queue"
@@ -18,12 +17,12 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 
 	err := c.Limit(&colly.LimitRule{
 		DomainGlob:  "*pornhub.*",
-		Parallelism: 1,
+		Parallelism: 2,
 		RandomDelay: 8 * time.Second,
 	})
 
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), p.GetWebsite())
 	}
 
 	q, _ := queue.New(
@@ -47,7 +46,7 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 	})
 
 	c.OnError(func(response *colly.Response, err error) {
-		logging.LogError(err.Error(), p.GetWebsite())
+		helpers.LogError(err.Error(), p.GetWebsite())
 	})
 
 	c.OnRequest(func(request *colly.Request) {
@@ -55,19 +54,21 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 		case <-ctx.Done():
 			request.Abort()
 			return
+		default:
+			break
 		}
 	})
 
-	for i := 0; i < 1754; i++ {
+	for i := 1; i < 1754; i++ {
 		url := "https://www.pornhub.com/pornstars?o=t&page=" + strconv.Itoa(i)
 		err := q.AddURL(url)
 		if err != nil {
-			logging.LogError(err.Error(), p.GetWebsite())
+			helpers.LogError(err.Error(), p.GetWebsite())
 		}
 	}
 	err = q.Run(c)
 	if err != nil {
-		logging.LogError(err.Error(), p.GetWebsite())
+		helpers.LogError(err.Error(), p.GetWebsite())
 	}
 }
 

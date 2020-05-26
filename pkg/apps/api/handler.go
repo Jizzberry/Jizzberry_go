@@ -173,8 +173,6 @@ func scanHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	uid := manager.StartScan()
 
-	fmt.Println("started scan", uid)
-
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
 	encoder.Encode(&task{Uid: uid})
@@ -192,6 +190,7 @@ func getProgress(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 
 	progress := progress{}
+	progress.Progress = -1
 	if len(queryParams["uid"]) > 0 {
 		progress.Progress = manager.GetProgress(queryParams["uid"][0])
 	}

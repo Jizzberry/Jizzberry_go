@@ -1,7 +1,7 @@
 package pornhub
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/logging"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/gocolly/colly/v2"
 	"strings"
@@ -32,16 +32,16 @@ func v2(e *colly.HTMLElement, actorDetails *actor_details.ActorDetails) {
 	e.ForEach(".infoPiece", func(i int, element *colly.HTMLElement) {
 		for _, j := range element.ChildTexts("span") {
 			if strings.ToLower(j) == "born:" {
-				actorDetails.Birthday = strings.TrimSpace(strings.ReplaceAll(element.Text, "Born:", ""))
+				actorDetails.Birthday = strings.TrimSpace(strings.ReplaceAll(element.Text, j, ""))
 			}
 			if strings.ToLower(j) == "birthplace:" {
-				actorDetails.Birthplace = strings.TrimSpace(strings.ReplaceAll(element.Text, "Birthplace:", ""))
+				actorDetails.Birthplace = strings.TrimSpace(strings.ReplaceAll(element.Text, j, ""))
 			}
 			if strings.ToLower(j) == "height:" {
-				actorDetails.Height = strings.TrimSpace(strings.ReplaceAll(element.Text, "Height:", ""))
+				actorDetails.Height = strings.TrimSpace(strings.ReplaceAll(element.Text, j, ""))
 			}
 			if strings.ToLower(j) == "weight:" {
-				actorDetails.Weight = strings.TrimSpace(strings.ReplaceAll(element.Text, "Weight:", ""))
+				actorDetails.Weight = strings.TrimSpace(strings.ReplaceAll(element.Text, j, ""))
 			}
 		}
 	})
@@ -73,7 +73,7 @@ func (p Pornhub) ScrapeActor(name string) actor_details.ActorDetails {
 	name = strings.ReplaceAll(name, " ", "-")
 	details, err := getDetails("https://www.pornhub.com/pornstar/" + name)
 	if err != nil {
-		logging.LogError(err.Error(), p.GetWebsite())
+		helpers.LogError(err.Error(), p.GetWebsite())
 	}
 	return details
 }
