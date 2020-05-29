@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS 'files' (
     'file_size' varchar,
     'length' varchar,
     'tags' varchar
+    'studios' varchar
 );
 
 -- +migrate Down

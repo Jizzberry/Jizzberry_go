@@ -18,6 +18,9 @@ func GetDatabase(table string) string {
 	case "tags":
 		return filepath.FromSlash(databaseDir + "/jizzberry_data.db")
 
+	case "studios":
+		return filepath.FromSlash(databaseDir + "/jizzberry_data.db")
+
 	case "actors":
 		return filepath.FromSlash(databaseDir + "/actors.db")
 
@@ -25,6 +28,6 @@ func GetDatabase(table string) string {
 		return filepath.FromSlash(databaseDir + "/auth.db")
 	}
 
-	file, _ := ioutil.TempFile(databaseDir, "tmp.db")
+	file, _ := ioutil.TempFile(databaseDir, "/tmp.db")
 	return file.Name()
 }

@@ -24,6 +24,7 @@ type Files struct {
 	FileSize    string `row:"file_size" type:"exact" json:"file_size"`
 	Length      string `row:"length" type:"exact" json:"length"`
 	Tags        string `row:"tags" type:"like" json:"tags"`
+	Studios     string `row:"studios" type:"like" json:"studios"`
 }
 
 type FilesModel struct {
@@ -118,7 +119,7 @@ func (f FilesModel) Get(filesQuery Files) []Files {
 
 	for row.Next() {
 		files := Files{}
-		err := row.Scan(&files.GeneratedID, &files.FileName, &files.FilePath, &files.DateCreated, &files.FileSize, &files.Length, &files.Tags)
+		err := row.Scan(&files.GeneratedID, &files.FileName, &files.FilePath, &files.DateCreated, &files.FileSize, &files.Length, &files.Tags, &files.Studios)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 		}
