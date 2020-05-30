@@ -164,9 +164,9 @@ func makeFolders(folders []string) error {
 
 func (r Rename) Start(sceneId int64, title string, actors []string) context.CancelFunc {
 
-	title = FormatTitle(title, sceneId, actors)
+	title = FormatTitle(title, sceneId)
 
-	folders := getFolder(sceneId, actors, title)
+	folders := getFolder(sceneId, title)
 	err := makeFolders(folders)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
@@ -213,7 +213,7 @@ func (r Rename) Start(sceneId int64, title string, actors []string) context.Canc
 	return nil
 }
 
-func FormatTitle(title string, sceneId int64, actors []string) string {
+func FormatTitle(title string, sceneId int64) string {
 	formatter := helpers.GetFileRenameFormatter()
 	if formatter != "" {
 		r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
@@ -227,13 +227,19 @@ func FormatTitle(title string, sceneId int64, actors []string) string {
 
 		for _, m := range matches {
 			if strings.ToLower(m) == "{{actors}}" {
-				formatter = strings.ReplaceAll(formatter, m, strings.Join(actors, ", "))
+				actors := actor_details.Initialize().Get(actor_details.ActorDetails{SceneId: sceneId})
+				strRepl := make([]string, 0)
+				for _, a := range actors {
+					strRepl = append(strRepl, a.Name)
+				}
+				formatter = strings.ReplaceAll(formatter, m, strings.Join(strRepl, ", "))
 			} else if strings.ToLower(m) == "{{title_full}}" {
 				formatter = strings.ReplaceAll(formatter, m, title)
 			} else if strings.ToLower(m) == "{{title}}" {
 				tmpTitle := title
+				actors := actor_details.Initialize().Get(actor_details.ActorDetails{SceneId: sceneId})
 				for _, a := range actors {
-					re := regexp.MustCompile(`(?i)` + a)
+					re := regexp.MustCompile(`(?i)` + a.Name)
 					tmpTitle = re.ReplaceAllString(tmpTitle, "")
 				}
 				formatter = strings.ReplaceAll(formatter, m, strings.TrimSpace(tmpTitle))
@@ -264,7 +270,7 @@ func getBasePath(sceneId int64) string {
 	return ""
 }
 
-func getFolder(sceneId int64, actors []string, title string) []string {
+func getFolder(sceneId int64, title string) []string {
 	formatter := helpers.GetFolderRenameFormatter()
 	r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
 
@@ -279,13 +285,19 @@ func getFolder(sceneId int64, actors []string, title string) []string {
 
 	if len(matches) == 1 {
 		if strings.ToLower(matches[0]) == "{{actors}}" {
+			actors := actor_details.Initialize().Get(actor_details.ActorDetails{SceneId: sceneId})
 			for _, a := range actors {
-				finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+a))
+				finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+a.Name))
 			}
 			return finalFolders
 
 		} else if strings.ToLower(matches[0]) == "{{actors_oneline}}" {
-			finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+strings.Join(actors, ", ")))
+			actors := actor_details.Initialize().Get(actor_details.ActorDetails{SceneId: sceneId})
+			strRepl := make([]string, 0)
+			for _, a := range actors {
+				strRepl = append(strRepl, a.Name)
+			}
+			finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+strings.Join(strRepl, ", ")))
 			return finalFolders
 
 		} else if strings.ToLower(matches[0]) == "{{title}}" {
@@ -304,7 +316,12 @@ func getFolder(sceneId int64, actors []string, title string) []string {
 	} else {
 		for _, m := range matches {
 			if strings.ToLower(m) == "{{actors}}" {
-				strings.ReplaceAll(formatter, m, strings.Join(actors, ", "))
+				actors := actor_details.Initialize().Get(actor_details.ActorDetails{SceneId: sceneId})
+				strRepl := make([]string, 0)
+				for _, a := range actors {
+					strRepl = append(strRepl, a.Name)
+				}
+				strings.ReplaceAll(formatter, m, strings.Join(strRepl, ", "))
 
 			} else if strings.ToLower(m) == "{{title}}" {
 				strings.ReplaceAll(formatter, m, title)
