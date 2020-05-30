@@ -78,7 +78,7 @@ func GetRenameResult(query string) map[string]factory.VideoDetails {
 	for website, a := range getBestResult(calcTaglen(query, result)) {
 		details := scrapers.ScrapeVideo(a.Url)
 
-		for _, actor := range tasks.MatchName(a.Name) {
+		for _, actor := range tasks.MatchActorToTitle(a.Name) {
 			if !sliceContains(details.Actors, actor.Name) {
 				details.Actors = append(details.Actors, actor.Name)
 			}

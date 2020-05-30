@@ -84,16 +84,15 @@ func (a ActorsModel) GetExact(name string) Actor {
 	return actor
 }
 
-func (a ActorsModel) GetFromTitle(names []string) [][]Actor {
-	final := make([][]Actor, len(names))
-	for i, name := range names {
+func (a ActorsModel) GetFromTitle(names []string) []Actor {
+	fetched := make([]Actor, 0)
+	for _, name := range names {
 		rows, err := a.conn.Query(`SELECT generated_id, name, website, urlid FROM actors WHERE (name LIKE ? COLLATE NOCASE) 
                                                          OR (replace(name, ' ', '') LIKE ? COLLATE NOCASE)`, "%"+name+"%", name)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
+			return fetched
 		}
-
-		fetched := make([]Actor, 0)
 
 		for rows.Next() {
 			var actor = Actor{}
@@ -101,11 +100,13 @@ func (a ActorsModel) GetFromTitle(names []string) [][]Actor {
 			if err != nil {
 				helpers.LogError(err.Error(), component)
 			}
-			fetched = append(fetched, actor)
+
+			if !containsActors(fetched, actor) {
+				fetched = append(fetched, actor)
+			}
 		}
-		final[i] = fetched
 	}
-	return final
+	return fetched
 }
 
 func (a ActorsModel) Get(actor Actor) []Actor {
@@ -145,6 +146,15 @@ func (a ActorsModel) isEmpty() bool {
 
 	if count < 0 {
 		return true
+	}
+	return false
+}
+
+func containsActors(s []Actor, e Actor) bool {
+	for _, a := range s {
+		if a.GeneratedID == e.GeneratedID {
+			return true
+		}
 	}
 	return false
 }

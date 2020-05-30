@@ -1,16 +1,20 @@
 package tasks
 
 import (
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
+	"regexp"
 	"strings"
 )
+
+const component = "TasksCommon"
 
 func Splitter(r rune) bool {
 	return r == ' ' || r == '.' || r == '-' || r == '_' || r == '[' || r == ']' || r == '(' || r == ')'
 }
 
-func MatchName(name string) []actor.Actor {
-	split := strings.FieldsFunc(name, Splitter)
+func MatchActorToTitle(title string) []actor.Actor {
+	split := strings.FieldsFunc(title, Splitter)
 
 	recognisedActors := make([]actor.Actor, 0)
 
@@ -24,38 +28,29 @@ func MatchName(name string) []actor.Actor {
 		}
 	}
 	allActors := actorsModel.GetFromTitle(words)
-	for i := range words {
-		for _, act := range allActors[i] {
-			actorSplit := strings.FieldsFunc(act.Name, Splitter)
-			if len(actorSplit) > 1 {
-				if strings.ToLower(actorSplit[0]) == strings.ToLower(words[i]) {
 
-					// Check if both words match with found name
-					if len(words) > i+1 && (strings.ToLower(actorSplit[1]) == strings.ToLower(words[i+1])) {
-						if !containsActors(recognisedActors, act) {
-							recognisedActors = append(recognisedActors, act)
-						}
-					}
+	for _, a := range allActors {
+		regex := RegexpBuilder(a.Name)
+		r, err := regexp.Compile(regex)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+			return recognisedActors
+		}
 
-					// Japanese names have their last name before the first name sometimes
-					if i > 0 && strings.ToLower(actorSplit[1]) == strings.ToLower(words[i-1]) {
-						if !containsActors(recognisedActors, act) {
-							recognisedActors = append(recognisedActors, act)
-						}
-					}
-				}
-			} else {
-				// If its just one word and it matches, its good enough
-				if strings.ToLower(actorSplit[0]) == strings.ToLower(words[i]) {
-					if !containsActors(recognisedActors, act) {
-						recognisedActors = append(recognisedActors, act)
-					}
-				}
-			}
-
+		matches := r.FindAllString(title, -1)
+		if len(matches) > 0 {
+			recognisedActors = append(recognisedActors, a)
 		}
 	}
+
 	return recognisedActors
+}
+
+func RegexpBuilder(name string) string {
+	replacer := strings.NewReplacer(" ", "\\s*", "-", "\\s*", "_", "\\s*")
+	regex := replacer.Replace(name)
+	regex = `(?i)` + regex
+	return regex
 }
 
 func MatchActorExact(name string) *[]actor.Actor {
@@ -64,13 +59,4 @@ func MatchActorExact(name string) *[]actor.Actor {
 
 	return &actors
 
-}
-
-func containsActors(s []actor.Actor, e actor.Actor) bool {
-	for _, a := range s {
-		if a.GeneratedID == e.GeneratedID {
-			return true
-		}
-	}
-	return false
 }

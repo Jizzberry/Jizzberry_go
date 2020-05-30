@@ -72,7 +72,7 @@ func worker(paths []string, ctx context.Context, progress *int) {
 					genId := filesModel.Create(file)
 					ffmpeg.GenerateThumbnail(genId, f, 30)
 
-					data := tasks.MatchName(info.Name())
+					data := tasks.MatchActorToTitle(info.Name())
 
 					for _, a := range data {
 						actor_details.Initialize().Create(*scrapers.ScrapeActor(genId, a))
