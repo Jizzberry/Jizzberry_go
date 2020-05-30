@@ -81,26 +81,32 @@ func (s StudiosModel) IsExists(studio string) (int64, bool) {
 	return -1, false
 }
 
-func (s StudiosModel) Create(studios Studios) int64 {
-	genId, exists := s.IsExists(studios.Studio)
-
-	if exists {
-		return genId
-	}
-
-	query, args := models.QueryBuilderCreate(studios, tableName)
-
-	row, err := s.conn.Exec(query, args...)
+func (s StudiosModel) Create(studios []Studios) {
+	tx, err := s.conn.Begin()
 
 	if err != nil {
 		helpers.LogError(err.Error(), component)
-		return 0
+		return
 	}
 
-	genID, _ := row.LastInsertId()
+	for _, stud := range studios {
+		_, exists := s.IsExists(stud.Studio)
+		if exists {
+			continue
+		}
 
+		_, err := tx.Exec(`INSERT INTO studios (studio) SELECT ? WHERE NOT EXISTS(SELECT 1 FROM studios WHERE studio = ?)`, stud.Studio, stud.Studio)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+			tx.Rollback()
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
 	defer s.Close()
-	return genID
 }
 
 func (s StudiosModel) Delete(studio string) {
