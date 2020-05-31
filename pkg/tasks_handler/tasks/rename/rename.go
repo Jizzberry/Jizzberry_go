@@ -234,6 +234,11 @@ func FormatTitle(title string, sceneId int64) string {
 				if len(file) > 0 {
 					formatter = strings.ReplaceAll(formatter, m, file[0].Tags)
 				}
+			} else if strings.ToLower(m) == "{{studios}}" {
+				file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+				if len(file) > 0 {
+					formatter = strings.ReplaceAll(formatter, m, file[0].Studios)
+				}
 			}
 		}
 		return formatter
@@ -298,6 +303,14 @@ func getFolder(sceneId int64, title string) []string {
 					finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+t))
 				}
 			}
+		} else if strings.ToLower(matches[0]) == "{{studios}}" {
+			file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+			if len(file) > 0 {
+				studios := strings.Split(file[0].Studios, ", ")
+				for _, s := range studios {
+					finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+s))
+				}
+			}
 		}
 	} else {
 		for _, m := range matches {
@@ -311,11 +324,15 @@ func getFolder(sceneId int64, title string) []string {
 
 			} else if strings.ToLower(m) == "{{title}}" {
 				strings.ReplaceAll(formatter, m, title)
-
 			} else if strings.ToLower(m) == "{{tags}}" {
 				file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
 				if len(file) > 0 {
 					strings.ReplaceAll(formatter, m, file[0].Tags)
+				}
+			} else if strings.ToLower(m) == "{{studios}}" {
+				file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+				if len(file) > 0 {
+					strings.ReplaceAll(formatter, m, file[0].Studios)
 				}
 			}
 		}
