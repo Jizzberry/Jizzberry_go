@@ -8,19 +8,22 @@ import (
 )
 
 const (
-	Usernamekey = "username"
-	PasswordKey = "password"
-	SessionsKey = "sessions"
-	LoginURL    = "/auth/login/"
-	PrevURLKey  = "prevurl"
+	Usernamekey    = "username"
+	PasswordKey    = "password"
+	SessionsKey    = "sessions"
+	LoginURL       = "/auth/login/"
+	PrevURLKey     = "prevurl"
+	configFileName = "config"
 
 	ThumbnailPath = "./assets/thumbnails"
 
-	component = "Config"
+	component = "Helpers"
 )
 
+var configFilePath = GetWorkingDirectory() + "/" + configFileName
+
 func init() {
-	viper.SetConfigName("helpers")
+	viper.SetConfigName(configFileName)
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
 
@@ -28,7 +31,7 @@ func init() {
 
 	err := viper.ReadInConfig() // Find and read the helpers file
 	if err != nil {             // Handle errors reading the helpers file
-		fmt.Println(err)
+		fmt.Print(err.Error())
 	}
 }
 
@@ -85,9 +88,9 @@ func WriteFolderRenameFormatter(path string) {
 }
 
 func write() {
-	if err := viper.SafeWriteConfigAs("./helpers.yaml"); err != nil {
+	if err := viper.SafeWriteConfigAs(configFilePath); err != nil {
 		if os.IsNotExist(err) {
-			err = viper.WriteConfigAs("./helpers.yaml")
+			err = viper.WriteConfigAs(configFilePath)
 		}
 	}
 }

@@ -58,5 +58,4 @@ func MatchActorExact(name string) *[]actor.Actor {
 	actors = append(actors, actor.Initialize().GetExact(name))
 
 	return &actors
-
 }
