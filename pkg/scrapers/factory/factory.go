@@ -1,4 +1,4 @@
-package scrapers
+package factory
 
 import (
 	"context"

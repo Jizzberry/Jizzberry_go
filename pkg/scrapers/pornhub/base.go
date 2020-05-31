@@ -1,10 +1,8 @@
 package pornhub
 
-import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
-)
+import "github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
 
 type Pornhub struct {
-	scrapers.ActorsImpl
-	scrapers.VideosImpl
+	factory.ActorsImpl
+	factory.VideosImpl
 }
