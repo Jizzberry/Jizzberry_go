@@ -6,6 +6,7 @@ import (
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/rename"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scan"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scrapeActors"
+	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scrapeStudios"
 )
 
 type TasksStorage struct {
@@ -50,6 +51,19 @@ func StartScrapeActors() string {
 	}
 
 	cancel, progress := scrapeActors.ScrapeActors{}.Start()
+	GlobalTasksStorage.Cancel[uid] = cancel
+	GlobalTasksStorage.Progress[uid] = progress
+	return uid
+}
+
+func StartScrapeStudios() string {
+	uid := "scrapeStudiosList"
+
+	if isTaskActive(uid) {
+		return uid
+	}
+
+	cancel, progress := scrapeStudios.ScrapeStudios{}.Start()
 	GlobalTasksStorage.Cancel[uid] = cancel
 	GlobalTasksStorage.Progress[uid] = progress
 	return uid

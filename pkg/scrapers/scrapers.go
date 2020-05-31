@@ -11,10 +11,12 @@ import (
 
 var actorScrapers = make([]factory.ActorsImpl, 0)
 var videoScrapers = make([]factory.VideosImpl, 0)
+var studioScrapers = make([]factory.StudiosImpl, 0)
 
 func RegisterScrapers() {
 	actorScrapers = append(actorScrapers, pornhub.Pornhub{})
 	videoScrapers = append(videoScrapers, pornhub.Pornhub{})
+	studioScrapers = append(studioScrapers, pornhub.Pornhub{})
 }
 
 func ScrapeActor(sceneId int64, actors actor.Actor) *actor_details.ActorDetails {
@@ -56,6 +58,20 @@ func ScrapeActorList(ctx context.Context, progress *int) {
 	for _, i := range actorScrapers {
 		go func(i factory.ActorsImpl) {
 			i.ScrapeActorList(ctx)
+			tmp <- 1
+			progressMutex.Lock()
+			*progress = int(float32(len(tmp)) / float32(len(actorScrapers)) * 100)
+			progressMutex.Unlock()
+		}(i)
+	}
+}
+
+func ScrapeStudioList(ctx context.Context, progress *int) {
+	tmp := make(chan int, len(studioScrapers))
+	progressMutex := sync.Mutex{}
+	for _, i := range studioScrapers {
+		go func(i factory.StudiosImpl) {
+			i.ScrapeStudiosList(ctx)
 			tmp <- 1
 			progressMutex.Lock()
 			*progress = int(float32(len(tmp)) / float32(len(actorScrapers)) * 100)

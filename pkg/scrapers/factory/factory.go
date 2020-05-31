@@ -19,6 +19,10 @@ type VideosImpl interface {
 	ParseUrl(url string) bool
 }
 
+type StudiosImpl interface {
+	ScrapeStudiosList(ctx context.Context)
+}
+
 type VideoDetails struct {
 	Name   string
 	Actors []string

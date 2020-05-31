@@ -7,6 +7,8 @@ import (
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
+	studios2 "github.com/Jizzberry/Jizzberry-go/pkg/models/studios"
+	tags2 "github.com/Jizzberry/Jizzberry-go/pkg/models/tags"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/manager"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks"
@@ -36,9 +38,11 @@ func (a Api) Register(r *mux.Router) {
 	apiRouter.HandleFunc("/files", filesHandler).Methods("GET")
 	apiRouter.HandleFunc("/actor_details", actorDetailHandler).Methods("GET")
 	apiRouter.HandleFunc("/actors", actorsHandler).Methods("GET")
+	apiRouter.HandleFunc("/studios", studiosHandler).Methods("GET")
+	apiRouter.HandleFunc("/tags", tagsHandler).Methods("GET")
 	apiRouter.HandleFunc("/scrapeActors", scrapeActorHandler).Methods("GET")
 	apiRouter.HandleFunc("/startScanTask", scanHandler).Methods("POST", "GET")
-	apiRouter.HandleFunc("/startScrapeTask", scrapeActorListHandler).Methods("POST", "GET")
+	apiRouter.HandleFunc("/startScrapeTask", scrapeListHandler).Methods("POST", "GET")
 	apiRouter.HandleFunc("/progress", getProgress).Methods("GET")
 }
 
@@ -133,7 +137,7 @@ func actorsHandler(w http.ResponseWriter, r *http.Request) {
 	} else if len(queryParams["name"]) > 0 {
 		actors = model.Get(actor.Actor{Name: "%" + queryParams["name"][0] + "%"})
 	} else if len(queryParams["title"]) > 0 {
-		actors = tasks.MatchName(queryParams["title"][0])
+		actors = tasks.MatchActorToTitle(queryParams["title"][0])
 	}
 
 	encoder := json.NewEncoder(w)
@@ -178,12 +182,68 @@ func scanHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(&task{Uid: uid})
 }
 
-func scrapeActorListHandler(w http.ResponseWriter, r *http.Request) {
+func scrapeListHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	uid := manager.StartScrapeActors()
+	t := make([]task, 0)
+	t = append(t, task{Uid: manager.StartScrapeActors()})
+	t = append(t, task{Uid: manager.StartScrapeStudios()})
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
-	encoder.Encode(&task{Uid: uid})
+	encoder.Encode(&t)
+}
+
+func studiosHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	queryParams := r.URL.Query()
+
+	studios := make([]studios2.Studios, 0)
+	model := studios2.Initialize()
+
+	if len(queryParams["generated_id"]) > 0 {
+		genId, err := strconv.Atoi(queryParams["generated_id"][0])
+		if err != nil {
+			fmt.Println(err)
+		}
+		studios = model.Get(studios2.Studios{GeneratedID: int64(genId)})
+	} else if len(queryParams["name"]) > 0 {
+		studios = model.Get(studios2.Studios{Studio: "%" + queryParams["name"][0] + "%"})
+	} else {
+		studios = model.Get(studios2.Studios{})
+	}
+
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "\t")
+	err := encoder.Encode(&studios)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func tagsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	queryParams := r.URL.Query()
+
+	tags := make([]tags2.Tags, 0)
+	model := tags2.Initialize()
+
+	if len(queryParams["generated_id"]) > 0 {
+		genId, err := strconv.Atoi(queryParams["generated_id"][0])
+		if err != nil {
+			fmt.Println(err)
+		}
+		tags = model.Get(tags2.Tags{GeneratedID: int64(genId)})
+	} else if len(queryParams["name"]) > 0 {
+		tags = model.Get(tags2.Tags{Name: "%" + queryParams["name"][0] + "%"})
+	} else {
+		tags = model.Get(tags2.Tags{})
+	}
+
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "\t")
+	err := encoder.Encode(&tags)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func getProgress(w http.ResponseWriter, r *http.Request) {
