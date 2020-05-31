@@ -9,8 +9,6 @@ import (
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks"
-	"github.com/go-ole/go-ole"
-	"github.com/zetamatta/go-windows-shortcut"
 	"io"
 	"os"
 	"path/filepath"
@@ -88,18 +86,6 @@ func GetRenameResult(query string) map[string]factory.VideoDetails {
 	}
 
 	return detailMap
-}
-
-func makeShortcut(src string, target string) error {
-	err := ole.CoInitialize(0)
-	if err != nil {
-		return err
-	}
-	defer ole.CoUninitialize()
-	if err := shortcut.Make(src, target+".lnk", ""); err != nil {
-		return err
-	}
-	return nil
 }
 
 func updateDb(sceneId int64, newPath string, actors []string) error {
@@ -199,7 +185,7 @@ func (r Rename) Start(sceneId int64, title string, actors []string) context.Canc
 		}
 
 		for i := 1; i < len(folders); i++ {
-			err := makeShortcut(folders[0], folders[i])
+			err := makeLink(folders[0], folders[i])
 			if err != nil {
 				helpers.LogError(err.Error(), component)
 			}
