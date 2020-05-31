@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/middleware"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
@@ -17,15 +18,13 @@ import (
 	"strconv"
 )
 
+const component = "API"
+
 type Api struct {
 }
 
 type task struct {
 	Uid string `json:"uid"`
-}
-
-type progress struct {
-	Progress int `json:"progress"`
 }
 
 func (a Api) Register(r *mux.Router) {
@@ -56,7 +55,7 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
 		if err != nil {
-			fmt.Println(err)
+			helpers.LogError(err.Error(), component)
 		}
 		file = model.Get(files.Files{GeneratedID: int64(genId)})
 
@@ -74,7 +73,7 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&file)
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
@@ -88,7 +87,7 @@ func actorDetailHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
 		if err != nil {
-			fmt.Println(err)
+			helpers.LogError(err.Error(), component)
 		}
 		actorDetails = model.Get(actor_details.ActorDetails{GeneratedId: int64(genId)})
 
@@ -98,14 +97,14 @@ func actorDetailHandler(w http.ResponseWriter, r *http.Request) {
 	} else if len(queryParams["scene_id"]) > 0 {
 		sceneId, err := strconv.Atoi(queryParams["scene_id"][0])
 		if err != nil {
-			fmt.Println(err)
+			helpers.LogError(err.Error(), component)
 		}
 		actorDetails = model.Get(actor_details.ActorDetails{SceneId: int64(sceneId)})
 
 	} else if len(queryParams["actor_id"]) > 0 {
 		actorId, err := strconv.Atoi(queryParams["actor_id"][0])
 		if err != nil {
-			fmt.Println(err)
+			helpers.LogError(err.Error(), component)
 		}
 		actorDetails = model.Get(actor_details.ActorDetails{SceneId: int64(actorId)})
 
@@ -117,7 +116,7 @@ func actorDetailHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&actorDetails)
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
@@ -131,7 +130,7 @@ func actorsHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
 		if err != nil {
-			fmt.Println(err)
+			helpers.LogError(err.Error(), component)
 		}
 		actors = model.Get(actor.Actor{GeneratedID: int64(genId)})
 	} else if len(queryParams["name"]) > 0 {
@@ -144,7 +143,7 @@ func actorsHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&actors)
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
@@ -157,7 +156,7 @@ func scrapeActorHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["actor_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["actor_id"][0])
 		if err != nil {
-			fmt.Println(err)
+			helpers.LogError(err.Error(), component)
 		}
 		tmp := actor.Initialize().Get(actor.Actor{GeneratedID: int64(genId)})
 		if len(tmp) > 0 {
@@ -169,27 +168,33 @@ func scrapeActorHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&actors)
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
-func scanHandler(w http.ResponseWriter, r *http.Request) {
+func scanHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	uid := manager.StartScan()
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
-	encoder.Encode(&task{Uid: uid})
+	err := encoder.Encode(&task{Uid: uid})
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
 }
 
-func scrapeListHandler(w http.ResponseWriter, r *http.Request) {
+func scrapeListHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	t := make([]task, 0)
 	t = append(t, task{Uid: manager.StartScrapeActors()})
 	t = append(t, task{Uid: manager.StartScrapeStudios()})
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
-	encoder.Encode(&t)
+	err := encoder.Encode(&t)
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
 }
 
 func studiosHandler(w http.ResponseWriter, r *http.Request) {
@@ -242,14 +247,18 @@ func tagsHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&tags)
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
 func getProgress(w http.ResponseWriter, r *http.Request) {
+	type progressHolder struct {
+		Progress int `json:"progress"`
+	}
+
 	queryParams := r.URL.Query()
 
-	progress := progress{}
+	progress := progressHolder{}
 	progress.Progress = -1
 	if len(queryParams["uid"]) > 0 {
 		progress.Progress = manager.GetProgress(queryParams["uid"][0])
@@ -259,6 +268,6 @@ func getProgress(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&progress)
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 }
