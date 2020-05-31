@@ -2,17 +2,17 @@ package pornhub
 
 import (
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
+	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
 	"github.com/gocolly/colly/v2"
 	"regexp"
 	"strings"
 )
 
-func (p Pornhub) ScrapeVideo(url string) factory.VideoDetails {
+func (p Pornhub) ScrapeVideo(url string) scrapers.VideoDetails {
 	c := colly.NewCollector(colly.AllowURLRevisit(),
 		colly.UserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11"))
 
-	details := factory.VideoDetails{}
+	details := scrapers.VideoDetails{}
 
 	c.OnHTML("body", func(element *colly.HTMLElement) {
 		details.Name = element.ChildText(".title-container")
@@ -41,15 +41,15 @@ func (p Pornhub) ScrapeVideo(url string) factory.VideoDetails {
 	return details
 }
 
-func (p Pornhub) QueryVideos(query string) []factory.Videos {
+func (p Pornhub) QueryVideos(query string) []scrapers.Videos {
 	c := colly.NewCollector(colly.AllowURLRevisit(),
 		colly.UserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11"))
 
-	videos := make([]factory.Videos, 0)
+	videos := make([]scrapers.Videos, 0)
 
 	c.OnHTML(".nf-videos", func(element *colly.HTMLElement) {
 		element.ForEach(".pcVideoListItem", func(i int, element *colly.HTMLElement) {
-			video := factory.Videos{}
+			video := scrapers.Videos{}
 			video.Name = element.ChildAttr(".title > a", "title")
 			video.Url = "https://www.pornhub.com" + element.ChildAttr(".title > a", "href")
 			video.Website = p.GetWebsite()

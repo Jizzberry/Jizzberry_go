@@ -7,7 +7,6 @@ import (
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks"
 	"github.com/go-ole/go-ole"
 	"github.com/zetamatta/go-windows-shortcut"
@@ -25,10 +24,10 @@ type Rename struct {
 
 type bestMatch struct {
 	tagLen int
-	video  factory.Videos
+	video  scrapers.Videos
 }
 
-func calcTaglen(query string, results map[string][]factory.Videos) map[string][]bestMatch {
+func calcTaglen(query string, results map[string][]scrapers.Videos) map[string][]bestMatch {
 	taglenMatch := make(map[string][]bestMatch)
 
 	for website, videos := range results {
@@ -55,8 +54,8 @@ func calcTaglen(query string, results map[string][]factory.Videos) map[string][]
 	return taglenMatch
 }
 
-func getBestResult(taglenResults map[string][]bestMatch) map[string]factory.Videos {
-	topResults := make(map[string]factory.Videos, 0)
+func getBestResult(taglenResults map[string][]bestMatch) map[string]scrapers.Videos {
+	topResults := make(map[string]scrapers.Videos, 0)
 
 	for key, value := range taglenResults {
 		if len(value) > 0 {
@@ -72,8 +71,8 @@ func getBestResult(taglenResults map[string][]bestMatch) map[string]factory.Vide
 	return topResults
 }
 
-func GetRenameResult(query string) map[string]factory.VideoDetails {
-	detailMap := make(map[string]factory.VideoDetails)
+func GetRenameResult(query string) map[string]scrapers.VideoDetails {
+	detailMap := make(map[string]scrapers.VideoDetails)
 	result := scrapers.QueryVideos(query)
 	for website, a := range getBestResult(calcTaglen(query, result)) {
 		details := scrapers.ScrapeVideo(a.Url)

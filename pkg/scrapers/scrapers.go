@@ -4,14 +4,13 @@ import (
 	"context"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/pornhub"
 	"sync"
 )
 
-var actorScrapers = make([]factory.ActorsImpl, 0)
-var videoScrapers = make([]factory.VideosImpl, 0)
-var studioScrapers = make([]factory.StudiosImpl, 0)
+var actorScrapers = make([]ActorsImpl, 0)
+var videoScrapers = make([]VideosImpl, 0)
+var studioScrapers = make([]StudiosImpl, 0)
 
 func RegisterScrapers() {
 	actorScrapers = append(actorScrapers, pornhub.Pornhub{})
@@ -56,7 +55,7 @@ func ScrapeActorList(ctx context.Context, progress *int) {
 	tmp := make(chan int, len(actorScrapers))
 	progressMutex := sync.Mutex{}
 	for _, i := range actorScrapers {
-		go func(i factory.ActorsImpl) {
+		go func(i ActorsImpl) {
 			i.ScrapeActorList(ctx)
 			tmp <- 1
 			progressMutex.Lock()
@@ -70,7 +69,7 @@ func ScrapeStudioList(ctx context.Context, progress *int) {
 	tmp := make(chan int, len(studioScrapers))
 	progressMutex := sync.Mutex{}
 	for _, i := range studioScrapers {
-		go func(i factory.StudiosImpl) {
+		go func(i StudiosImpl) {
 			i.ScrapeStudiosList(ctx)
 			tmp <- 1
 			progressMutex.Lock()
@@ -80,18 +79,18 @@ func ScrapeStudioList(ctx context.Context, progress *int) {
 	}
 }
 
-func ScrapeVideo(url string) factory.VideoDetails {
+func ScrapeVideo(url string) VideoDetails {
 	for _, i := range videoScrapers {
 		if i.ParseUrl(url) {
 			return i.ScrapeVideo(url)
 		}
 	}
 
-	return factory.VideoDetails{}
+	return VideoDetails{}
 }
 
-func QueryVideos(query string) map[string][]factory.Videos {
-	scrapedVideos := make(map[string][]factory.Videos)
+func QueryVideos(query string) map[string][]Videos {
+	scrapedVideos := make(map[string][]Videos)
 	for _, i := range videoScrapers {
 		scrapedVideos[i.GetWebsite()] = i.QueryVideos(query)
 	}
