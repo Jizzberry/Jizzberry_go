@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS 'files' (
     'date_created' varchar,
     'file_size' varchar,
     'length' varchar,
-    'tags' varchar
+    'tags' varchar,
     'studios' varchar
 );
 
