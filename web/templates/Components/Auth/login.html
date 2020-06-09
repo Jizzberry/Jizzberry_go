@@ -1,66 +1,85 @@
 {{ define "login" }}
-
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, shrink-to-fit=no"
+		/>
+		<!-- Bootstrap CSS -->
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+			integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+			crossorigin="anonymous"
+		/>
 
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=1080, initial-scale=1.0, shrink-to-fit=no">
-        <meta name="description" content="Askbootstrap">
-        <meta name="author" content="Askbootstrap">
-        <title>Jizzberry</title>
-        <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="/static/css/Login-Form-Clean.css" type="text/css">
-        <link rel="stylesheet" href="/static/css/login.css" type="text/css">
-    </head>
-
-    <body style="height: auto;width: auto;">
-    <!-- Start: bg img -->
-        <svg class="bg-img" width="739" height="788" viewBox="0 0 739 788" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M419 163C363.286 163 112 179 0 0H764V280C653 195 523 163 419 163Z" fill="#FF2D92" fill-opacity="0.62"/>
-            <circle cx="855.5" cy="428.5" r="249.5" fill="#0099BB" fill-opacity="0.56"/>
-            <circle cx="585" cy="444" r="96" fill="#FF9700" fill-opacity="0.64"/>
-            <circle cx="643.5" cy="750.5" r="37.5" fill="#23EAFF"/>
-        </svg>
-        <!-- End: bg img -->
-        <div>
-            <div>
-                <!-- Start: login-container -->
-                <div class="login-container">
-                    <!-- Start: center-logo-container -->
-                    <div class="center-container">
-                        <!-- Start: txt-logo container -->
-                        <div class="d-inline-flex txt-logo-container"><img src="/static/img/txt-logo.svg"></div>
-                        <!-- End: txt-logo container -->
-                    </div>
-                    <!-- End: center-logo-container -->
-                    <div>
-                        <!-- Start: error -->
-                        <div class="center-container relative-login-container">
-                            {{.Error}}
-                        </div>
-                        <!-- End: error -->
-                        <!-- Start: form container -->
-                        <div class="relative-login-container">
-                            <form action="/auth/login/" method="post">
-                                <div class="inputContainer">
-                                    <input class="form-control" type="text" required name="username" placeholder="Username" />
-                                    <input class="form-control" type="password" required name="password" placeholder="Password" />
-                                    <button class="btn btn-primary form-control sign-in-button" type="submit">Sign In</button>
-                                </div>
-                            </form>
-                        </div>
-                        <!-- End: form container -->
-                    </div>
-                    <!-- End: form container -->
+		<link rel="stylesheet" href="/static/css/login.css" />
+		<title>Login</title>
+		<link
+			rel="icon"
+			type="image/svg+xml"
+			sizes="530x530"
+			href="/static/img/Jizzberry%20Logo.svg?h=ae70653461c1cb2d4dc19d01887c9402"
+		/>
+	</head>
+	<body>
+		<!-- ########## LOGIN STARTS ########## -->
+		<div class="login">
+			<img src="/static/img/txt-logo.svg" />
+			<h5>{{.Error}}</h5>
+            <form action="/auth/login/" method="post">
+                <div class="inp-border mb-4">
+                    <i
+                        style="margin: 0 12px 7px 0; font-size: 19px; opacity: 0.85;"
+                        class="fas fa-user"
+                    ></i>
+                    <input type="text" name="username" placeholder="Username" required />
                 </div>
-                <!-- End: login-container -->
-            </div>
-        </div>
-        <script src="/static/vendor/jquery/jquery.min.js"></script>
-        <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    </body>
+                <div class="inp-border mt-2 mb-2">
+                    <i
+                        style="margin: 0 12px 7px 0; font-size: 19px; opacity: 0.85;"
+                        class="fas fa-lock"
+                    ></i>
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        required
+                    />
+                </div>
+                <button class="btn btn-grad mt-5" type="submit">
+                    Sign In
+                </button>
+            </form>
+		</div>
+		<!-- ########## LOGIN ENDS ########## -->
 
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<script
+			src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+			integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+			integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+			integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+			crossorigin="anonymous"
+		></script>
+
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+			integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs="
+			crossorigin="anonymous"
+		></script>
+	</body>
 </html>
 {{ end }}

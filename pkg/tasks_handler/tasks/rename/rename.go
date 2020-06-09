@@ -4,11 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks"
+	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler"
 	"io"
 	"os"
 	"path/filepath"
@@ -19,92 +16,6 @@ import (
 const component = "Rename"
 
 type Rename struct {
-}
-
-type bestMatch struct {
-	tagLen int
-	video  factory.Videos
-}
-
-func calcTaglen(query string, results map[string][]factory.Videos) map[string][]bestMatch {
-	taglenMatch := make(map[string][]bestMatch)
-
-	for website, videos := range results {
-		videoSlice := make([]bestMatch, 0)
-		for _, video := range videos {
-			splitVideo := strings.FieldsFunc(video.Name, tasks.Splitter)
-			splitTitle := strings.FieldsFunc(query, tasks.Splitter)
-
-			for _, word := range splitTitle {
-				for i, match := range splitVideo {
-					if strings.ToLower(word) == strings.ToLower(match) {
-						splitVideo = append(splitVideo[:i], splitVideo[i+1:]...)
-					}
-				}
-			}
-
-			videoSlice = append(videoSlice, bestMatch{
-				tagLen: len(splitVideo),
-				video:  video,
-			})
-		}
-		taglenMatch[website] = videoSlice
-	}
-	return taglenMatch
-}
-
-func getBestResult(taglenResults map[string][]bestMatch) map[string]factory.Videos {
-	topResults := make(map[string]factory.Videos, 0)
-
-	for key, value := range taglenResults {
-		if len(value) > 0 {
-			min := value[0]
-			for _, video := range value {
-				if video.tagLen < min.tagLen {
-					min = video
-				}
-			}
-			topResults[key] = min.video
-		}
-	}
-	return topResults
-}
-
-func GetRenameResult(query string) map[string]factory.VideoDetails {
-	detailMap := make(map[string]factory.VideoDetails)
-	result := scrapers.QueryVideos(query)
-	for website, a := range getBestResult(calcTaglen(query, result)) {
-		details := scrapers.ScrapeVideo(a.Url)
-
-		for _, actor := range tasks.MatchActorToTitle(a.Name) {
-			if !sliceContains(details.Actors, actor.Name) {
-				details.Actors = append(details.Actors, actor.Name)
-			}
-		}
-
-		detailMap[website] = details
-	}
-
-	return detailMap
-}
-
-func updateDb(sceneId int64, newPath string, actors []string) error {
-	files.Initialize().Update(files.Files{
-		GeneratedID: sceneId,
-		FilePath:    newPath,
-		FileName:    strings.ReplaceAll(filepath.Base(newPath), filepath.Ext(newPath), ""),
-	})
-
-	actorDetails := actor_details.Initialize()
-	actorDetails.Delete(actor_details.ActorDetails{SceneId: sceneId})
-	for _, a := range actors {
-		data := tasks.MatchActorExact(a)
-		for _, a := range *data {
-			scraped := scrapers.ScrapeActor(sceneId, a)
-			actor_details.Initialize().Create(*scraped)
-		}
-	}
-	return nil
 }
 
 func moveFile(src, target string) error {
@@ -148,15 +59,21 @@ func makeFolders(folders []string) error {
 	return nil
 }
 
-func (r Rename) Start(sceneId int64, title string, actors []string) context.CancelFunc {
+func organize(sceneId int64, progress *int) {
+	*progress = 1
+	file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+	if len(file) < 1 {
+		return
+	}
 
-	title = FormatTitle(title, sceneId)
+	title := tasks_handler.FormatTitle(file[0].FileName, sceneId)
 
 	folders := getFolder(sceneId, title)
 	err := makeFolders(folders)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
-		return nil
+		*progress = 100
+		return
 	}
 
 	originalPaths := files.Initialize().Get(files.Files{GeneratedID: sceneId})
@@ -170,18 +87,22 @@ func (r Rename) Start(sceneId int64, title string, actors []string) context.Canc
 			folders[i], err = filepath.Abs(filepath.FromSlash(folders[i] + "/" + title + ext))
 			if err != nil {
 				helpers.LogError(err.Error(), component)
+				*progress = 100
+				return
 			}
 
 			if isFileExists(folders[i]) {
 				helpers.LogError(fmt.Sprintf("file already exists: %s", folders[i]), component)
-				return nil
+				*progress = 100
+				return
 			}
 		}
 
 		err = moveFile(originalPath, folders[0])
 		if err != nil {
 			helpers.LogError(err.Error(), component)
-			return nil
+			*progress = 100
+			return
 		}
 
 		for i := 1; i < len(folders); i++ {
@@ -190,67 +111,21 @@ func (r Rename) Start(sceneId int64, title string, actors []string) context.Canc
 				helpers.LogError(err.Error(), component)
 			}
 		}
-
-		err = updateDb(sceneId, folders[0], actors)
-		if err != nil {
-			helpers.LogError(err.Error(), component)
-		}
+		*progress = 100
 	}
-	return nil
 }
 
-func FormatTitle(title string, sceneId int64) string {
-	formatter := helpers.GetFileRenameFormatter()
-	if formatter != "" {
-		r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
-
-		if err != nil {
-			helpers.LogError(err.Error(), component+" - FormatTitle")
-			return title
-		}
-
-		matches := r.FindAllString(formatter, -1)
-
-		for _, m := range matches {
-			if strings.ToLower(m) == "{{actors}}" {
-				actors := actor_details.Initialize().Get(actor_details.ActorDetails{SceneId: sceneId})
-				strRepl := make([]string, 0)
-				for _, a := range actors {
-					strRepl = append(strRepl, a.Name)
-				}
-				formatter = strings.ReplaceAll(formatter, m, strings.Join(strRepl, ", "))
-			} else if strings.ToLower(m) == "{{title_full}}" {
-				formatter = strings.ReplaceAll(formatter, m, title)
-			} else if strings.ToLower(m) == "{{title}}" {
-				tmpTitle := title
-				actors := actor_details.Initialize().Get(actor_details.ActorDetails{SceneId: sceneId})
-				for _, a := range actors {
-					re := regexp.MustCompile(`(?i)` + a.Name)
-					tmpTitle = re.ReplaceAllString(tmpTitle, "")
-				}
-				formatter = strings.ReplaceAll(formatter, m, strings.TrimSpace(tmpTitle))
-			} else if strings.ToLower(m) == "{{tags}}" {
-				file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
-				if len(file) > 0 {
-					formatter = strings.ReplaceAll(formatter, m, file[0].Tags)
-				}
-			} else if strings.ToLower(m) == "{{studios}}" {
-				file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
-				if len(file) > 0 {
-					formatter = strings.ReplaceAll(formatter, m, file[0].Studios)
-				}
-			}
-		}
-		return formatter
-	}
-	return title
+func (r Rename) Start(sceneId int64) (*context.CancelFunc, *int) {
+	var progress int
+	go organize(sceneId, &progress)
+	return nil, &progress
 }
 
 func getBasePath(sceneId int64) string {
 	scenePaths := files.Initialize().Get(files.Files{GeneratedID: sceneId})
 	if len(scenePaths) > 0 {
 		scenePath := scenePaths[0].FilePath
-		videoPaths := helpers.GetVideoPaths()
+		videoPaths := helpers.GetConfig().Paths
 
 		for _, p := range videoPaths {
 			if strings.Contains(scenePath, p) {
@@ -262,7 +137,7 @@ func getBasePath(sceneId int64) string {
 }
 
 func getFolder(sceneId int64, title string) []string {
-	formatter := helpers.GetFolderRenameFormatter()
+	formatter := helpers.GetConfig().FolderRenameFormatter
 	r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
 
 	if err != nil {
@@ -276,19 +151,15 @@ func getFolder(sceneId int64, title string) []string {
 
 	if len(matches) == 1 {
 		if strings.ToLower(matches[0]) == "{{actors}}" {
-			actors := actor_details.Initialize().Get(actor_details.ActorDetails{SceneId: sceneId})
-			for _, a := range actors {
-				finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+a.Name))
+			actors := files.Initialize().Get(files.Files{GeneratedID: sceneId})[0].Actors
+			for _, a := range strings.Split(actors, ", ") {
+				finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+a))
 			}
 			return finalFolders
 
 		} else if strings.ToLower(matches[0]) == "{{actors_oneline}}" {
-			actors := actor_details.Initialize().Get(actor_details.ActorDetails{SceneId: sceneId})
-			strRepl := make([]string, 0)
-			for _, a := range actors {
-				strRepl = append(strRepl, a.Name)
-			}
-			finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+strings.Join(strRepl, ", ")))
+			actors := files.Initialize().Get(files.Files{GeneratedID: sceneId})[0].Actors
+			finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+actors))
 			return finalFolders
 
 		} else if strings.ToLower(matches[0]) == "{{title}}" {
@@ -315,12 +186,8 @@ func getFolder(sceneId int64, title string) []string {
 	} else {
 		for _, m := range matches {
 			if strings.ToLower(m) == "{{actors}}" {
-				actors := actor_details.Initialize().Get(actor_details.ActorDetails{SceneId: sceneId})
-				strRepl := make([]string, 0)
-				for _, a := range actors {
-					strRepl = append(strRepl, a.Name)
-				}
-				strings.ReplaceAll(formatter, m, strings.Join(strRepl, ", "))
+				actors := files.Initialize().Get(files.Files{GeneratedID: sceneId})[0].Actors
+				strings.ReplaceAll(formatter, m, actors)
 
 			} else if strings.ToLower(m) == "{{title}}" {
 				strings.ReplaceAll(formatter, m, title)
@@ -344,15 +211,6 @@ func getFolder(sceneId int64, title string) []string {
 		return append(finalFolders, basePath)
 	}
 	return finalFolders
-}
-
-func sliceContains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }
 
 func isFileExists(filePath string) bool {

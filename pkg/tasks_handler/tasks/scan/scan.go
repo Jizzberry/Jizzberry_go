@@ -5,16 +5,14 @@ import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/ffmpeg"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	files2 "github.com/Jizzberry/Jizzberry-go/pkg/models/files"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks"
+	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler"
 	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 const component = "Scan"
@@ -31,7 +29,7 @@ func worker(paths []string, ctx context.Context, progress *int) {
 	files := make([]string, 0)
 
 	for _, item := range paths {
-		tmp, err := getAllFiles(item)
+		tmp, err := tasks_handler.GetAllFiles(item)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 		}
@@ -65,18 +63,23 @@ func worker(paths []string, ctx context.Context, progress *int) {
 					ext := filepath.Ext(f)
 					file.FileName = strings.ReplaceAll(info.Name(), ext, "")
 					file.Length = ffmpeg.GetLength(f)
-					file.FileSize = strconv.FormatInt(info.Size(), 10)
-					file.DateCreated = strconv.FormatInt(info.ModTime().Unix(), 10)
+					file.FileSize = ByteCountDecimal(info.Size())
+					file.DateCreated = time.Unix(info.ModTime().Unix(), 0).Format("01-02-06")
 					file.FilePath = f
 					file.Tags = ""
-					genId := filesModel.Create(file)
-					ffmpeg.GenerateThumbnail(genId, f, 30)
-
-					data := tasks.MatchActorToTitle(info.Name())
-
-					for _, a := range data {
-						actor_details.Initialize().Create(*scrapers.ScrapeActor(genId, a))
+					data := tasks_handler.MatchActorToTitle(info.Name())
+					var join string
+					for i, a := range data {
+						join += a.Name
+						if i != len(data)-1 {
+							join += ", "
+						}
 					}
+					file.Actors = join
+
+					genId := filesModel.Create(file)
+
+					ffmpeg.GenerateThumbnail(genId, f, 30)
 
 					helpers.LogInfo(fmt.Sprintf("scanned %s successfully", f), component)
 				} else {
@@ -102,29 +105,15 @@ func (s Scan) Start(paths []string) (*context.CancelFunc, *int) {
 	return &cancel, &progress
 }
 
-func getAllFiles(path string) ([]string, error) {
-	fileList := make([]string, 0)
-	err := filepath.Walk(path, func(filePath string, f os.FileInfo, err error) error {
-		if f.IsDir() == false && isValidExt(filepath.Ext(filePath)) == true {
-			fileList = append(fileList, filePath)
-		}
-		return nil
-	})
-
-	if err != nil {
-		return fileList, err
+func ByteCountDecimal(b int64) string {
+	const unit = 1000
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
 	}
-	return fileList, nil
-}
-
-func isValidExt(ext string) bool {
-	switch ext {
-	case
-		".mp4",
-		".avi",
-		".webm",
-		".flv":
-		return true
+	div, exp := int64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
 	}
-	return false
+	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "kMGTPE"[exp])
 }

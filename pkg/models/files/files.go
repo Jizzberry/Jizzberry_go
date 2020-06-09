@@ -17,7 +17,7 @@ const (
 )
 
 type Files struct {
-	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
+	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id,string"`
 	FileName    string `row:"file_name" type:"like" json:"file_name"`
 	FilePath    string `row:"file_path" type:"like" json:"file_path"`
 	DateCreated string `row:"date_created" type:"exact" json:"date_created"`
@@ -25,6 +25,8 @@ type Files struct {
 	Length      string `row:"length" type:"exact" json:"length"`
 	Tags        string `row:"tags" type:"like" json:"tags"`
 	Studios     string `row:"studios" type:"like" json:"studios"`
+	Actors      string `row:"actors" type:"like" json:"actors"`
+	URL         string `row:"url" type:"exact" json:"url"`
 }
 
 type FilesModel struct {
@@ -105,6 +107,7 @@ func (f FilesModel) Update(files Files) {
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
+	mutexFiles.Unlock()
 }
 
 func (f FilesModel) Get(filesQuery Files) []Files {
@@ -119,7 +122,7 @@ func (f FilesModel) Get(filesQuery Files) []Files {
 
 	for row.Next() {
 		files := Files{}
-		err := row.Scan(&files.GeneratedID, &files.FileName, &files.FilePath, &files.DateCreated, &files.FileSize, &files.Length, &files.Tags, &files.Studios)
+		err := row.Scan(&files.GeneratedID, &files.FileName, &files.FilePath, &files.DateCreated, &files.FileSize, &files.Length, &files.Tags, &files.Studios, &files.Actors, &files.URL)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 		}

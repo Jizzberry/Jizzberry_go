@@ -50,6 +50,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if username != "" && password != "" {
 		if userIsValid(username, password) {
 
+			fmt.Println("valid")
+
 			session.Values[helpers.Usernamekey] = username
 			prevURL := session.Values[helpers.PrevURLKey]
 

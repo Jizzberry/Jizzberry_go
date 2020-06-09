@@ -19,7 +19,6 @@ var mutexDetails = &sync.Mutex{}
 
 type ActorDetails struct {
 	GeneratedId int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
-	SceneId     int64  `row:"scene_id" type:"exact" json:"scene_id"`
 	ActorId     int64  `row:"actor_id" type:"exact" json:"actor_id"`
 	Name        string `row:"name" type:"like" json:"name"`
 	Birthday    string `row:"born" type:"like" json:"birthday"`
@@ -52,6 +51,11 @@ func (a ActorDetailsModel) Create(details ActorDetails) int64 {
 		database.RunMigrations()
 	}
 
+	if ok, gen := a.IsExists(details.ActorId); ok {
+		mutexDetails.Unlock()
+		return gen
+	}
+
 	query, args := models.QueryBuilderCreate(details, tableName)
 
 	row, err := a.conn.Exec(query, args...)
@@ -59,6 +63,7 @@ func (a ActorDetailsModel) Create(details ActorDetails) int64 {
 	mutexDetails.Unlock()
 
 	if err != nil {
+		mutexDetails.Unlock()
 		helpers.LogError(err.Error(), component)
 		return 0
 	}
@@ -98,7 +103,7 @@ func (a ActorDetailsModel) Get(d ActorDetails) []ActorDetails {
 
 	for row.Next() {
 		details := ActorDetails{}
-		err := row.Scan(&details.GeneratedId, &details.SceneId, &details.ActorId, &details.Name, &details.Birthday, &details.Birthplace, &details.Height, &details.Weight)
+		err := row.Scan(&details.GeneratedId, &details.ActorId, &details.Name, &details.Birthday, &details.Birthplace, &details.Height, &details.Weight)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 		}
@@ -108,29 +113,27 @@ func (a ActorDetailsModel) Get(d ActorDetails) []ActorDetails {
 	return allDetails
 }
 
-func (a ActorDetailsModel) GetUnique() []ActorDetails {
-	allActors := a.Get(ActorDetails{})
-	uniqueActors := make([]ActorDetails, 0)
-	for _, a := range allActors {
-		if !contains(uniqueActors, a.ActorId) {
-			uniqueActors = append(uniqueActors, a)
-		}
-	}
-	return uniqueActors
-}
-
-func (a ActorDetailsModel) IsExists(actorId int64) bool {
+func (a ActorDetailsModel) IsExists(actorId int64) (bool, int64) {
 	rows, err := a.conn.Query(`SELECT actor_id FROM actor_details WHERE actor_id=?`, actorId)
 
 	if err != nil {
 		helpers.LogError(err.Error(), component)
-		return false
+		return false, -1
 	}
 
-	if rows.NextResultSet() {
-		return true
+	var genId int64 = -1
+	for rows.Next() {
+		err := rows.Scan(&genId)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
 	}
-	return false
+
+	if genId > -1 {
+		return true, genId
+	}
+
+	return false, -1
 }
 
 func (a ActorDetailsModel) isEmpty() bool {

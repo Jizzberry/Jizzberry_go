@@ -38,6 +38,9 @@ func (p Pornhub) ScrapeVideo(url string) factory.VideoDetails {
 	}
 	c.Wait()
 
+	details.Url = url
+	details.Website = p.GetWebsite()
+
 	return details
 }
 
@@ -69,7 +72,7 @@ func (p Pornhub) QueryVideos(query string) []factory.Videos {
 func (p Pornhub) ParseUrl(url string) bool {
 	found, err := regexp.MatchString("pornhub", url)
 	if err != nil {
-		helpers.LogError(err.Error(), p.GetWebsite()+" Scraper")
+		helpers.LogError(err.Error(), p.GetWebsite())
 	}
 	return found
 }

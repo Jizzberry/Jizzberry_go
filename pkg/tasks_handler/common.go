@@ -1,0 +1,227 @@
+package tasks_handler
+
+import (
+	"fmt"
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
+	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
+	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
+	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
+	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+)
+
+const component = "TasksCommon"
+
+func Splitter(r rune) bool {
+	return r == ' ' || r == '.' || r == '-' || r == '_' || r == '[' || r == ']' || r == '(' || r == ')'
+}
+
+func MatchActorToTitle(title string) []actor.Actor {
+	split := strings.FieldsFunc(title, Splitter)
+
+	recognisedActors := make([]actor.Actor, 0)
+
+	actorsModel := actor.Initialize()
+	defer actorsModel.Close()
+	words := make([]string, 0)
+	for i := range split {
+		// Avoid articles ig
+		if len(split[i]) > 2 && strings.ToLower(split[i]) != "the" {
+			words = append(words, split[i])
+		}
+	}
+	allActors := actorsModel.GetFromTitle(words)
+
+	for _, a := range allActors {
+		regex := RegexpBuilder(a.Name)
+		r, err := regexp.Compile(regex)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+			return recognisedActors
+		}
+
+		matches := r.FindAllString(title, -1)
+		if len(matches) > 0 {
+			recognisedActors = append(recognisedActors, a)
+		}
+	}
+
+	return recognisedActors
+}
+
+func RegexpBuilder(name string) string {
+	replacer := strings.NewReplacer(" ", "\\s*", "-", "\\s*", "_", "\\s*")
+	regex := replacer.Replace(name)
+	regex = `(?i)` + regex
+	return regex
+}
+
+func MatchActorExact(name string) *[]actor.Actor {
+	actors := make([]actor.Actor, 0)
+	actors = append(actors, actor.Initialize().GetExact(name))
+
+	return &actors
+}
+
+func UpdateDetails(sceneId int64, title string, date string, actors []string, tags []string, studios []string) {
+	files.Initialize().Update(files.Files{
+		GeneratedID: sceneId,
+		FileName:    title,
+		DateCreated: date,
+		Actors:      strings.Join(actors, ", "),
+		Tags:        strings.Join(tags, ", "),
+		Studios:     strings.Join(studios, ", "),
+	})
+
+	for _, a := range actors {
+		data := MatchActorExact(a)
+		for _, a := range *data {
+			scraped := scrapers.ScrapeActor(a)
+			actor_details.Initialize().Create(*scraped)
+		}
+	}
+}
+
+func FormatTitle(title string, sceneId int64) string {
+	formatter := helpers.GetConfig().FileRenameFormatter
+	if formatter != "" {
+		r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
+
+		if err != nil {
+			helpers.LogError(err.Error(), component+" - FormatTitle")
+			return title
+		}
+
+		matches := r.FindAllString(formatter, -1)
+		if len(matches) < 1 {
+			return title
+		}
+
+		file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+		if len(file) < 1 {
+			return title
+		}
+
+		for _, m := range matches {
+			if strings.ToLower(m) == "{{actors}}" {
+				actors := file[0].Actors
+				formatter = strings.ReplaceAll(formatter, m, actors)
+			} else if strings.ToLower(m) == "{{title_full}}" {
+				formatter = strings.ReplaceAll(formatter, m, title)
+			} else if strings.ToLower(m) == "{{title}}" {
+				tmpTitle := title
+				actors := file[0].Actors
+				for _, a := range strings.Split(actors, ", ") {
+					re := regexp.MustCompile(`(?i)` + a)
+					tmpTitle = re.ReplaceAllString(tmpTitle, "")
+				}
+				formatter = strings.ReplaceAll(formatter, m, strings.TrimSpace(tmpTitle))
+			} else if strings.ToLower(m) == "{{tags}}" {
+				formatter = strings.ReplaceAll(formatter, m, file[0].Tags)
+			} else if strings.ToLower(m) == "{{studios}}" {
+				formatter = strings.ReplaceAll(formatter, m, file[0].Studios)
+			}
+		}
+		return formatter
+	}
+	return title
+}
+
+func GetAllFiles(path string) ([]string, error) {
+	fileList := make([]string, 0)
+	err := filepath.Walk(path, func(filePath string, f os.FileInfo, err error) error {
+		if f.IsDir() == false && isValidExt(filepath.Ext(filePath)) == true {
+			fileList = append(fileList, filePath)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return fileList, err
+	}
+	return fileList, nil
+}
+
+type bestMatch struct {
+	tagLen int
+	video  factory.Videos
+}
+
+func calcTaglen(query string, results []factory.Videos) (taglenMatch []bestMatch) {
+
+	for _, videos := range results {
+		videoSlice := make([]bestMatch, 0)
+		splitVideo := strings.FieldsFunc(videos.Name, Splitter)
+		splitTitle := strings.FieldsFunc(query, Splitter)
+
+		for _, word := range splitTitle {
+			for i, match := range splitVideo {
+				if strings.ToLower(word) == strings.ToLower(match) {
+					splitVideo = append(splitVideo[:i], splitVideo[i+1:]...)
+				}
+			}
+		}
+
+		taglenMatch = append(videoSlice, bestMatch{
+			tagLen: len(splitVideo),
+			video:  videos,
+		})
+	}
+	return taglenMatch
+}
+
+func getBestResult(taglenResults []bestMatch) []factory.Videos {
+	topResults := make([]factory.Videos, 0)
+
+	min := taglenResults[0]
+	for _, value := range taglenResults {
+		if value.tagLen < min.tagLen {
+			min = value
+		}
+		topResults = append(topResults, min.video)
+	}
+	return topResults
+}
+
+func GetQueryResult(query string) []factory.VideoDetails {
+	detailMap := make([]factory.VideoDetails, 0)
+	result := scrapers.QueryVideos(query)
+	for _, a := range getBestResult(calcTaglen(query, result)) {
+		details := scrapers.ScrapeVideo(a.Url)
+		fmt.Println(details)
+
+		for _, a := range MatchActorToTitle(a.Name) {
+			if !sliceContains(details.Actors, a.Name) {
+				details.Actors = append(details.Actors, a.Name)
+			}
+		}
+
+		detailMap = append(detailMap, details)
+	}
+	return detailMap
+}
+
+func sliceContains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func isValidExt(ext string) bool {
+	switch ext {
+	case
+		".mp4",
+		".avi",
+		".webm",
+		".flv":
+		return true
+	}
+	return false
+}

@@ -10,8 +10,11 @@ import (
 
 var logger *logrus.Logger
 
+var LogDir string
+
 func Init() {
-	var dir = GetWorkingDirectory() + "/logs"
+
+	LogDir = GetWorkingDirectory() + "/logs"
 
 	logger = &logrus.Logger{
 		Out:   os.Stderr,
@@ -23,10 +26,10 @@ func Init() {
 	}
 
 	l := &lumberjack.Logger{
-		Filename:   dir + "/latest.log",
+		Filename:   LogDir + "/latest.log",
 		MaxSize:    1, // MegaBytes
-		MaxBackups: 5, // Max Files
-		MaxAge:     1, // Days
+		MaxBackups: 8, // Max Files
+		MaxAge:     7, // Days
 		Compress:   false,
 	}
 	mWriter := io.MultiWriter(os.Stderr, l)

@@ -7,7 +7,7 @@ import (
 
 type ActorsImpl interface {
 	GetWebsite() string
-	ScrapeActor(name string) actor_details.ActorDetails
+	ScrapeActor(name string) (actor_details.ActorDetails, error)
 	ScrapeActorList(ctx context.Context)
 	ScrapeImage(name string, actorId int64)
 }
@@ -24,9 +24,11 @@ type StudiosImpl interface {
 }
 
 type VideoDetails struct {
-	Name   string
-	Actors []string
-	Tags   []string
+	Name    string
+	Actors  []string
+	Tags    []string
+	Url     string
+	Website string
 }
 
 type Videos struct {

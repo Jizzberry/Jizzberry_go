@@ -1,0 +1,143 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&family=Raleway&display=swap");
+.top-nav,
+.side-title {
+	font-family: "Raleway", sans-serif;
+}
+body .sidebar {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+		Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+/* ###### BG.SVG ##### */
+body {
+	background-image: url(../img/bg.svg);
+	background-position-x: 102%;
+	background-position-y: -2.4rem;
+	background-attachment: fixed;
+	background-repeat: no-repeat;
+	background-color: rgb(250, 250, 250);
+}
+
+/* ###### TOP-NAV ##### */
+.top-nav button,
+.top-nav button:focus,
+.card-body button {
+	outline: none !important;
+	border: none !important;
+	background-color: inherit;
+	box-shadow: none !important;
+}
+.top-nav .profile-img,
+.top-nav .profile-img img {
+	height: 32px;
+	width: 32px;
+	border-radius: 50%;
+}
+/* ############ ADVANCE SEARCH ############## */
+.top-nav input {
+	box-shadow: none;
+	outline: none;
+	border: none;
+	background-color: rgb(227, 227, 227);
+	height: 2.4rem;
+	width: 85%;
+	font-size: 18px;
+	text-align: center !important;
+}
+.top-nav .search {
+	margin-top: 0.5rem;
+	display: flex;
+	align-items: center;
+	height: 2.6rem;
+	border: 1px solid rgb(227, 227, 227);
+	border-radius: 30px;
+	background-color: rgb(227, 227, 227);
+}
+.typeahead,
+.tt-query,
+.tt-hint {
+	border-radius: 8px;
+	height: 2.6rem;
+	line-height: 30px;
+	padding-right: 2.4rem;
+	width: 620px !important;
+	text-align: center !important;
+}
+.tt-query {
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+}
+.tt-hint {
+	color: rgb(227, 227, 227);
+}
+.tt-menu {
+	background-color: #ffffff;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+	margin-top: 12px;
+	width: 620px !important;
+}
+.tt-suggestion {
+	font-size: 18px;
+	padding: 5px 10px;
+}
+.tt-suggestion:hover {
+	cursor: pointer;
+	background-color: rgb(227, 227, 227);
+	color: black;
+}
+
+/* ###### SIDEBAR ##### */
+.sidebar {
+	float: left;
+	height: 92vh;
+	width: 210px;
+	justify-content: space-between;
+	background-color: #fff;
+	overflow: auto;
+}
+li,
+ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+a {
+	text-decoration: none !important;
+	width: 100%;
+	color: black;
+}
+a:hover {
+	color: black;
+}
+.grey-circle {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background-color: rgb(77, 74, 74);
+	cursor: pointer;
+}
+h5 {
+	font-weight: 400;
+	color: rgb(195, 195, 195);
+	text-align: center;
+	margin-bottom: 1.35rem;
+	font-size: 21px;
+}
+/* #### MAIN-CONTENT #### */
+.video-card {
+	margin-bottom: 30px;
+}
+.card {
+	border-radius: 15px;
+	box-sizing: border-box !important;
+	box-shadow: 0 0 10px 1px lightgray;
+}
+.card-body {
+	background-color: rgb(247, 247, 247);
+	border-radius: 0 0 15px 15px;
+	position: relative;
+	padding-bottom: 10px !important;
+	box-sizing: border-box !important;
+}
+.card-text a:hover {
+	text-decoration: underline !important;
+}

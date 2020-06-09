@@ -31,9 +31,9 @@ func (p Pornhub) ScrapeStudiosList(ctx context.Context) {
 
 	c.OnHTML("body", func(element *colly.HTMLElement) {
 		element.ForEach(".channelGridWrapper", func(i int, element *colly.HTMLElement) {
-			studs := make([]studios.Studios, 0)
+			studs := make([]studios.Studio, 0)
 			for _, s := range element.ChildTexts(".usernameLink") {
-				studs = append(studs, studios.Studios{Studio: s})
+				studs = append(studs, studios.Studio{Studio: s})
 			}
 			studios.Initialize().Create(studs)
 		})

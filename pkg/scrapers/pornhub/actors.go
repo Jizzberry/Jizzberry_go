@@ -60,7 +60,16 @@ func getDetails(url string) (actor_details.ActorDetails, error) {
 		}
 	})
 
-	err := c.Visit(url)
+	var err error
+	c.OnError(func(response *colly.Response, e error) {
+		err = e
+	})
+
+	if err != nil {
+		return actorDetails, err
+	}
+
+	err = c.Visit(url)
 	if err != nil {
 		return actorDetails, err
 	}
@@ -69,13 +78,13 @@ func getDetails(url string) (actor_details.ActorDetails, error) {
 	return actorDetails, nil
 }
 
-func (p Pornhub) ScrapeActor(name string) actor_details.ActorDetails {
+func (p Pornhub) ScrapeActor(name string) (actor_details.ActorDetails, error) {
 	name = strings.ReplaceAll(name, " ", "-")
 	details, err := getDetails("https://www.pornhub.com/pornstar/" + name)
 	if err != nil {
 		helpers.LogError(err.Error(), p.GetWebsite())
 	}
-	return details
+	return details, err
 }
 
 func (p Pornhub) GetWebsite() string {

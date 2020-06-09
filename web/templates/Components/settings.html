@@ -1,0 +1,369 @@
+{{ define "settings" }}
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, shrink-to-fit=no"
+		/>
+
+		<!-- Bootstrap CSS -->
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+			integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+			crossorigin="anonymous"
+		/>
+
+		<link rel="stylesheet" href="/static/css/settings.css" />
+		<title>Settings!</title>
+		<link
+			rel="icon"
+			type="image/svg+xml"
+			sizes="530x530"
+			href="/static/img/Jizzberry%20Logo.svg?h=ae70653461c1cb2d4dc19d01887c9402"
+		/>
+	</head>
+
+	<body>
+	<script
+			src="https://code.jquery.com/jquery-3.5.1.min.js"
+			integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+			crossorigin="anonymous"></script>
+	<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+			integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+			crossorigin="anonymous"
+	></script>
+	<script
+			src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+			integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+			crossorigin="anonymous"
+	></script>
+	<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+			integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs="
+			crossorigin="anonymous"
+	></script>
+	<script src="https://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
+
+	{{template "topbar"}}
+
+	<!-- ########## BELOW TOP-NAV STARTS ########## -->
+	<main style="position: relative; top: 59px;">
+
+		{{template "sidenav"}}
+
+			<!-- ########## MAIN-CONTENT STARTS ########## -->
+			<div
+				id="content"
+				style="position: absolute; padding-left: 13rem; width: 100%;"
+				class="main-content"
+			>
+				<div id="config" hidden>
+					<div class="pt-5 pl-5">
+						<div class="config">
+							<h4
+								class="mb-4"
+								style="font-family: Raleway, sans-serif; font-weight: 600;"
+							>
+								Config
+							</h4>
+							<div class="added-path mb-5">
+								<span style="display: flex;">
+									<h5>
+										Added Paths
+									</h5>
+									<div
+										style="margin-left: 1rem;"
+										class="btn config-grey-circle"
+										data-toggle="modal"
+										data-target="#fileBrowseModal"
+										onclick="getFolders('')"
+									>
+										<a href="#"></a>
+									</div>
+								</span>
+								<hr class="mt-0" />
+								<nav>
+									{{range $val := .Config.Paths}}
+									<div style="margin-bottom: 0.7rem;" class="path-link">
+										<span><a href="#">{{$val}}</a></span>
+										<span>
+											<div class="btn config-grey-circle" onclick="removePath('{{$val}}')">
+												<i style="opacity: 0.65;" class="fas fa-times"></i>
+												<a href="#"></a>
+											</div>
+										</span>
+									</div>
+									{{ end }}
+								</nav>
+							</div>
+							<div class="rename-config mb-5">
+								<h5>Rename Config</h5>
+								<hr class="mt-0" />
+								<div class="mb-3">
+									<div class="d-flex">
+										<fieldset class="mr-4">
+											<legend>File Rename Formatter</legend>
+											<input
+												type="text"
+												id="fileForm"
+												name="fname"
+												value="{{ .Config.FileRenameFormatter }}"
+											/>
+										</fieldset>
+										<div
+											style="margin-left: 1rem;"
+											class="btn mt-4 ml-3 config-grey-circle"
+										>
+											<a href="#"></a>
+										</div>
+									</div>
+								</div>
+								<div>
+									<div class="d-flex">
+										<fieldset class="mr-4">
+											<legend>Folder Rename Formatter</legend>
+											<input
+												type="text"
+												id="folderForm"
+												name="fname"
+												value="{{ .Config.FolderRenameFormatter }}"
+											/>
+										</fieldset>
+										<div
+											style="margin-left: 1rem;"
+											class="btn mt-4 ml-3 config-grey-circle"
+										>
+											<a href="#"></a>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="tags mb-5">
+								<h5>Tags</h5>
+								<hr class="mt-0" />
+								<div class="tag-cards d-flex">
+									<div
+										class="card mr-5"
+										style="
+											width: 8rem;
+											border: none;
+											background-color: rgb(250, 250, 250);
+										"
+									>
+										<a href="#">
+											<img
+												style="
+													background-color: lightgray;
+													border-radius: 10px;
+												"
+												class="card-img-top"
+												src="/static/img/plus.png"
+											/>
+										</a>
+										<div class="card-body p-0">
+											<p class="text-center card-text">
+												New Tag
+											</p>
+										</div>
+									</div>
+									{{range $val := .Tags}}
+									<div
+										class="card mr-5"
+										style="
+											width: 8rem;
+											border: none;
+											background-color: rgb(250, 250, 250);
+										">
+										<a href="#">
+											<img
+													style="
+													background-color: lightgray;
+													border-radius: 10px;
+												"
+													class="card-img-top"
+													src="/static/img/plus.png"
+											/>
+										</a>
+										<div class="card-body p-0">
+											<p class="text-center card-text">
+												{{$val.Name}}
+												<br />
+												<span style="font-size: 12px;" class="text-muted"
+													>{{$val.Count}} videos</span>
+											</p>
+										</div>
+									</div>
+									{{ end }}
+								</div>
+							</div>
+							<div class="Users mb-2">
+								<h5>Users</h5>
+								<hr class="mt-0" />
+								<div class="tag-cards d-flex">
+									<div
+										class="card mr-5"
+										style="
+											width: 8rem;
+											border: none;
+											background-color: rgb(250, 250, 250);
+										"
+									>
+										<a href="#">
+											<img
+												style="
+													background-color: lightgray;
+													border-radius: 10px;
+												"
+												class="card-img-top"
+												src="/static/img/plus.png"
+											/>
+										</a>
+										<div class="card-body p-0">
+											<p class="text-center card-text">
+												New User
+											</p>
+										</div>
+									</div>
+									{{range $val := .Users}}
+									<div
+										class="card mr-5"
+										style="
+											width: 8rem;
+											border: none;
+											background-color: rgb(250, 250, 250);
+										"
+									>
+										<a href="#">
+											<img
+												style="
+													background-color: rgba(241, 27, 70, 0.75);
+													border-radius: 10px;
+												"
+												class="card-img-top"
+												src="/static/img/plus.png"
+											/>
+										</a>
+										<div class="card-body p-0">
+											<p class="text-center card-text">
+												{{ $val.Username }}
+												<br />
+												<span style="font-size: 12px;" class="text-muted"
+													>[online status]</span>
+											</p>
+										</div>
+									</div>
+									{{ end }}
+								</div>
+							</div>
+						</div>
+						<!-- ########## 2 CONFIG-PG BUTTONS STARTS ########### -->
+						<div class="btn-grp">
+							<button class="btn reset-btn" type="button">
+								Reset
+							</button>
+							<button class="btn save-btn" type="button" onclick="postConfig();">
+								Save
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<div id="tasks">
+					<div class="pt-5 pl-5" id="tasks-container">
+						<h4
+							class="mb-4"
+							style="font-family: Raleway, sans-serif; font-weight: 600;"
+						>
+							Running Tasks
+						</h4>
+						<!-- ########## TASK DROPDOWN STARTS ########## -->
+						<div class="task-stats mb-4" style="overflow: hidden">
+							<div class="stats-head d-flex">
+								<div class="d-flex ml-2">
+									<span></span>
+									<p style="font-weight: 700;" class="mr-3 mb-0 pt-2" id="scan-textprogress"></p>
+									<p style="font-style: italic;" class="ml-1 mb-0 pt-2">
+										Scan
+									</p>
+								</div>
+								<div class="stats-btn-grp d-flex">
+									<button style="width: 3rem;" class="btn" id="scan-stop" hidden onclick="stopTask('scan');">
+										<i class="fas fa-stop"></i>
+									</button>
+									<button style="width: 3rem;" class="btn" id="scan-play" onclick="startScan();">
+										<i style="color: #149ddd;" class="fas fa-play"></i>
+									</button>
+									<button style="width: 3rem;" class="btn" id="scan-redo" hidden onclick="startScan();">
+										<i style="color: #149ddd;" class="fas fa-redo-alt"></i>
+									</button>
+									<button style="width: 3rem;" class="btn" id="scan-angle-down" hidden>
+										<i class="fas fa-angle-down"></i>
+									</button>
+								</div>
+							</div>
+							<div class="stats-body d-flex flex-column" id="scan-body" style="height: 0">
+								<div class="progress my-3">
+									<div
+										class="progress-bar"
+										role="progressbar"
+										id="scan-progressbar"
+										style="width: 0;"
+									></div>
+								</div>
+								<div class="p-grp d-flex">
+									<p class="mr-5">
+										<strong class="mr-1">Started:</strong
+										><span>69 min ago</span>
+									</p>
+									<p class="mr-5">
+										<strong class="mr-1">Status:</strong><span>alive</span>
+									</p>
+								</div>
+							</div>
+						</div>
+						<!-- ########## TASK DROPDOWN ENDS ########## -->
+					</div>
+				</div>
+
+				<div id="logs" hidden>
+					<div class="pt-5 pl-5">
+						<h4
+							class="mb-4"
+							style="font-family: Raleway, sans-serif; font-weight: 600;"
+						>
+							Logs
+						</h4>
+						<div class="row m-0">
+							<div class="col-11 p-0">
+								<div class="list-group mt-1" id="list-tab" role="tablist">
+								</div>
+							</div>
+							<div class="mt-3 col-11 p-0">
+								<div
+									class="tab-content"
+									style="border-radius: 7px;"
+									id="nav-tabContent"
+								>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		{{ template "filebrowse_modal"}}
+			<!-- ########## MAIN-CONTENT ENDS ########## -->
+		</main>
+
+		<script src="/static/js/search.js"></script>
+		<script src="/static/js/settings.js"></script>
+	</body>
+</html>
+
+{{ end }}

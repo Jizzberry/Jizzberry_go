@@ -29,6 +29,7 @@ func parseTemplates() *template.Template {
 	err := pkger.Walk("/web/templates/Components", func(path string, info os.FileInfo, err error) error {
 		if filepath.Ext(path) == ".html" {
 			open, err := pkger.Open(path)
+			fmt.Println(path)
 			if err != nil {
 				return err
 			}

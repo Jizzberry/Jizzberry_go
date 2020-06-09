@@ -13,9 +13,10 @@ const (
 	component = "tagsModel"
 )
 
-type Tags struct {
+type Tag struct {
 	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
 	Name        string `row:"tag" type:"like" json:"generated_id"`
+	Count       int64  `row:"count" type:"exact" json:"count"`
 }
 
 type TagsModel struct {
@@ -81,7 +82,7 @@ func (t TagsModel) IsExists(filePath string) (int64, bool) {
 	return -1, false
 }
 
-func (t TagsModel) Create(tags Tags) int64 {
+func (t TagsModel) Create(tags Tag) int64 {
 	genId, exists := t.IsExists(tags.Name)
 
 	if exists {
@@ -111,9 +112,9 @@ func (t TagsModel) Delete(tag string) {
 	}
 }
 
-func (t TagsModel) Get(tagsQuery Tags) []Tags {
+func (t TagsModel) Get(tagsQuery Tag) []Tag {
 	query, args := models.QueryBuilderGet(tagsQuery, tableName)
-	allTags := make([]Tags, 0)
+	allTags := make([]Tag, 0)
 
 	row, err := t.conn.Query(query, args...)
 	if err != nil {
@@ -122,12 +123,12 @@ func (t TagsModel) Get(tagsQuery Tags) []Tags {
 	}
 
 	for row.Next() {
-		tags := Tags{}
-		err := row.Scan(&tags.GeneratedID, &tags.Name)
+		tag := Tag{}
+		err := row.Scan(&tag.GeneratedID, &tag.Name, &tag.Count)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 		}
-		allTags = append(allTags, tags)
+		allTags = append(allTags, tag)
 	}
 
 	return allTags

@@ -13,9 +13,10 @@ const (
 	component = "studiosModel"
 )
 
-type Studios struct {
+type Studio struct {
 	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
 	Studio      string `row:"studio" type:"like" json:"generated_id"`
+	Count       int64  `row:"count" type:"exact" json:"count"`
 }
 
 type StudiosModel struct {
@@ -81,7 +82,7 @@ func (s StudiosModel) IsExists(studio string) (int64, bool) {
 	return -1, false
 }
 
-func (s StudiosModel) Create(studios []Studios) {
+func (s StudiosModel) Create(studios []Studio) {
 	tx, err := s.conn.Begin()
 
 	if err != nil {
@@ -117,9 +118,9 @@ func (s StudiosModel) Delete(studio string) {
 	}
 }
 
-func (s StudiosModel) Get(studiosQuery Studios) []Studios {
+func (s StudiosModel) Get(studiosQuery Studio) []Studio {
 	query, args := models.QueryBuilderGet(studiosQuery, tableName)
-	allStudios := make([]Studios, 0)
+	allStudios := make([]Studio, 0)
 
 	row, err := s.conn.Query(query, args...)
 	if err != nil {
@@ -128,12 +129,12 @@ func (s StudiosModel) Get(studiosQuery Studios) []Studios {
 	}
 
 	for row.Next() {
-		studios := Studios{}
-		err := row.Scan(&studios.GeneratedID, &studios.Studio)
+		studio := Studio{}
+		err := row.Scan(&studio.GeneratedID, &studio.Studio, &studio.Count)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 		}
-		allStudios = append(allStudios, studios)
+		allStudios = append(allStudios, studio)
 	}
 
 	return allStudios

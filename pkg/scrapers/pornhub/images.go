@@ -69,7 +69,7 @@ func (p Pornhub) ScrapeImage(name string, actorId int64) {
 	if err != nil {
 		err = getImages2("https://www.pornhub.com/pornstar/"+name, actorId)
 		if err != nil {
-			helpers.LogError(err.Error(), p.GetWebsite()+" Scraper")
+			helpers.LogError(err.Error(), p.GetWebsite())
 		}
 	}
 }

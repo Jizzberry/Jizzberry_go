@@ -206,8 +206,8 @@ func isValidExt(ext string) bool {
 }
 
 func IsExists() error {
-	execPathFFMPEG := getExecs(filepath.Dir(helpers.GetFFMPEGPath()), "ffmpeg")
-	execPathProbe := getExecs(filepath.Dir(helpers.GetFFPROBEPath()), "ffprobe")
+	execPathFFMPEG := getExecs(filepath.Dir(helpers.GetConfig().FFMEPG), "ffmpeg")
+	execPathProbe := getExecs(filepath.Dir(helpers.GetConfig().FFPROBE), "ffprobe")
 
 	if execPathFFMPEG == "" || execPathProbe == "" {
 		helpers.LogWarning("couldn't find ffmpeg or ffprobe executables", component)
@@ -223,7 +223,10 @@ func IsExists() error {
 		execPathProbe = getExecs("", "ffprobe")
 		execPathFFMPEG = getExecs("", "ffmpeg")
 	}
-	helpers.WriteFFMPEGPath(execPathFFMPEG)
-	helpers.WriteFFPROBEPath(execPathProbe)
+	config := helpers.Config{
+		FFMEPG:  execPathFFMPEG,
+		FFPROBE: execPathProbe,
+	}
+	helpers.WriteConfig(config)
 	return nil
 }

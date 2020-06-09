@@ -3,11 +3,12 @@ module github.com/Jizzberry/Jizzberry-go
 go 1.14
 
 require (
+	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-ole/go-ole v1.2.4
 	github.com/gocolly/colly/v2 v2.0.1
-	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/sessions v1.2.0
+	github.com/gorilla/websocket v1.4.2
 	github.com/markbates/pkger v0.16.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/rubenv/sql-migrate v0.0.0-20200429072036-ae26b214fa43
