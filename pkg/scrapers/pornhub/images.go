@@ -57,7 +57,7 @@ func getImages(url string, actorId int64) error {
 	c.Wait()
 
 	if !gotImg {
-		return fmt.Errorf("failed to aquire image")
+		return fmt.Errorf("failed to aquire image for actorID %d", actorId)
 	}
 
 	return nil
@@ -78,7 +78,7 @@ func downloadImage(url string, actorId int64) error {
 	imageC := colly.NewCollector()
 	var err error
 	imageC.OnResponse(func(response *colly.Response) {
-		err = response.Save(filepath.FromSlash(helpers.ThumbnailPath + "/" + strconv.FormatInt(actorId, 10)))
+		err = response.Save(filepath.FromSlash(helpers.ThumbnailPath + "/p" + strconv.FormatInt(actorId, 10)))
 	})
 	err = imageC.Visit(url)
 	return err

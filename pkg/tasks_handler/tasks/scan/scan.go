@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/ffmpeg"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	files2 "github.com/Jizzberry/Jizzberry-go/pkg/models/files"
+	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler"
 	"os"
 	"path/filepath"
@@ -70,6 +72,8 @@ func worker(paths []string, ctx context.Context, progress *int) {
 					data := tasks_handler.MatchActorToTitle(info.Name())
 					var join string
 					for i, a := range data {
+						scraped := scrapers.ScrapeActor(a)
+						actor_details.Initialize().Create(*scraped)
 						join += a.Name
 						if i != len(data)-1 {
 							join += ", "

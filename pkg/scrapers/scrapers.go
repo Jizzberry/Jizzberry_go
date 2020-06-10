@@ -2,7 +2,6 @@ package scrapers
 
 import (
 	"context"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
@@ -28,15 +27,11 @@ func ScrapeActor(actors actor.Actor) *actor_details.ActorDetails {
 	if ok, _ := detailsModel.IsExists(actors.GeneratedID); !ok {
 		for _, i := range actorScrapers {
 			if i.GetWebsite() == actors.Website {
-				details, err := i.ScrapeActor(actors.Name)
+				details, _ := i.ScrapeActor(actors.Name)
 				i.ScrapeImage(actors.Name, actors.GeneratedID)
 
-				if err != nil {
-					helpers.LogError(err.Error(), component)
-					return &details
-				}
-
 				details.ActorId = actors.GeneratedID
+				details.Name = actors.Name
 				return &details
 			}
 		}

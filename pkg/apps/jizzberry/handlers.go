@@ -1,6 +1,7 @@
 package jizzberry
 
 import (
+	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/auth"
@@ -31,13 +32,15 @@ type Context struct {
 const baseURL = "/Jizzberry"
 
 func (a Jizzberry) Register(r *mux.Router) {
-	authRouter := r.PathPrefix(baseURL).Subrouter()
-	authRouter.HandleFunc("/home", homeHandler)
-	authRouter.HandleFunc("/tags", allCategoriesHandler)
-	authRouter.HandleFunc("/actors", allActorsHandler)
-	authRouter.HandleFunc("/scene/{scene_id}", singleSceneHandler)
-	authRouter.HandleFunc("/stream/{scene_id}", streamHandler)
-	authRouter.HandleFunc("/settings", settingsHandler)
+	htmlRouter := r.PathPrefix(baseURL).Subrouter()
+	htmlRouter.StrictSlash(true)
+	htmlRouter.HandleFunc("/home", homeHandler)
+	htmlRouter.HandleFunc("/tags", allCategoriesHandler)
+	htmlRouter.HandleFunc("/actors", allActorsHandler)
+	htmlRouter.HandleFunc("/actors/{actor_id}", singleActorHanlder)
+	htmlRouter.HandleFunc("/scene/{scene_id}", singleSceneHandler)
+	htmlRouter.HandleFunc("/stream/{scene_id}", streamHandler)
+	htmlRouter.HandleFunc("/settings", settingsHandler)
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +71,39 @@ func allActorsHandler(w http.ResponseWriter, r *http.Request) {
 	allActors := actor_details.Initialize().Get(actor_details.ActorDetails{})
 
 	err := helpers.Render(w, http.StatusOK, "actors", Context{Actors: allActors})
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
+}
+
+func singleActorHanlder(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "text/html")
+
+	vars := mux.Vars(r)
+	actorIDstr, _ := vars["actor_id"]
+
+	filesIDs := files.GetActorRelations(actorIDstr)
+
+	filesModel := files.Initialize()
+	context := Context{}
+
+	for _, f := range filesIDs {
+		i, err := strconv.ParseInt(f, 10, 64)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
+		context.Files = append(context.Files, filesModel.Get(files.Files{GeneratedID: i})...)
+	}
+
+	actorID, err := strconv.ParseInt(actorIDstr, 10, 64)
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
+	actorDetails := actor_details.Initialize().Get(actor_details.ActorDetails{ActorId: actorID})
+	context.Actors = actorDetails
+	fmt.Println(context.Actors)
+
+	err = helpers.Render(w, http.StatusOK, "singleChannel", context)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}

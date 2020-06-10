@@ -2,10 +2,19 @@ package files
 
 import (
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models"
+	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
+	"github.com/Jizzberry/Jizzberry-go/pkg/models/studios"
+	"github.com/Jizzberry/Jizzberry-go/pkg/models/tags"
+	"io/ioutil"
+	"os"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -63,9 +72,15 @@ func (f FilesModel) Create(files Files) int64 {
 		return 0
 	}
 
-	genID, _ := row.LastInsertId()
+	genID, err := row.LastInsertId()
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	defer f.Close()
+	setActorRelation(genID, files.Actors)
+	setStudioRelation(genID, files.Studios)
+	setTagRelation(genID, files.Tags)
 	return genID
 }
 
@@ -86,7 +101,13 @@ func (f FilesModel) Delete(files Files) {
 	_, err := f.conn.Exec(query, args...)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
+		mutexFiles.Unlock()
+		return
 	}
+	setActorRelation(files.GeneratedID, "")
+	setStudioRelation(files.GeneratedID, "")
+	setTagRelation(files.GeneratedID, "")
+	mutexFiles.Unlock()
 }
 
 func (f FilesModel) Update(files Files) {
@@ -106,8 +127,15 @@ func (f FilesModel) Update(files Files) {
 	_, err := f.conn.Exec(query, args...)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
+		mutexFiles.Unlock()
+		return
 	}
+
+	setActorRelation(files.GeneratedID, files.Actors)
+	setStudioRelation(files.GeneratedID, files.Studios)
+	setTagRelation(files.GeneratedID, files.Tags)
 	mutexFiles.Unlock()
+
 }
 
 func (f FilesModel) Get(filesQuery Files) []Files {
@@ -178,4 +206,129 @@ func (f FilesModel) IsExists(filePath string) (int64, bool) {
 	}
 
 	return -1, false
+}
+
+func setActorRelation(genId int64, actors string) {
+
+	actorsSli := strings.Split(actors, ", ")
+
+	jsonFile := readJson(router.GetJson("actorsRelation"))
+	defer jsonFile.Close()
+
+	relation := parseJson(jsonFile)
+	deleteRelation(&relation, strconv.FormatInt(genId, 10))
+	if relation != nil {
+		if actors != "" {
+			actorsModel := actor.Initialize()
+			for _, a := range actorsSli {
+				tmp := actorsModel.GetExact(a)
+				relation[strconv.FormatInt(tmp.GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp.GeneratedID, 10)], strconv.FormatInt(genId, 10))
+			}
+		}
+		writeJson(jsonFile, relation)
+	}
+}
+
+func GetActorRelations(ActorID string) []string {
+	jsonFile := readJson(router.GetJson("actorsRelation"))
+	defer jsonFile.Close()
+
+	relation := parseJson(jsonFile)
+	if val, ok := relation[ActorID]; ok {
+		return val
+	}
+	return nil
+}
+
+func setStudioRelation(genId int64, studio string) {
+	split := strings.Split(studio, ", ")
+
+	jsonFile := readJson(router.GetJson("studiosRelation"))
+	defer jsonFile.Close()
+
+	relation := parseJson(jsonFile)
+	deleteRelation(&relation, strconv.FormatInt(genId, 10))
+
+	if relation != nil {
+		if studio != "" {
+			studiosModel := studios.Initialize()
+			for _, s := range split {
+				tmp := studiosModel.Get(studios.Studio{Studio: s})[0]
+				relation[strconv.FormatInt(tmp.GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp.GeneratedID, 10)], strconv.FormatInt(genId, 10))
+			}
+		}
+
+		writeJson(jsonFile, relation)
+	}
+
+}
+
+func setTagRelation(genId int64, tag string) {
+	split := strings.Split(tag, ", ")
+
+	jsonFile := readJson(router.GetJson("tagsRelation"))
+	defer jsonFile.Close()
+
+	relation := parseJson(jsonFile)
+	deleteRelation(&relation, strconv.FormatInt(genId, 10))
+
+	if relation != nil {
+		if tag != "" {
+			tagsModel := tags.Initialize()
+			for _, t := range split {
+				tmp := tagsModel.Get(tags.Tag{Name: t})[0]
+				relation[strconv.FormatInt(tmp.GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp.GeneratedID, 10)], strconv.FormatInt(genId, 10))
+			}
+		}
+
+		writeJson(jsonFile, relation)
+	}
+
+}
+
+func deleteRelation(relations *map[string][]string, genID string) {
+	if relations != nil {
+		for key, value := range *relations {
+			for _, v := range value {
+				if v == genID {
+					delete(*relations, key)
+				}
+			}
+		}
+	}
+}
+
+func readJson(filename string) *os.File {
+	jsonFile, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+		return nil
+	}
+	return jsonFile
+}
+
+func parseJson(file *os.File) map[string][]string {
+
+	byteValue, _ := ioutil.ReadAll(file)
+	relation := make(map[string][]string)
+
+	if len(byteValue) > 0 {
+		err := json.Unmarshal(byteValue, &relation)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
+	}
+	return relation
+}
+
+func writeJson(file *os.File, relation map[string][]string) {
+	bytes, err := json.Marshal(relation)
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
+
+	_, err = file.WriteAt(bytes, 0)
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
 }
