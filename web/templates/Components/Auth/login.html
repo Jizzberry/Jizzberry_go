@@ -1,85 +1,39 @@
 {{ define "login" }}
-<!DOCTYPE html>
-<html lang="en">
+	<!DOCTYPE html>
+
+	<html lang="en">
 	<head>
-		<!-- Required meta tags -->
-		<meta charset="utf-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1, shrink-to-fit=no"
-		/>
-		<!-- Bootstrap CSS -->
-		<link
-			rel="stylesheet"
-			href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-			integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
-			crossorigin="anonymous"
-		/>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+		<link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" rel="stylesheet">
+		<link href="/static/css/login.css" rel="stylesheet">
 
-		<link rel="stylesheet" href="/static/css/login.css" />
 		<title>Login</title>
-		<link
-			rel="icon"
-			type="image/svg+xml"
-			sizes="530x530"
-			href="/static/img/Jizzberry%20Logo.svg?h=ae70653461c1cb2d4dc19d01887c9402"
-		/>
+		<link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
 	</head>
+
 	<body>
-		<!-- ########## LOGIN STARTS ########## -->
-		<div class="login">
-			<img src="/static/img/txt-logo.svg" />
-			<h5>{{.Error}}</h5>
-            <form action="/auth/login/" method="post">
-                <div class="inp-border mb-4">
-                    <i
-                        style="margin: 0 12px 7px 0; font-size: 19px; opacity: 0.85;"
-                        class="fas fa-user"
-                    ></i>
-                    <input type="text" name="username" placeholder="Username" required />
-                </div>
-                <div class="inp-border mt-2 mb-2">
-                    <i
-                        style="margin: 0 12px 7px 0; font-size: 19px; opacity: 0.85;"
-                        class="fas fa-lock"
-                    ></i>
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        required
-                    />
-                </div>
-                <button class="btn btn-grad mt-5" type="submit">
-                    Sign In
-                </button>
-            </form>
-		</div>
-		<!-- ########## LOGIN ENDS ########## -->
+	<div class="login">
+		<img src="/static/img/txt-logo.svg">
 
-		<!-- Optional JavaScript -->
-		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-		<script
-			src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-			integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-			crossorigin="anonymous"
-		></script>
-		<script
-			src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-			integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-			crossorigin="anonymous"
-		></script>
-		<script
-			src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
-			integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
-			crossorigin="anonymous"
-		></script>
+		<h5>{{.Error}}</h5>
 
-		<script
-			src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
-			integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs="
-			crossorigin="anonymous"
-		></script>
+
+		<form action="/auth/login/" method="post">
+			<div class="inp-border mb-4">
+				<i class="fas fa-user" style="margin: 0 12px 7px 0; font-size: 19px; opacity: 0.85;"></i> <input name="username" placeholder="Username" required="" type="text">
+			</div>
+
+
+			<div class="inp-border mt-2 mb-2">
+				<i class="fas fa-lock" style="margin: 0 12px 7px 0; font-size: 19px; opacity: 0.85;"></i> <input name="password" placeholder="Password" required="" type="password">
+			</div>
+			<button class="btn btn-grad mt-5" type="submit">Sign In</button>
+		</form>
+	</div>
+	<script src="/static/vendor/jquery/jquery.min.js"></script>
+	<script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<script src="/static/vendor/fontawesome/js/all.min.js"></script>
 	</body>
-</html>
+	</html>
 {{ end }}

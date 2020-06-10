@@ -1,7 +1,6 @@
 package jizzberry
 
 import (
-	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/auth"
@@ -101,7 +100,6 @@ func singleActorHanlder(w http.ResponseWriter, r *http.Request) {
 	}
 	actorDetails := actor_details.Initialize().Get(actor_details.ActorDetails{ActorId: actorID})
 	context.Actors = actorDetails
-	fmt.Println(context.Actors)
 
 	err = helpers.Render(w, http.StatusOK, "singleChannel", context)
 	if err != nil {

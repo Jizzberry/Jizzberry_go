@@ -1,62 +1,62 @@
 :root {
-	--grad: linear-gradient(90deg, #ff5555, #7bc8ff);
-	--login-mt: 16vh;
-	--h5-mt: 1.8rem;
-	--h5-mb: 4.5rem;
+    --grad: linear-gradient(90deg, #ff5555, #7bc8ff);
+    --login-mt: 16vh;
+    --h5-mt: 1.8rem;
+    --h5-mb: 4.5rem;
 }
 /* ###### BG.SVG ##### */
 body {
-	background-image: url(../img/bg.svg);
-	background-position-x: 102%;
-	background-position-y: -2.4rem;
-	background-attachment: fixed;
-	background-repeat: no-repeat;
-	background-color: rgb(255, 255, 255);
-	font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background-image: url(../img/bg.svg);
+    background-position-x: 102%;
+    background-position-y: -2.4rem;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-color: rgb(255, 255, 255);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 /* ###### LOGIN ##### */
 .login {
-	margin-top: var(--login-mt);
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+    margin-top: var(--login-mt);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 h5 {
-	font-weight: 600;
-	margin-top: var(--h5-mt);
-	margin-bottom: var(--h5-mb);
-	opacity: 0.85;
+    font-weight: 600;
+    margin-top: var(--h5-mt);
+    margin-bottom: var(--h5-mb);
+    opacity: 0.85;
 }
 
 input {
-	font-size: 19px;
-	width: 21rem;
-	background-color: rgb(255, 255, 255) !important;
-	border: none !important;
-	border-radius: 0% !important;
-	outline: none !important;
+    font-size: 19px;
+    width: 21rem;
+    background-color: rgb(255, 255, 255) !important;
+    border: none !important;
+    border-radius: 0 !important;
+    outline: none !important;
 }
 input,
 button {
-	box-shadow: none !important;
-	border: none !important;
-	outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
 }
 .inp-border {
-	display: flex;
-	align-items: flex-end;
-	border-bottom: 1.6px solid !important;
-	border-image: var(--grad);
-	border-image-slice: 1;
+    display: flex;
+    align-items: flex-end;
+    border-bottom: 2px solid !important;
+    border-image: var(--grad);
+    border-image-slice: 1;
 }
 button {
-	height: 50px;
-	width: 24rem;
-	color: rgb(255, 255, 255) !important;
-	border-radius: 10px !important;
+    height: 50px;
+    width: 24rem;
+    color: rgb(255, 255, 255) !important;
+    border-radius: 10px !important;
 }
 .btn-grad {
-	background-image: var(--grad);
-	font-size: 18px;
+    background-image: var(--grad);
+    font-size: 18px;
 }

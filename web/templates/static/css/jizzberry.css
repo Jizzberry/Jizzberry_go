@@ -1,0 +1,386 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&family=Raleway&display=swap");
+.top-nav,
+.side-title {
+    font-family: "Raleway", sans-serif;
+}
+body .sidebar {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+/* ###### BG.SVG ##### */
+body {
+    background-image: url(../img/bg.svg);
+    background-position-x: 102%;
+    background-position-y: -2.4rem;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-color: rgb(250, 250, 250);
+}
+
+/* ###### TOP-NAV ##### */
+.top-nav button,
+.top-nav button:focus,
+.video-card-body button {
+    outline: none !important;
+    border: none !important;
+    background-color: inherit;
+    box-shadow: none !important;
+}
+.top-nav .profile-img,
+.top-nav .profile-img img {
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+}
+/* ############ ADVANCE SEARCH ############## */
+.top-nav input {
+    box-shadow: none;
+    outline: none;
+    border: none;
+    background-color: rgb(227, 227, 227);
+    height: 2.4rem;
+    width: 85%;
+    font-size: 18px;
+    text-align: center !important;
+}
+.top-nav .search {
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    height: 2.6rem;
+    border: 1px solid rgb(227, 227, 227);
+    border-radius: 30px;
+    background-color: rgb(227, 227, 227);
+}
+.typeahead,
+.tt-query,
+.tt-hint {
+    border-radius: 8px;
+    height: 2.6rem;
+    line-height: 30px;
+    padding-right: 2.4rem;
+    width: 620px !important;
+    text-align: center !important;
+}
+.tt-query {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+}
+.tt-hint {
+    color: rgb(227, 227, 227);
+}
+.tt-menu {
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    margin-top: 12px;
+    width: 620px !important;
+}
+.tt-suggestion {
+    font-size: 18px;
+    padding: 5px 10px;
+}
+.tt-suggestion:hover {
+    cursor: pointer;
+    background-color: rgb(227, 227, 227);
+    color: black;
+}
+
+/* ###### SIDEBAR ##### */
+.sidebar {
+    float: left;
+    height: 92vh;
+    width: 210px;
+    justify-content: space-between;
+    background-color: #fff;
+    overflow: auto;
+}
+li,
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+a {
+    text-decoration: none !important;
+    width: 100%;
+    color: black;
+}
+
+a:hover {
+    color: black;
+}
+.grey-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgb(77, 74, 74);
+    cursor: pointer;
+}
+
+/* #### MAIN-CONTENT #### */
+.video-card-container {
+    margin-bottom: 30px;
+}
+.video-card {
+    border-radius: 15px;
+    box-sizing: border-box !important;
+    box-shadow: 0 0 10px 1px lightgray;
+}
+.video-card-body {
+    background-color: rgb(247, 247, 247);
+    border-radius: 0 0 15px 15px;
+    position: relative;
+    padding-bottom: 10px !important;
+    box-sizing: border-box !important;
+}
+.video-card-text a:hover {
+    text-decoration: underline !important;
+}
+
+.config h5,
+.sidebar h5 {
+    font-weight: 400;
+    color: rgb(195, 195, 195);
+    margin-bottom: 0.5rem;
+    font-size: 21px;
+}
+/* ##### MAIN-CONTENT ##### */
+.main-content {
+    transition: 0.3s;
+}
+/* ############ CONFIG ############## */
+/* ############ ADDED PATHS ############## */
+.path-link {
+    display: flex;
+}
+.config-grey-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: rgb(205, 205, 205);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.path-link span {
+    margin-right: 2rem;
+}
+.path-link span a {
+    text-decoration: none;
+    color: rgb(253, 123, 185);
+}
+
+/* ############ RENAME-CONFIG ############## */
+fieldset {
+    width: 30vw;
+    border: 1px solid rgb(253, 123, 185);
+    padding: 0 10px;
+}
+legend {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgb(253, 123, 185);
+    margin-bottom: 0;
+    width: auto !important;
+    border: none;
+}
+fieldset input {
+    margin-bottom: 12px;
+    width: 28vw;
+    background-color: rgb(250, 250, 250);
+    padding-left: 0.4rem;
+    margin-left: 12px;
+    box-shadow: none;
+    outline: none;
+    border: none;
+}
+
+/* ############ TAGS ############ */
+.tag-card-body {
+    font-size: 17px;
+    font-weight: 500;
+}
+
+/* ############ BTNS ############ */
+.reset-btn {
+    background-color: #ff5555 !important;
+    border-radius: 30px;
+    padding: 0 14px;
+    color: white;
+    margin-right: 0.7rem;
+}
+.save-btn {
+    background-color: #2e9ceb !important;
+    border-radius: 30px;
+    padding: 0 14px;
+    color: white;
+}
+.reset-btn:hover,
+.save-btn:hover {
+    color: white;
+}
+.btn-grp {
+    position: fixed;
+    padding-left: 62rem;
+    bottom: 1rem;
+}
+
+.btn {
+background-color: transparent;
+}
+/* ############ LOGS ############## */
+
+.list-group a:active,
+.list-group a:focus,
+.list-group a:link,
+.list-group-item a,
+.list-group-item-action a {
+    background-color: white !important;
+    color: black !important;
+    outline: white !important;
+    box-shadow: none !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+}
+.tab-content {
+    background-color: #fff;
+    text-align: justify;
+}
+/* ############ TASKS ############## */
+.stats-head {
+    width: 50rem;
+    justify-content: space-between;
+}
+.stats-body {
+    background-color: rgba(128, 128, 128, 0.07);
+    width: 50rem;
+    border-radius: 12px;
+}
+.progress-bar {
+    background: rgb(255, 132, 0);
+    background: linear-gradient(
+            90deg,
+            rgba(255, 132, 0, 1) 0%,
+            rgba(255, 0, 143, 1) 100%
+    );
+    border-radius: 12px;
+}
+.progress {
+    margin: 0 1.5rem;
+    height: 1rem;
+    border-radius: 10px;
+    background-color: rgba(255, 192, 203, 0.75);
+}
+.p-grp {
+    color: #149ddd;
+    margin-left: 15px;
+}
+.p-grp span {
+    font-size: 15px;
+}
+
+video {
+    width: 100%;
+    height: auto;
+}
+.video-description {
+    box-shadow: 0 0 10px 1px lightgray;
+    border-radius: 15px;
+    margin-bottom: 1.4rem;
+}
+.video-description p {
+    font-size: 16px;
+    font-weight: normal;
+    padding-left: 1rem;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+.p-tags {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/* ##### VIDEO LIST RIGHT COLUMN */
+.card,
+.card-body {
+    background-color: rgb(250, 250, 250);
+    border-radius: 7px;
+}
+
+/* ########## FORM ########## */
+form {
+    box-shadow: 0 0 10px 1px lightgray;
+    border-radius: 7px;
+    padding: 0.9rem 0.9rem 0.6rem 0.9rem;
+}
+form input,
+form select {
+    height: 30px !important;
+    width: 35rem !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: rgba(0, 0, 0, 0.2) !important;
+    font-size: 16px !important;
+}
+.form-group {
+    margin-bottom: 0.2rem !important;
+    justify-content: space-between;
+    font-size: 16px !important;
+}
+form option,
+select {
+    height: 30px !important;
+    padding: 0 12px !important;
+}
+
+.channels-card {
+    background: #fff none repeat scroll 0 0;
+    border-radius: 2px;
+    box-shadow: 0 0 11px #ececec;
+    padding: 24px 12px;
+    position: relative;
+    text-align: center;
+    transition-duration: 0.4s;
+}
+.channels-card::after {
+    background: #dcdcdc none repeat scroll 0 0;
+    border-radius: 0 0 5px 6px;
+    bottom: -4px;
+    content: "";
+    height: 7px;
+    left: 15px;
+    position: absolute;
+    right: 15px;
+    z-index: -1;
+}
+.channels-card:hover::after {
+    background: #cccccc none repeat scroll 0 0;
+}
+.channels-title a {
+    color: #000;
+    font-weight: 500;
+    text-decoration: none;
+}
+.channels-view {
+    color: #acacac;
+}
+.channels-card-image .btn {
+    font-size: 12px;
+    padding: 3px 10px;
+}
+.channels-card-image .btn strong {
+    margin: 0 0 0 5px;
+}
+.channels-card-image img {
+    background: #fff none repeat scroll 0 0;
+    border-radius: 50px;
+    box-shadow: 0 0 2px #ccc;
+    height: 180px;
+    margin: 1px 0 8px;
+    object-fit: scale-down;
+    transform: scale(1);
+    width: 180px;
+}
+.channels-card-image-btn {
+    margin: 3px 0 7px;
+}
