@@ -1,4 +1,4 @@
-{{ define "singleChannel" }}
+{{ define "singleActor" }}
 
 	<!DOCTYPE html>
 
@@ -11,25 +11,27 @@
 		<link href="/static/css/jizzberry.css" rel="stylesheet">
 		<link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
 
-		<title>Channels!</title>
+		<title>{{ (index .Actors 0).Name }}</title>
 	</head>
 
 	<body>
 	{{template "topbar"}}
 
 
-	<main style="position: relative; top: 59px;">
-		{{template "sidenav"}}
+	<main>
+		{{template "sidenav" .IsAdmin}}
 
 
-		<div class="main-content" style="position: absolute; padding: 0 3rem 0 13rem; width: 100%;">
+		<div class="main-content">
 			<div class="pt-5 pl-5">
 				<div class="channels-top ml-5 mr-5 mb-0">
 					<div class="channels-profile d-flex justify-content-between">
 						<div class="d-flex">
-							<img class="img-fluid bg-dark" onerror="this.src='/static/img/txt-logo.svg'" src="/thumbnails/p{{(index .Actors 0).ActorId}}" style="height: 70px; width: 70px; border-radius: 50%;">
+							<img class="img-fluid bg-dark channel-circle-img"
+								 onerror="this.src='/static/img/txt-logo.svg'"
+								 src="/thumbnails/p{{(index .Actors 0).ActorId}}">
 
-							<p class="mt-2 ml-4" style="font-size: 26px; font-weight: 500; opacity: 0.85;">{{ (index .Actors 0).Name }}</p>
+							<p class="mt-2 ml-4 channel-single-title">{{ (index .Actors 0).Name }}</p>
 						</div>
 					</div>
 
@@ -38,7 +40,8 @@
 						<nav class="navbar navbar-expand-lg navbar-light bg-light">
 							<div class="collapse navbar-collapse">
 								<div class="navbar-nav">
-									<a class="nav-item nav-link active" href="#" style="font-size: 20px;">Home</a> <a class="nav-item nav-link" href="#" style="font-size: 20px;">About</a>
+									<a class="nav-item nav-link active channel-tab-text" href="#">Home</a>
+									<a class="nav-item nav-link channel-tab-text" href="#">About</a>
 								</div>
 							</div>
 						</nav>
@@ -73,6 +76,7 @@
 	<script src="/static/vendor/jquery/jquery.min.js"></script>
 	<script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 	<script src="/static/vendor/fontawesome/js/all.min.js"></script>
+	<script src="/static/js/navbar.js"></script>
 	</body>
 	</html>
 

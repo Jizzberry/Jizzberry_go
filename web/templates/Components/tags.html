@@ -10,20 +10,20 @@
         <link href="/static/css/jizzberry.css" rel="stylesheet">
         <link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
 
-        <title>Home!</title>
+        <title>Tags</title>
     </head>
 
     <body>
     {{template "topbar"}}
 
 
-    <main style="position: relative; top: 59px;">
-        {{template "sidenav"}}
+    <main>
+        {{template "sidenav" .IsAdmin}}
 
 
-        <div class="main-content" id="content" style="position: absolute; padding: 0 3rem 0 13rem; width: 100%;">
+        <div class="main-content" id="content">
             <div class="pt-5 pl-5">
-                <h4 class="mb-4" style="font-family: Raleway, sans-serif; font-weight: 600;">Actors</h4>
+                <h4 class="mb-4 page-header">Actors</h4>
 
 
                 <div class="video-card-group">
@@ -33,9 +33,10 @@
                             <div class="col-xl-3 col-sm-6 mb-3">
                                 <div class="channels-card">
                                     <div class="channels-card-image">
-                                        <a href="/Jizzberry/actor/{{$val.GeneratedID}}/"><img alt="" class="img-fluid" onerror="this.src='/static/img/txt-logo.svg'" src="/thumbnails/t{{$val.GeneratedID}}"></a>
+                                        <a href="/Jizzberry/tags/{{$val.GeneratedID}}/"><img alt="" class="img-fluid"
+                                                                                             onerror="this.src='/static/img/txt-logo.svg'"
+                                                                                             src="/thumbnails/t{{$val.GeneratedID}}"></a>
                                     </div>
-
 
                                     <div class="channels-card-body">
                                         <div class="channels-title">
@@ -53,6 +54,7 @@
     <script src="/static/vendor/jquery/jquery.min.js"></script>
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/static/vendor/fontawesome/js/all.min.js"></script>
+    <script src="/static/js/navbar.js"></script>
     </body>
     </html>
 {{ end }}

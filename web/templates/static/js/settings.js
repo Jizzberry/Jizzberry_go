@@ -55,7 +55,12 @@ const sessionsSocket = new WebSocket(
 );
 
 sessionsSocket.onmessage = function(e) {
-    handleProgress(JSON.parse(e.data));
+    let parsed = JSON.parse(e.data)
+    if (parsed['type'] === "progress") {
+        handleProgress(parsed);
+    } else if (parsed['type'] === "status") {
+        setUserStatus(parsed)
+    }
 };
 
 sessionsSocket.onclose = function(e) {
@@ -63,18 +68,18 @@ sessionsSocket.onclose = function(e) {
 };
 
 function handleProgress(data) {
-    let text = document.getElementById(data['uid'] + "-textprogress");
-    let bar = document.getElementById(data['uid'] + "-progressbar");
+    let text = document.getElementById(data['key'] + "-textprogress");
+    let bar = document.getElementById(data['key'] + "-progressbar");
 
-    if (text == null || bar ==  null) {
-        createTask(data['uid'], data['value']);
+    if (text == null || bar == null) {
+        createTask(data['key'], data['value']);
     } else {
         text.textContent = data['value'] + "%"
         text.hidden = false
         bar.style.width = data['value'] + "%"
     }
 
-    setProgressControls(data['uid'], parseInt(data['value']));
+    setProgressControls(data['key'], parseInt(data['value']));
 }
 
 function setProgressControls(name, progress) {
@@ -268,6 +273,15 @@ function createLogContent(name, url) {
     logsReq.open("GET", url);
     logsReq.send();
 
+}
+
+function setUserStatus(data) {
+    let value = data['value']
+    for (let i in value) {
+        if (value[i]['Online']) {
+            document.getElementById("status-" + i).textContent = "Online"
+        }
+    }
 }
 
 var oReq = new XMLHttpRequest();

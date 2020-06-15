@@ -1,50 +1,27 @@
-function openNav() {
-    document.getElementById("sidebar").style.width = "13rem";
-    document.getElementById("home-nav").style.width = "13rem";
-    document.getElementById("settings-nav").style.width = "13rem";
-    document.getElementById("content").style.paddingLeft = "13rem";
-}
-
-function closeNav() {
-    document.getElementById("sidebar").style.width = "0rem";
-    document.getElementById("home-nav").style.width = "0rem";
-    document.getElementById("settings-nav").style.width = "0rem";
-    document.getElementById("content").style.paddingLeft = "0rem";
-}
-
-window.onpaint = navbarSelector();
-
-function navbarSelector(){
-    var currentUrl = window.location.pathname;
-    if (currentUrl.toLowerCase() == "/jizzberry/settings") {
-        handleSettingsPress()
+function toggleNav() {
+    document.getElementById("sidebar").classList.toggle("toggled")
+    document.getElementById("home-nav").classList.toggle("toggled")
+    if (document.getElementById("settings-nav") != null) {
+        document.getElementById("settings-nav").classList.toggle("toggled")
     }
+    document.getElementById("content").classList.toggle("content-toggled")
 }
 
-$("body").on("click","#nav-toggle", function(){
-    var toggle = document.getElementById('nav-toggle');
-    if (toggle.classList.contains("active")) {
-        console.log("closing")
-        toggle.classList.remove("active");
-        closeNav();
-    } else {
-        toggle.classList.add("active");
-        console.log("opening")
-        openNav();
-    }
-});
+window.onpaint = getPage();
 
-function handleTabChange(name) {
-	var nodes = document.getElementById("content").childNodes;
-	
-	for (var i=0; i<nodes.length; i++) {
-		if (nodes[i].nodeName.toLowerCase() == 'div') {
-			var child = nodes[i];
-			child.hidden = true;
-		}
-	}
-	
-	document.getElementById(name).hidden = false;
+function handleTabChange(name, element) {
+    var nodes = document.getElementById("content").childNodes;
+
+    for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].nodeName.toLowerCase() === 'div') {
+            var child = nodes[i];
+            child.hidden = true;
+        }
+    }
+
+    document.getElementById(name).hidden = false;
+
+    setActiveSettingsButton(element)
 }
 
 function handleBackPress() {
@@ -55,10 +32,55 @@ function handleBackPress() {
 function handleSettingsPress() {
     var currentUrl = window.location.pathname;
 
-    if (currentUrl.toLowerCase() == "/jizzberry/settings") {
+    if (currentUrl.toLowerCase() === "/jizzberry/settings") {
         document.getElementById("settings-nav").hidden = false;
         document.getElementById("home-nav").hidden = true;
     } else {
         window.location.href = '/Jizzberry/settings';
     }
+}
+
+function setActiveSettingsButton(element) {
+    let container = document.getElementById("settings-nav");
+    for (var i = 0; i < container.childElementCount; i++) {
+        if (container.children[i].classList.contains("active")) {
+            container.children[i].classList.remove("active")
+        }
+    }
+
+    element.classList.add("active")
+}
+
+function getPage() {
+    let url = window.location.pathname;
+    let n = url.lastIndexOf('/');
+    if (n >= 0) {
+        url = url.substring(n + 1);
+    }
+
+    switch (url.toLowerCase()) {
+        case "home":
+            setActiveButton("home");
+            break;
+        case "actors":
+            setActiveButton("actors");
+            break;
+        case "tags":
+            setActiveButton("tags");
+            break;
+        case "settings":
+            setActiveButton("settings");
+            handleSettingsPress()
+            break;
+    }
+}
+
+function setActiveButton(id) {
+    let container = document.getElementById("home-nav");
+    for (var i = 0; i < container.childElementCount; i++) {
+        if (container.children[i].classList.contains("active")) {
+            container.children[i].classList.remove("active");
+        }
+    }
+    document.getElementById(id).classList.add("active");
 }

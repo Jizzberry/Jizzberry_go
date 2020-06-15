@@ -11,7 +11,7 @@
 		<link href="/static/css/jizzberry.css" rel="stylesheet">
 		<link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
 
-		<title>Settings!</title>
+		<title>Settings</title>
 	</head>
 
 	<body>
@@ -22,28 +22,27 @@
 	{{template "topbar"}}
 
 
-	<main style="position: relative; top: 59px;">
-		{{template "sidenav"}}
+	<main>
+		{{template "sidenav" .IsAdmin}}
 
 
-		<div class="main-content" id="content" style="position: absolute; padding-left: 13rem; width: 100%;">
+		<div class="main-content" id="content">
 			<div hidden="" id="config">
 				<div class="pt-5 pl-5">
 					<div class="config">
-						<h4 class="mb-4" style="font-family: Raleway, sans-serif; font-weight: 600;">Config</h4>
+						<h4 class="mb-4 page-header">Config</h4>
 
 
 						<div class="added-path mb-5">
-							<span style="display: flex;"></span>
 
-							<h5><span style="display: flex;">Added Paths</span>
-							</h5>
-							<span style="display: flex;"></span>
+							<div class="d-flex">
+								<h5>Added Paths</h5>
 
-							<div class="btn config-grey-circle" data-target="#fileBrowseModal" data-toggle="modal" onclick="getFolders('')" style="margin-left: 1rem;">
-								<span style="display: flex;"><a href="#"></a></span>
+								<div class="btn " data-target="#fileBrowseModal" data-toggle="modal"
+									 onclick="getFolders('')">
+									<i class="fas fa-plus"></i><a href="#"></a>
+								</div>
 							</div>
-							<span style="display: flex;"></span>
 
 							<hr class="mt-0">
 
@@ -51,11 +50,11 @@
 							<nav>
 								{{range $val := .Config.Paths}}
 
-									<div class="path-link" style="margin-bottom: 0.7rem;">
+									<div class="path-link">
 										<span><a href="#">{{$val}}</a></span> <span></span>
 
 										<div class="btn config-grey-circle" onclick="removePath('{{$val}}')">
-											<span><i class="fas fa-times" style="opacity: 0.65;"></i> <a href="#"></a></span>
+											<span><i class="fas fa-times"></i> <a href="#"></a></span>
 										</div>
 										<span></span>
 									</div>
@@ -75,11 +74,6 @@
 									<fieldset class="mr-4">
 										<legend>File Rename Formatter</legend> <input id="fileForm" name="fname" type="text" value="{{ .Config.FileRenameFormatter }}">
 									</fieldset>
-
-
-									<div class="btn mt-4 ml-3 config-grey-circle" style="margin-left: 1rem;">
-										<a href="#"></a>
-									</div>
 								</div>
 							</div>
 
@@ -89,11 +83,6 @@
 									<fieldset class="mr-4">
 										<legend>Folder Rename Formatter</legend> <input id="folderForm" name="fname" type="text" value="{{ .Config.FolderRenameFormatter }}">
 									</fieldset>
-
-
-									<div class="btn mt-4 ml-3 config-grey-circle" style="margin-left: 1rem;">
-										<a href="#"></a>
-									</div>
 								</div>
 							</div>
 						</div>
@@ -105,9 +94,9 @@
 							<hr class="mt-0">
 
 
-							<div class="tag-cards d-flex">
-								<div class="card mr-5" style=" width: 8rem; border: none; background-color: rgb(250, 250, 250);">
-									<a href="#"><img class="card-img-top" src="/static/img/plus.png" style=" background-color: lightgray; border-radius: 10px;"></a>
+							<div class="d-flex">
+								<div class="card mr-5 tag-card">
+									<a href="#"><img class="card-img-top plus-card-img" src="/static/img/plus.png"></a>
 
 									<div class="tag-card-body card-body p-0">
 										<p class="text-center card-text">New Tag</p>
@@ -115,12 +104,11 @@
 								</div>
 								{{range $val := .Tags}}
 
-									<div class="card mr-5" style=" width: 8rem; border: none; background-color: rgb(250, 250, 250);">
-										<a href="#"><img class="card-img-top" src="/static/img/plus.png" style=" background-color: lightgray; border-radius: 10px;"></a>
-
+									<div class="tag-card card mr-5">
 										<div class="tag-card-body card-body p-0">
 											<p class="text-center card-text">{{$val.Name}}<br>
-												<span class="text-muted" style="font-size: 12px;">{{$val.Count}} videos</span></p>
+												<span class="text-muted tag-card-subtitle">{{$val.Count}} videos</span>
+											</p>
 										</div>
 									</div>
 								{{ end }}
@@ -135,8 +123,8 @@
 
 
 							<div class="tag-cards d-flex">
-								<div class="card mr-5" style=" width: 8rem; border: none; background-color: rgb(250, 250, 250);">
-									<a href="#"><img class="card-img-top" src="/static/img/plus.png" style=" background-color: lightgray; border-radius: 10px;"></a>
+								<div class="tag-card card mr-5">
+									<a href="#"><img class="card-img-top plus-card-img" src="/static/img/plus.png"></a>
 
 									<div class="tag-card-body card-body p-0">
 										<p class="text-center card-text">New User</p>
@@ -144,12 +132,13 @@
 								</div>
 								{{range $val := .Users}}
 
-									<div class="card mr-5" style=" width: 8rem; border: none; background-color: rgb(250, 250, 250);">
-										<a href="#"><img class="card-img-top" src="/static/img/plus.png" style=" background-color: rgba(241, 27, 70, 0.75); border-radius: 10px;"></a>
+									<div class="tag-card card mr-5">
+										<a href="#"></a>
 
 										<div class="tag-card-body card-body p-0">
 											<p class="text-center card-text">{{ $val.Username }}<br>
-												<span class="text-muted" style="font-size: 12px;">[online status]</span></p>
+												<span class="text-muted tag-card-subtitle"
+													  id="status-{{ $val.Username }}">Offline</span></p>
 										</div>
 									</div>
 								{{ end }}
@@ -159,7 +148,8 @@
 
 
 					<div class="btn-grp">
-						<button class="btn reset-btn" type="button">Reset</button> <button class="btn save-btn" onclick="postConfig();" type="button">Save</button>
+						<button class="btn reset-btn" type="button">Reset</button>
+						<button class="btn save-btn" onclick="postConfig();" type="button">Save</button>
 					</div>
 				</div>
 			</div>
@@ -167,23 +157,30 @@
 
 			<div id="tasks">
 				<div class="pt-5 pl-5" id="tasks-container">
-					<h4 class="mb-4" style="font-family: Raleway, sans-serif; font-weight: 600;">Running Tasks</h4>
+					<h4 class="mb-4 page-header">Running Tasks</h4>
 
-					<div class="task-stats mb-4" style="overflow: hidden">
+					<div class="task-stats mb-4">
 						<div class="stats-head d-flex">
 							<div class="d-flex ml-2">
 								<span></span>
 
-								<p class="mr-3 mb-0 pt-2" id="scan-textprogress" style="font-weight: 700;">
+								<p class="mr-3 mb-0 pt-2 textprogress" id="scan-textprogress">
 								</p>
 
 
-								<p class="ml-1 mb-0 pt-2" style="font-style: italic;">Scan</p>
+								<p class="ml-1 mb-0 pt-2">Scan</p>
 							</div>
 
 
 							<div class="stats-btn-grp d-flex">
-								<button class="btn" hidden="" id="scan-stop" onclick="stopTask('scan');" style="width: 3rem;"><i class="fas fa-stop"></i></button> <button class="btn" id="scan-play" onclick="startScan();" style="width: 3rem;"><i class="fas fa-play" style="color: #149ddd;"></i></button> <button class="btn" hidden="" id="scan-redo" onclick="startScan();" style="width: 3rem;"><i class="fas fa-redo-alt" style="color: #149ddd;"></i></button> <button class="btn" hidden="" id="scan-angle-down" style="width: 3rem;"><i class="fas fa-angle-down"></i></button>
+								<button class="btn task-buttons" hidden="" id="scan-stop" onclick="stopTask('scan');"><i
+											class="fas fa-stop"></i></button>
+								<button class="btn task-buttons" id="scan-play" onclick="startScan();"><i
+											class="fas fa-play" style="color: #149ddd;"></i></button>
+								<button class="btn task-buttons" hidden="" id="scan-redo" onclick="startScan();"><i
+											class="fas fa-redo-alt" style="color: #149ddd;"></i></button>
+								<button class="btn task-buttons" hidden="" id="scan-angle-down"><i
+											class="fas fa-angle-down"></i></button>
 							</div>
 						</div>
 
@@ -211,7 +208,7 @@
 
 			<div hidden="" id="logs">
 				<div class="pt-5 pl-5">
-					<h4 class="mb-4" style="font-family: Raleway, sans-serif; font-weight: 600;">Logs</h4>
+					<h4 class="mb-4 page-header">Logs</h4>
 
 
 					<div class="row m-0">
@@ -222,7 +219,7 @@
 
 
 						<div class="mt-3 col-11 p-0">
-							<div class="tab-content" id="nav-tabContent" style="border-radius: 7px;">
+							<div class="tab-content" id="nav-tabContent">
 							</div>
 						</div>
 					</div>
@@ -233,6 +230,7 @@
 	</main>
 	<script src="/static/js/search.js"></script>
 	<script src="/static/js/settings.js"></script>
+	<script src="/static/js/navbar.js"></script>
 	</body>
 	</html>
 

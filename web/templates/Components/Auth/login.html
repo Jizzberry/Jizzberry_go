@@ -1,22 +1,22 @@
 {{ define "login" }}
-	<!DOCTYPE html>
+    <!DOCTYPE html>
 
-	<html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
-		<link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" rel="stylesheet">
-		<link href="/static/css/login.css" rel="stylesheet">
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+        <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/login.css" rel="stylesheet">
+        <link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
 
-		<title>Login</title>
-		<link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
-	</head>
+        <title>Login</title>
+    </head>
 
-	<body>
-	<div class="login">
-		<img src="/static/img/txt-logo.svg">
+    <body>
+    <div class="login">
+        <img src="/static/img/txt-logo.svg">
 
-		<h5>{{.Error}}</h5>
+        <h5>{{.Error}}</h5>
 
 
 		<form action="/auth/login/" method="post">

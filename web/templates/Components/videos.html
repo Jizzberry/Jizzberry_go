@@ -1,4 +1,4 @@
-{{ define "single" }}
+{{ define "singleScene" }}
 	<!DOCTYPE html>
 
 	<html lang="en">
@@ -11,26 +11,31 @@
 		<link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
 		<link href="/static/vendor/plyr/dist/plyr.css" rel="stylesheet">
 
-		<title>Videos!</title>
+		<title>{{ (index .Files 0).FileName }}</title>
 	</head>
 
 	<body>
 	{{template "topbar"}}
 
 
-	<main style="position: relative; top: 59px;">
-		{{template "sidenav"}}
+	<main>
+		{{template "sidenav" .IsAdmin}}
 
-		<div class="main-content" id="content" style="position: absolute; padding: 0 3rem 0 13rem; width: 100%;">
+		<div class="main-content" id="content">
 			<div class="pt-5 pl-5">
 				<div class="row">
 					<div class="col-md-8">
-						<video controls="" crossorigin="" data-poster="/thumbnails/p{{ (index .Files 0).GeneratedID }}.png" id="videoPlayer" playsinline=""><source src="/Jizzberry/stream/{{(index .Files 0).GeneratedID}}" type="video/mp4"> Your browser does not support HTML5 video.</video>
+						<video controls="" crossorigin=""
+							   data-poster="/thumbnails/p{{ (index .Files 0).GeneratedID }}.png" id="videoPlayer"
+							   playsinline="">
+							<source src="/Jizzberry/stream/{{(index .Files 0).GeneratedID}}" type="video/mp4">
+							Your browser does not support HTML5 video.
+						</video>
 
 
-						<div class="d-flex flex-row justify-content-between mb-4 mt-3 ml-3" style="width: 100%; padding-inline-end: 15px;">
-							<h4 style="font-family: Raleway, sans-serif; font-weight: 600;">{{ (index .Files 0).FileName }}</h4>
-							<button id="parser-toggle" style="border:none; background:transparent; cursor: pointer;"><span><i class="fas fa-edit"></i></span></button>
+						<div class="d-flex flex-row justify-content-between mb-4 mt-3 ml-3 video-title-container">
+							<h4>{{ (index .Files 0).FileName }}</h4>
+							<button class="btn" id="parser-toggle"><span><i class="fas fa-edit"></i></span></button>
 						</div>
 
 						<div id="metadata-viewer">
@@ -131,7 +136,7 @@
 	<script src="/static/vendor/plyr/dist/plyr.polyfilled.min.js"></script>
 	<script src="/static/js/videos.js"></script>
 	<script src="/static/js/query.js"></script>
-
+	<script src="/static/js/navbar.js"></script>
 	<script>
 		const player = new Plyr(document.getElementById('videoPlayer'));
 	</script>
