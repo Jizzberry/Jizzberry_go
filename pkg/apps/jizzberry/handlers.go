@@ -1,6 +1,8 @@
 package jizzberry
 
 import (
+	"fmt"
+	"github.com/Jizzberry/Jizzberry-go/pkg/apps/authentication"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/middleware"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
@@ -27,6 +29,7 @@ type Context struct {
 	UpNext    []files.Files
 	Config    helpers.Config
 	Users     []auth.Auth
+	IsAdmin   bool
 }
 
 const baseURL = "/Jizzberry"
@@ -51,7 +54,12 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	allFiles := files.Initialize().Get(files.Files{})
 
-	err := helpers.Render(w, http.StatusOK, "home", Context{Files: allFiles})
+	ctx := Context{Files: allFiles}
+	sidebarContext(&ctx, r)
+
+	fmt.Println(ctx.IsAdmin)
+
+	err := helpers.Render(w, http.StatusOK, "home", ctx)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
@@ -62,7 +70,10 @@ func allCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 
 	allTags := tags.Initialize().Get(tags.Tag{})
 
-	err := helpers.Render(w, http.StatusOK, "tags", Context{Tags: allTags})
+	ctx := Context{Tags: allTags}
+	sidebarContext(&ctx, r)
+
+	err := helpers.Render(w, http.StatusOK, "tags", ctx)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
@@ -73,7 +84,10 @@ func allActorsHandler(w http.ResponseWriter, r *http.Request) {
 
 	allActors := actor_details.Initialize().Get(actor_details.ActorDetails{})
 
-	err := helpers.Render(w, http.StatusOK, "actors", Context{Actors: allActors})
+	ctx := Context{Actors: allActors}
+	sidebarContext(&ctx, r)
+
+	err := helpers.Render(w, http.StatusOK, "actors", ctx)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
@@ -88,14 +102,16 @@ func singleActorHanlder(w http.ResponseWriter, r *http.Request) {
 	filesIDs := files.GetActorRelations(actorIDstr)
 
 	filesModel := files.Initialize()
-	context := Context{}
+
+	ctx := Context{}
+	sidebarContext(&ctx, r)
 
 	for _, f := range filesIDs {
 		i, err := strconv.ParseInt(f, 10, 64)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 		}
-		context.Files = append(context.Files, filesModel.Get(files.Files{GeneratedID: i})...)
+		ctx.Files = append(ctx.Files, filesModel.Get(files.Files{GeneratedID: i})...)
 	}
 
 	actorID, err := strconv.ParseInt(actorIDstr, 10, 64)
@@ -103,9 +119,9 @@ func singleActorHanlder(w http.ResponseWriter, r *http.Request) {
 		helpers.LogError(err.Error(), component)
 	}
 	actorDetails := actor_details.Initialize().Get(actor_details.ActorDetails{ActorId: actorID})
-	context.Actors = actorDetails
+	ctx.Actors = actorDetails
 
-	err = helpers.Render(w, http.StatusOK, "singleActor", context)
+	err = helpers.Render(w, http.StatusOK, "singleActor", ctx)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
@@ -123,7 +139,7 @@ func singleSceneHandler(w http.ResponseWriter, r *http.Request) {
 	rand.Shuffle(len(randomNext), func(i, j int) { randomNext[i], randomNext[j] = randomNext[j], randomNext[i] })
 
 	// TODO: Get UpNext on same conn
-	err := helpers.Render(w, http.StatusOK, "singleScene", Context{
+	ctx := Context{
 		Files:     file,
 		ActorList: file[0].Actors,
 		UpNext: func() []files.Files {
@@ -133,7 +149,10 @@ func singleSceneHandler(w http.ResponseWriter, r *http.Request) {
 				return randomNext
 			}
 		}(),
-	})
+	}
+	sidebarContext(&ctx, r)
+
+	err := helpers.Render(w, http.StatusOK, "singleScene", ctx)
 
 	if err != nil {
 		helpers.LogError(err.Error(), component)
@@ -143,11 +162,21 @@ func singleSceneHandler(w http.ResponseWriter, r *http.Request) {
 func settingsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "text/html")
 
-	allTags := tags.Initialize().Get(tags.Tag{})
-	users := auth.Initialize().Get(auth.Auth{})
-	err := helpers.Render(w, http.StatusOK, "settings", Context{Config: helpers.GetConfig(), Tags: allTags, Users: users})
+	if authentication.IsAdmin(authentication.GetUsernameFromSession(r)) {
+		allTags := tags.Initialize().Get(tags.Tag{})
+		users := auth.Initialize().Get(auth.Auth{})
+		err := helpers.Render(w, http.StatusOK, "settings", Context{Config: helpers.GetConfig(), Tags: allTags, Users: users, IsAdmin: true})
 
-	if err != nil {
-		helpers.LogError(err.Error(), component)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
+	}
+}
+
+func sidebarContext(ctx *Context, r *http.Request) {
+	if authentication.IsAdmin(authentication.GetUsernameFromSession(r)) {
+		ctx.IsAdmin = true
+	} else {
+		ctx.IsAdmin = false
 	}
 }

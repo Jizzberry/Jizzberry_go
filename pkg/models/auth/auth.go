@@ -2,6 +2,7 @@ package auth
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database"
 	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
@@ -15,7 +16,7 @@ const (
 )
 
 type Auth struct {
-	Username string `row:"username" type:"exact" pk:"true"`
+	Username string `row:"username" type:"exact"`
 	Password string `row:"password" type:"exact"`
 	IsAdmin  bool   `row:"isadmin" type:"exact"`
 }
@@ -34,6 +35,8 @@ func (a AuthModel) Create(auth Auth) {
 	auth.Password = hashPassword(auth.Password)
 
 	query, args := models.QueryBuilderCreate(auth, tableName)
+
+	fmt.Println(query, args)
 
 	_, err := a.conn.Exec(query, args...)
 	if err != nil {
