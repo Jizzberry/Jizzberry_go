@@ -2,6 +2,7 @@ package jizzberry
 
 import (
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry-go/pkg/middleware"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/auth"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
@@ -33,6 +34,9 @@ const baseURL = "/Jizzberry"
 func (a Jizzberry) Register(r *mux.Router) {
 	htmlRouter := r.PathPrefix(baseURL).Subrouter()
 	htmlRouter.StrictSlash(true)
+
+	htmlRouter.Use(middleware.AuthMiddleware())
+
 	htmlRouter.HandleFunc("/home", homeHandler)
 	htmlRouter.HandleFunc("/tags", allCategoriesHandler)
 	htmlRouter.HandleFunc("/actors", allActorsHandler)
@@ -101,7 +105,7 @@ func singleActorHanlder(w http.ResponseWriter, r *http.Request) {
 	actorDetails := actor_details.Initialize().Get(actor_details.ActorDetails{ActorId: actorID})
 	context.Actors = actorDetails
 
-	err = helpers.Render(w, http.StatusOK, "singleChannel", context)
+	err = helpers.Render(w, http.StatusOK, "singleActor", context)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
@@ -119,7 +123,7 @@ func singleSceneHandler(w http.ResponseWriter, r *http.Request) {
 	rand.Shuffle(len(randomNext), func(i, j int) { randomNext[i], randomNext[j] = randomNext[j], randomNext[i] })
 
 	// TODO: Get UpNext on same conn
-	err := helpers.Render(w, http.StatusOK, "single", Context{
+	err := helpers.Render(w, http.StatusOK, "singleScene", Context{
 		Files:     file,
 		ActorList: file[0].Actors,
 		UpNext: func() []files.Files {
