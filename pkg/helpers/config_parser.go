@@ -120,7 +120,7 @@ func GetSessionsKey() []byte {
 }
 
 func write() {
-	if err := viper.WriteConfig(); err != nil {
+	if err := viper.WriteConfigAs(configFileName + ".yaml"); err != nil {
 		fmt.Println(err)
 	}
 }
