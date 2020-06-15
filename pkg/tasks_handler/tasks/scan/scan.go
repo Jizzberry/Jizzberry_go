@@ -9,9 +9,11 @@ import (
 	files2 "github.com/Jizzberry/Jizzberry-go/pkg/models/files"
 	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler"
+	"math"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -83,7 +85,7 @@ func worker(paths []string, ctx context.Context, progress *int) {
 
 					genId := filesModel.Create(file)
 
-					ffmpeg.GenerateThumbnail(genId, f, 30)
+					ffmpeg.GenerateThumbnail(genId, f, lenInSec(file.Length)/2)
 
 					helpers.LogInfo(fmt.Sprintf("scanned %s successfully", f), component)
 				} else {
@@ -120,4 +122,21 @@ func ByteCountDecimal(b int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "kMGTPE"[exp])
+}
+
+func lenInSec(length string) (secs int64) {
+	split := strings.Split(length, ":")
+	for i := 0; i < len(split); i++ {
+		val, err := strconv.ParseInt(split[len(split)-i-1], 10, 64)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+			continue
+		}
+		if i == 3 {
+			secs += 24 * val
+			continue
+		}
+		secs += int64(float64(val) * math.Pow(60, float64(i)))
+	}
+	return
 }
