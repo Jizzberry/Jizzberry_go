@@ -16,7 +16,7 @@ const component = "FFMPEG"
 func GenerateThumbnail(generatedId int64, path string, interval int64) {
 	outFile := filepath.FromSlash(helpers.ThumbnailPath + "/" + strconv.FormatInt(generatedId, 10) + ".png")
 	cmd := exec.Command(helpers.GetConfig().FFMEPG, "-i", path, "-ss", strconv.FormatInt(interval, 10), "-y", "-vframes", "1", "-vf",
-		"scale=540:-1", outFile)
+		"scale=373:210", outFile)
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
