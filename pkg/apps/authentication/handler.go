@@ -113,6 +113,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
 func userIsValid(username string, password string) bool {
 	fetchUsers := auth.Initialize().Get(auth.Auth{Username: username})
+	fmt.Println(fetchUsers)
 	if len(fetchUsers) > 0 {
 		hashedPass := fetchUsers[0].Password
 		if hashedPass != "" {
@@ -151,6 +152,28 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 				}
 				return true
 			}
+		}
+	}
+	return false
+}
+
+func GetUsernameFromSession(r *http.Request) string {
+	session, err := SessionsStore.Get(r, helpers.SessionsKey)
+	if err != nil {
+		return ""
+	}
+	if session.IsNew {
+		return ""
+	}
+
+	return session.Values[helpers.Usernamekey].(string)
+}
+
+func IsAdmin(username string) bool {
+	user := auth.Initialize().Get(auth.Auth{Username: username})
+	if len(user) > 0 {
+		if user[0].IsAdmin {
+			return true
 		}
 	}
 	return false
