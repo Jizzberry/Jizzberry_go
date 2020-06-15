@@ -166,6 +166,16 @@ func checkEmpty(value reflect.Value) bool {
 		return value.String() == ""
 	}
 
+	//else check bool
+	matchedBool, err := regexp.MatchString("bool", value.Type().String())
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
+	if matchedBool {
+		// Bool cant be pk
+		return true
+	}
+
 	return !value.IsValid()
 }
 

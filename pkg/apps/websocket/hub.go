@@ -11,6 +11,8 @@ type Hub struct {
 	admins map[*Client]bool
 	users  map[*Client]bool
 
+	status map[string]*UserStatus
+
 	// Inbound messages from the clients.
 	broadcastAdmin chan interface{}
 
@@ -21,6 +23,10 @@ type Hub struct {
 	unregister chan *Client
 }
 
+type UserStatus struct {
+	Online bool
+}
+
 func newHub() *Hub {
 	return &Hub{
 		broadcastAdmin: make(chan interface{}),
@@ -28,6 +34,7 @@ func newHub() *Hub {
 		unregister:     make(chan *Client),
 		admins:         make(map[*Client]bool),
 		users:          make(map[*Client]bool),
+		status:         make(map[string]*UserStatus),
 	}
 }
 
@@ -40,6 +47,8 @@ func (h *Hub) run() {
 			} else {
 				h.users[client] = true
 			}
+			h.status[client.username] = &UserStatus{Online: true}
+			go broadcastUserStatus()
 		case client := <-h.unregister:
 			if _, ok := h.admins[client]; ok {
 				delete(h.admins, client)
@@ -47,6 +56,10 @@ func (h *Hub) run() {
 			} else if _, ok := h.admins[client]; ok {
 				delete(h.users, client)
 				close(client.send)
+			}
+			if _, ok := h.status[client.username]; ok {
+				delete(h.status, client.username)
+				go broadcastUserStatus()
 			}
 		case message := <-h.broadcastAdmin:
 			for client := range h.admins {

@@ -15,8 +15,9 @@ const (
 )
 
 type Auth struct {
-	Username string `row:"username" type:"exact"`
+	Username string `row:"username" type:"exact" pk:"true"`
 	Password string `row:"password" type:"exact"`
+	IsAdmin  bool   `row:"isadmin" type:"exact"`
 }
 
 type AuthModel struct {
@@ -52,7 +53,7 @@ func (a AuthModel) Get(auth Auth) []Auth {
 
 	for rows.Next() {
 		scan := Auth{}
-		err := rows.Scan(&scan.Username, &scan.Password)
+		err := rows.Scan(&scan.Username, &scan.Password, &scan.IsAdmin)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 		}
