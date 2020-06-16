@@ -51,7 +51,10 @@ func (a Jizzberry) Register(r *mux.Router) {
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "text/html")
 
-	allFiles := files.Initialize().Get(files.Files{})
+	model := files.Initialize()
+	defer model.Close()
+
+	allFiles := model.Get(files.Files{})
 
 	ctx := Context{Files: allFiles}
 	sidebarContext(&ctx, r)
@@ -65,7 +68,10 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 func allCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "text/html")
 
-	allTags := tags.Initialize().Get(tags.Tag{})
+	model := tags.Initialize()
+	defer model.Close()
+
+	allTags := model.Get(tags.Tag{})
 
 	ctx := Context{Tags: allTags}
 	sidebarContext(&ctx, r)
@@ -79,7 +85,10 @@ func allCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 func allActorsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "text/html")
 
-	allActors := actor_details.Initialize().Get(actor_details.ActorDetails{})
+	model := actor_details.Initialize()
+	defer model.Close()
+
+	allActors := model.Get(actor_details.ActorDetails{})
 
 	ctx := Context{Actors: allActors}
 	sidebarContext(&ctx, r)
@@ -99,6 +108,7 @@ func singleActorHanlder(w http.ResponseWriter, r *http.Request) {
 	filesIDs := files.GetActorRelations(actorIDstr)
 
 	filesModel := files.Initialize()
+	defer filesModel.Close()
 
 	ctx := Context{}
 	sidebarContext(&ctx, r)
@@ -115,7 +125,10 @@ func singleActorHanlder(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
-	actorDetails := actor_details.Initialize().Get(actor_details.ActorDetails{ActorId: actorID})
+	model := actor_details.Initialize()
+	defer model.Close()
+
+	actorDetails := model.Get(actor_details.ActorDetails{ActorId: actorID})
 	ctx.Actors = actorDetails
 
 	err = helpers.Render(w, http.StatusOK, "singleActor", ctx)
@@ -129,13 +142,15 @@ func singleSceneHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	sceneId, _ := strconv.ParseInt(vars["scene_id"], 10, 64)
 
-	file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+	model := files.Initialize()
+	defer model.Close()
 
-	randomNext := files.Initialize().Get(files.Files{})
+	file := model.Get(files.Files{GeneratedID: sceneId})
+
+	randomNext := model.Get(files.Files{})
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(randomNext), func(i, j int) { randomNext[i], randomNext[j] = randomNext[j], randomNext[i] })
 
-	// TODO: Get UpNext on same conn
 	ctx := Context{
 		Files:     file,
 		ActorList: file[0].Actors,
@@ -160,8 +175,16 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "text/html")
 
 	if authentication.IsAdmin(authentication.GetUsernameFromSession(r)) {
-		allTags := tags.Initialize().Get(tags.Tag{})
-		users := auth.Initialize().Get(auth.Auth{})
+		modelTags := tags.Initialize()
+		defer modelTags.Close()
+
+		allTags := modelTags.Get(tags.Tag{})
+
+		modelAuth := auth.Initialize()
+		defer modelAuth.Close()
+
+		users := modelAuth.Get(auth.Auth{})
+
 		err := helpers.Render(w, http.StatusOK, "settings", Context{Config: helpers.GetConfig(), Tags: allTags, Users: users, IsAdmin: true})
 
 		if err != nil {

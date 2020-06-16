@@ -32,14 +32,23 @@ func moveFile(src, target string) error {
 		}
 		targetFile, err := os.Create(target)
 		if err != nil {
-			srcFile.Close()
+			err := srcFile.Close()
+			if err != nil {
+				helpers.LogError(err.Error(), component)
+			}
 			return err
 		}
-		defer targetFile.Close()
 		_, err = io.Copy(targetFile, srcFile)
-		srcFile.Close()
+		err = srcFile.Close()
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
 		if err != nil {
 			return err
+		}
+		err = targetFile.Close()
+		if err != nil {
+			helpers.LogError(err.Error(), component)
 		}
 		err = os.Remove(src)
 		if err != nil {
@@ -61,7 +70,11 @@ func makeFolders(folders []string) error {
 
 func organize(sceneId int64, progress *int) {
 	*progress = 1
-	file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+
+	fileModel := files.Initialize()
+	defer fileModel.Close()
+
+	file := fileModel.Get(files.Files{GeneratedID: sceneId})
 	if len(file) < 1 {
 		return
 	}
@@ -76,7 +89,7 @@ func organize(sceneId int64, progress *int) {
 		return
 	}
 
-	originalPaths := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+	originalPaths := fileModel.Get(files.Files{GeneratedID: sceneId})
 	if len(originalPaths) > 0 {
 		originalPath := originalPaths[0].FilePath
 
@@ -122,7 +135,10 @@ func (r Rename) Start(sceneId int64) (*context.CancelFunc, *int) {
 }
 
 func getBasePath(sceneId int64) string {
-	scenePaths := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+	model := files.Initialize()
+	defer model.Close()
+
+	scenePaths := model.Get(files.Files{GeneratedID: sceneId})
 	if len(scenePaths) > 0 {
 		scenePath := scenePaths[0].FilePath
 		videoPaths := helpers.GetConfig().Paths
@@ -137,28 +153,33 @@ func getBasePath(sceneId int64) string {
 }
 
 func getFolder(sceneId int64, title string) []string {
+	finalFolders := make([]string, 0)
+	basePath := getBasePath(sceneId)
+
 	formatter := helpers.GetConfig().FolderRenameFormatter
 	r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
 
 	if err != nil {
 		helpers.LogError(err.Error(), component+" - getFolder")
+		finalFolders = append(finalFolders, basePath)
+		return finalFolders
 	}
 
-	basePath := getBasePath(sceneId)
 	matches := r.FindAllString(formatter, -1)
 
-	finalFolders := make([]string, 0)
+	fileModel := files.Initialize()
+	defer fileModel.Close()
 
 	if len(matches) == 1 {
 		if strings.ToLower(matches[0]) == "{{actors}}" {
-			actors := files.Initialize().Get(files.Files{GeneratedID: sceneId})[0].Actors
+			actors := fileModel.Get(files.Files{GeneratedID: sceneId})[0].Actors
 			for _, a := range strings.Split(actors, ", ") {
 				finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+a))
 			}
 			return finalFolders
 
 		} else if strings.ToLower(matches[0]) == "{{actors_oneline}}" {
-			actors := files.Initialize().Get(files.Files{GeneratedID: sceneId})[0].Actors
+			actors := fileModel.Get(files.Files{GeneratedID: sceneId})[0].Actors
 			finalFolders = append(finalFolders, filepath.FromSlash(basePath+"/"+actors))
 			return finalFolders
 
@@ -167,7 +188,7 @@ func getFolder(sceneId int64, title string) []string {
 			return finalFolders
 
 		} else if strings.ToLower(matches[0]) == "{{tags}}" {
-			file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+			file := fileModel.Get(files.Files{GeneratedID: sceneId})
 			if len(file) > 0 {
 				tags := strings.Split(file[0].Tags, ", ")
 				for _, t := range tags {
@@ -175,7 +196,7 @@ func getFolder(sceneId int64, title string) []string {
 				}
 			}
 		} else if strings.ToLower(matches[0]) == "{{studios}}" {
-			file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+			file := fileModel.Get(files.Files{GeneratedID: sceneId})
 			if len(file) > 0 {
 				studios := strings.Split(file[0].Studios, ", ")
 				for _, s := range studios {
@@ -186,18 +207,18 @@ func getFolder(sceneId int64, title string) []string {
 	} else {
 		for _, m := range matches {
 			if strings.ToLower(m) == "{{actors}}" {
-				actors := files.Initialize().Get(files.Files{GeneratedID: sceneId})[0].Actors
+				actors := fileModel.Get(files.Files{GeneratedID: sceneId})[0].Actors
 				strings.ReplaceAll(formatter, m, actors)
 
 			} else if strings.ToLower(m) == "{{title}}" {
 				strings.ReplaceAll(formatter, m, title)
 			} else if strings.ToLower(m) == "{{tags}}" {
-				file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+				file := fileModel.Get(files.Files{GeneratedID: sceneId})
 				if len(file) > 0 {
 					strings.ReplaceAll(formatter, m, file[0].Tags)
 				}
 			} else if strings.ToLower(m) == "{{studios}}" {
-				file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+				file := fileModel.Get(files.Files{GeneratedID: sceneId})
 				if len(file) > 0 {
 					strings.ReplaceAll(formatter, m, file[0].Studios)
 				}

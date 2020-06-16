@@ -49,7 +49,10 @@ func Initialize() *FilesModel {
 }
 
 func (f FilesModel) Close() {
-	f.conn.Close()
+	err := f.conn.Close()
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
 }
 
 func (f FilesModel) Create(files Files) int64 {
@@ -77,7 +80,6 @@ func (f FilesModel) Create(files Files) int64 {
 		fmt.Println(err)
 	}
 
-	defer f.Close()
 	setActorRelation(genID, files.Actors)
 	setStudioRelation(genID, files.Studios)
 	setTagRelation(genID, files.Tags)
@@ -220,6 +222,8 @@ func setActorRelation(genId int64, actors string) {
 	if relation != nil {
 		if actors != "" {
 			actorsModel := actor.Initialize()
+			defer actorsModel.Close()
+
 			for _, a := range actorsSli {
 				tmp := actorsModel.GetExact(a)
 				relation[strconv.FormatInt(tmp.GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp.GeneratedID, 10)], strconv.FormatInt(genId, 10))
@@ -252,6 +256,7 @@ func setStudioRelation(genId int64, studio string) {
 	if relation != nil {
 		if studio != "" {
 			studiosModel := studios.Initialize()
+			defer studiosModel.Close()
 			for _, s := range split {
 				tmp := studiosModel.Get(studios.Studio{Studio: s})[0]
 				relation[strconv.FormatInt(tmp.GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp.GeneratedID, 10)], strconv.FormatInt(genId, 10))
@@ -275,6 +280,8 @@ func setTagRelation(genId int64, tag string) {
 	if relation != nil {
 		if tag != "" {
 			tagsModel := tags.Initialize()
+			defer tagsModel.Close()
+
 			for _, t := range split {
 				tmp := tagsModel.Get(tags.Tag{Name: t})[0]
 				relation[strconv.FormatInt(tmp.GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp.GeneratedID, 10)], strconv.FormatInt(genId, 10))

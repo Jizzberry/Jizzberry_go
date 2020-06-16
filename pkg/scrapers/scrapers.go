@@ -9,8 +9,6 @@ import (
 	"sync"
 )
 
-const component = "Scrapers"
-
 var actorScrapers = make([]factory.ActorsImpl, 0)
 var videoScrapers = make([]factory.VideosImpl, 0)
 var studioScrapers = make([]factory.StudiosImpl, 0)
@@ -23,6 +21,7 @@ func RegisterScrapers() {
 
 func ScrapeActor(actors actor.Actor) *actor_details.ActorDetails {
 	detailsModel := actor_details.Initialize()
+	defer detailsModel.Close()
 
 	if ok, _ := detailsModel.IsExists(actors.GeneratedID); !ok {
 		for _, i := range actorScrapers {

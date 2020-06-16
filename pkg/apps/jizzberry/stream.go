@@ -15,7 +15,9 @@ import (
 const BUFSIZE = 1024 * 8
 
 func getPath(sceneId int64) string {
-	return files.Initialize().Get(files.Files{GeneratedID: sceneId})[0].FilePath
+	model := files.Initialize()
+	defer model.Close()
+	return model.Get(files.Files{GeneratedID: sceneId})[0].FilePath
 }
 
 func streamHandler(w http.ResponseWriter, r *http.Request) {
@@ -124,7 +126,10 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 
 		buffer := make([]byte, BUFSIZE)
 
-		file.Seek(int64(contentStartValue), 0)
+		_, err := file.Seek(int64(contentStartValue), 0)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
 
 		writeBytes := 0
 
@@ -143,13 +148,19 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 
 			if writeBytes >= contentEndValue {
 				data := buffer[:BUFSIZE-writeBytes+contentEndValue+1]
-				w.Write(data)
+				_, err := w.Write(data)
+				if err != nil {
+					helpers.LogError(err.Error(), component)
+				}
 				w.(http.Flusher).Flush()
 				break
 			}
 
 			data := buffer[:n]
-			w.Write(data)
+			_, err = w.Write(data)
+			if err != nil {
+				helpers.LogError(err.Error(), component)
+			}
 			w.(http.Flusher).Flush()
 		}
 	}

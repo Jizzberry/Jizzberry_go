@@ -69,7 +69,6 @@ func (a ActorDetailsModel) Create(details ActorDetails) int64 {
 	}
 
 	genID, _ := row.LastInsertId()
-	defer a.Close()
 	return genID
 }
 
@@ -156,14 +155,4 @@ func (a ActorDetailsModel) isEmpty() bool {
 		return true
 	}
 	return false
-}
-
-func contains(slice []ActorDetails, actorId int64) bool {
-	set := make(map[int64]struct{}, len(slice))
-	for _, s := range slice {
-		set[s.ActorId] = struct{}{}
-	}
-
-	_, ok := set[actorId]
-	return ok
 }

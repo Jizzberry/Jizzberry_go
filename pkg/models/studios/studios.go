@@ -30,7 +30,10 @@ func Initialize() *StudiosModel {
 }
 
 func (s StudiosModel) Close() {
-	s.conn.Close()
+	err := s.conn.Close()
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
 }
 
 func (s StudiosModel) isEmpty() bool {
@@ -99,7 +102,10 @@ func (s StudiosModel) Create(studios []Studio) {
 		_, err := tx.Exec(`INSERT INTO studios (studio) SELECT ? WHERE NOT EXISTS(SELECT 1 FROM studios WHERE studio = ?)`, stud.Studio, stud.Studio)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
-			tx.Rollback()
+			err := tx.Rollback()
+			if err != nil {
+				helpers.LogError(err.Error(), component)
+			}
 		}
 	}
 
@@ -107,7 +113,6 @@ func (s StudiosModel) Create(studios []Studio) {
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
-	defer s.Close()
 }
 
 func (s StudiosModel) Delete(studio string) {

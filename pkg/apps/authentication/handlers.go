@@ -116,7 +116,10 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func userIsValid(username string, password string) bool {
-	fetchUsers := auth.Initialize().Get(auth.Auth{Username: username})
+	model := auth.Initialize()
+	defer model.Close()
+
+	fetchUsers := model.Get(auth.Auth{Username: username})
 	if len(fetchUsers) > 0 {
 		hashedPass := fetchUsers[0].Password
 		if hashedPass != "" {
@@ -144,7 +147,10 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 	val := session.Values[helpers.Usernamekey]
 
 	if val != nil {
-		user := auth.Initialize().Get(auth.Auth{Username: val.(string)})
+		model := auth.Initialize()
+		defer model.Close()
+
+		user := model.Get(auth.Auth{Username: val.(string)})
 		if len(user) > 0 {
 			if user[0].Username == val {
 				session.Options.MaxAge = 30 * 60
@@ -174,7 +180,10 @@ func newUser(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue(helpers.PasswordKey)
 	admin := r.FormValue("isAdmin")
 
-	auth.Initialize().Create(auth.Auth{
+	model := auth.Initialize()
+	defer model.Close()
+
+	model.Create(auth.Auth{
 		Username: username,
 		Password: password,
 		IsAdmin:  admin == "on",
@@ -194,7 +203,10 @@ func GetUsernameFromSession(r *http.Request) string {
 }
 
 func IsAdmin(username string) bool {
-	user := auth.Initialize().Get(auth.Auth{Username: username})
+	model := auth.Initialize()
+	defer model.Close()
+
+	user := model.Get(auth.Auth{Username: username})
 	if len(user) > 0 {
 		if user[0].IsAdmin {
 			return true

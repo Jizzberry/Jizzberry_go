@@ -30,7 +30,10 @@ func Initialize() *TagsModel {
 }
 
 func (t TagsModel) Close() {
-	t.conn.Close()
+	err := t.conn.Close()
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
 }
 
 func (t TagsModel) isEmpty() bool {
@@ -100,7 +103,6 @@ func (t TagsModel) Create(tags Tag) int64 {
 
 	genID, _ := row.LastInsertId()
 
-	defer t.Close()
 	return genID
 }
 

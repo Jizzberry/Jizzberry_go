@@ -53,17 +53,17 @@ func (a ActorsModel) Create(actors []Actor) {
 		_, err := tx.Exec(`INSERT INTO actors (name, website, urlid) SELECT ?, ?, ? WHERE NOT EXISTS(SELECT 1 FROM actors WHERE name = ?)`, act.Name, act.Website, act.UrlID, act.Name)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
-			tx.Rollback()
+			err := tx.Rollback()
+			if err != nil {
+				helpers.LogError(err.Error(), component)
+			}
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		helpers.LogError(err.Error(), component)
-		tx.Rollback()
 	}
-
-	defer a.Close()
 }
 
 func (a ActorsModel) GetExact(name string) Actor {
@@ -110,14 +110,15 @@ func (a ActorsModel) GetFromTitle(names []string) []Actor {
 }
 
 func (a ActorsModel) Get(actor Actor) []Actor {
+	allActors := make([]Actor, 0)
 	query, args := models.QueryBuilderGet(actor, tableName)
 
 	rows, err := a.conn.Query(query, args...)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
+		return allActors
 	}
 
-	allActors := make([]Actor, 0)
 	for rows.Next() {
 		actor := Actor{}
 		err := rows.Scan(&actor.GeneratedID, &actor.Name, &actor.UrlID, &actor.Website)
@@ -141,7 +142,10 @@ func (a ActorsModel) isEmpty() bool {
 	var count int
 
 	for rows.Next() {
-		rows.Scan(&count)
+		err := rows.Scan(&count)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
 	}
 
 	if count < 0 {

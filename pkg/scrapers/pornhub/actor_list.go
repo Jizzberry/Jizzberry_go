@@ -42,7 +42,11 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 				})
 			}
 		})
-		actor.Initialize().Create(actorSlice)
+		model := actor.Initialize()
+		defer model.Close()
+
+		model.Create(actorSlice)
+
 	})
 
 	c.OnError(func(response *colly.Response, err error) {

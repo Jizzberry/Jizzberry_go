@@ -27,6 +27,7 @@ func MatchActorToTitle(title string) []actor.Actor {
 
 	actorsModel := actor.Initialize()
 	defer actorsModel.Close()
+
 	words := make([]string, 0)
 	for i := range split {
 		// Avoid articles ig
@@ -61,14 +62,20 @@ func RegexpBuilder(name string) string {
 }
 
 func MatchActorExact(name string) *[]actor.Actor {
+	model := actor.Initialize()
+	defer model.Close()
+
 	actors := make([]actor.Actor, 0)
-	actors = append(actors, actor.Initialize().GetExact(name))
+	actors = append(actors, model.GetExact(name))
 
 	return &actors
 }
 
 func UpdateDetails(sceneId int64, title string, date string, actors []string, tags []string, studios []string) {
-	files.Initialize().Update(files.Files{
+	modelFiles := files.Initialize()
+	defer modelFiles.Close()
+
+	modelFiles.Update(files.Files{
 		GeneratedID: sceneId,
 		FileName:    title,
 		DateCreated: date,
@@ -77,11 +84,14 @@ func UpdateDetails(sceneId int64, title string, date string, actors []string, ta
 		Studios:     strings.Join(studios, ", "),
 	})
 
+	modelActorD := actor_details.Initialize()
+	defer modelActorD.Close()
+
 	for _, a := range actors {
 		data := MatchActorExact(a)
 		for _, a := range *data {
 			scraped := scrapers.ScrapeActor(a)
-			actor_details.Initialize().Create(*scraped)
+			modelActorD.Create(*scraped)
 		}
 	}
 }
@@ -101,7 +111,10 @@ func FormatTitle(title string, sceneId int64) string {
 			return title
 		}
 
-		file := files.Initialize().Get(files.Files{GeneratedID: sceneId})
+		model := files.Initialize()
+		defer model.Close()
+
+		file := model.Get(files.Files{GeneratedID: sceneId})
 		if len(file) < 1 {
 			return title
 		}

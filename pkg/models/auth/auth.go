@@ -30,6 +30,13 @@ func Initialize() *AuthModel {
 	}
 }
 
+func (a AuthModel) Close() {
+	err := a.conn.Close()
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
+}
+
 func (a AuthModel) Create(auth Auth) {
 	auth.Password = hashPassword(auth.Password)
 

@@ -57,6 +57,7 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 
 	var file []files.Files
 	model := files.Initialize()
+	defer model.Close()
 
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
@@ -89,6 +90,7 @@ func actorDetailHandler(w http.ResponseWriter, r *http.Request) {
 
 	var actorDetails []actor_details.ActorDetails
 	model := actor_details.Initialize()
+	defer model.Close()
 
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
@@ -125,6 +127,7 @@ func actorsHandler(w http.ResponseWriter, r *http.Request) {
 
 	actors := make([]actor.Actor, 0)
 	model := actor.Initialize()
+	defer model.Close()
 
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
@@ -157,7 +160,10 @@ func scrapeActorHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 		}
-		tmp := actor.Initialize().Get(actor.Actor{GeneratedID: int64(genId)})
+		model := actor.Initialize()
+		defer model.Close()
+
+		tmp := model.Get(actor.Actor{GeneratedID: int64(genId)})
 		if len(tmp) > 0 {
 			actors = append(actors, *scrapers.ScrapeActor(tmp[0]))
 		}
@@ -202,6 +208,7 @@ func studiosHandler(w http.ResponseWriter, r *http.Request) {
 
 	studios := make([]studios2.Studio, 0)
 	model := studios2.Initialize()
+	defer model.Close()
 
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
@@ -229,6 +236,7 @@ func tagsHandler(w http.ResponseWriter, r *http.Request) {
 
 	tags := make([]tags2.Tag, 0)
 	model := tags2.Initialize()
+	defer model.Close()
 
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
@@ -309,18 +317,32 @@ func pathHandler(w http.ResponseWriter, r *http.Request) {
 		if len(queryParams["path"]) > 0 {
 			err := helpers.AddPath(queryParams["path"][0])
 			if err != nil {
-				fmt.Fprintf(w, err.Error())
+				helpers.LogError(err.Error(), component)
+				_, err := fmt.Fprintf(w, err.Error())
+				if err != nil {
+					helpers.LogError(err.Error(), component)
+				}
 			} else {
-				fmt.Fprintf(w, "success")
+				_, err := fmt.Fprintf(w, "success")
+				if err != nil {
+					helpers.LogError(err.Error(), component)
+				}
 			}
 		}
 	case http.MethodDelete:
 		if len(queryParams["path"]) > 0 {
 			err := helpers.RemovePath(queryParams["path"][0])
 			if err != nil {
-				fmt.Fprintf(w, err.Error())
+				helpers.LogError(err.Error(), component)
+				_, err := fmt.Fprintf(w, err.Error())
+				if err != nil {
+					helpers.LogError(err.Error(), component)
+				}
 			} else {
-				fmt.Fprintf(w, "success")
+				_, err := fmt.Fprintf(w, "success")
+				if err != nil {
+					helpers.LogError(err.Error(), component)
+				}
 			}
 		}
 	}
