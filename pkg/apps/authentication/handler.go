@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/auth"
 	"github.com/gorilla/mux"
@@ -17,7 +16,10 @@ type Context struct {
 	Error string
 }
 
-const baseURL = "/auth"
+const (
+	baseURL   = "/auth"
+	component = "WebAuth"
+)
 
 var SessionsStore = sessions.NewCookieStore(helpers.GetSessionsKey())
 
@@ -26,6 +28,7 @@ func (a Authentication) Register(r *mux.Router) {
 
 	authRouter.HandleFunc("/login/", loginHandler)
 	authRouter.HandleFunc("/logout/", logoutHandler)
+	authRouter.HandleFunc("/create/", newUser).Methods("POST")
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +44,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 
 	username := r.FormValue(helpers.Usernamekey)
@@ -49,9 +52,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	if username != "" && password != "" {
 		if userIsValid(username, password) {
-
-			fmt.Println("valid")
-
 			session.Values[helpers.Usernamekey] = username
 			prevURL := session.Values[helpers.PrevURLKey]
 
@@ -62,6 +62,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 				err := session.Save(r, w)
 
 				if err != nil {
+					helpers.LogError(err.Error(), component)
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
@@ -72,6 +73,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 			err := session.Save(r, w)
 			if err != nil {
+				helpers.LogError(err.Error(), component)
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -81,19 +83,20 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 		err := helpers.Render(w, http.StatusOK, "login", Context{Error: "Couldn't validate"})
 		if err != nil {
-			fmt.Println(err)
+			helpers.LogError(err.Error(), component)
 		}
 		return
 	}
 	err = helpers.Render(w, http.StatusOK, "login", nil)
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := SessionsStore.Get(r, helpers.SessionsKey)
 	if err != nil {
+		helpers.LogError(err.Error(), component)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -104,6 +107,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	err = session.Save(r, w)
 
 	if err != nil {
+		helpers.LogError(err.Error(), component)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -113,13 +117,12 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
 func userIsValid(username string, password string) bool {
 	fetchUsers := auth.Initialize().Get(auth.Auth{Username: username})
-	fmt.Println(fetchUsers)
 	if len(fetchUsers) > 0 {
 		hashedPass := fetchUsers[0].Password
 		if hashedPass != "" {
 			err := bcrypt.CompareHashAndPassword([]byte(hashedPass), []byte(password))
 			if err != nil {
-				fmt.Println(err)
+				helpers.LogError(err.Error(), component)
 				return false
 			}
 			return true
@@ -147,7 +150,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 				session.Options.MaxAge = 30 * 60
 				err := session.Save(r, w)
 				if err != nil {
-					fmt.Println(err)
+					helpers.LogError(err.Error(), component)
 					return false
 				}
 				return true
@@ -155,6 +158,27 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 		}
 	}
 	return false
+}
+
+func newUser(w http.ResponseWriter, r *http.Request) {
+	if !ValidateSession(w, r) && IsAdmin(GetUsernameFromSession(r)) {
+		return
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
+
+	username := r.FormValue(helpers.Usernamekey)
+	password := r.FormValue(helpers.PasswordKey)
+	admin := r.FormValue("isAdmin")
+
+	auth.Initialize().Create(auth.Auth{
+		Username: username,
+		Password: password,
+		IsAdmin:  admin == "on",
+	})
 }
 
 func GetUsernameFromSession(r *http.Request) string {

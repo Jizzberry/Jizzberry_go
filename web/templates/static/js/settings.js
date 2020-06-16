@@ -1,3 +1,15 @@
+$(function () {
+    $('#usercreationform').submit(function (event) {
+        event.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '/auth/create/',
+            data: $(this).serialize(),
+        });
+        window.location.reload()
+    });
+})
+
 function postConfig() {
     const inputFolder = document.getElementById("folderForm");
     const inputFile = document.getElementById("fileForm");

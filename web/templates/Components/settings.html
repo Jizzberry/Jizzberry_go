@@ -51,12 +51,10 @@
 								{{range $val := .Config.Paths}}
 
 									<div class="path-link">
-										<span><a href="#">{{$val}}</a></span> <span></span>
-
-										<div class="btn config-grey-circle" onclick="removePath('{{$val}}')">
+										<span><a href="#">{{$val}}</a></span>
+										<div class="btn btn-trans" onclick="removePath('{{$val}}')">
 											<span><i class="fas fa-times"></i> <a href="#"></a></span>
 										</div>
-										<span></span>
 									</div>
 								{{ end }}
 							</nav>
@@ -124,22 +122,23 @@
 
 							<div class="tag-cards d-flex">
 								<div class="tag-card card mr-5">
-									<a href="#"><img class="card-img-top plus-card-img" src="/static/img/plus.png"></a>
-
-									<div class="tag-card-body card-body p-0">
-										<p class="text-center card-text">New User</p>
-									</div>
+									<a href="#" data-toggle="modal" data-target="#usercreation"><img
+												class="card-img-top plus-card-img" src="/static/img/plus.png">
+										<div class="tag-card-body card-body p-0">
+											<p class="text-center card-text">New User</p>
+										</div>
+									</a>
 								</div>
 								{{range $val := .Users}}
 
 									<div class="tag-card card mr-5">
-										<a href="#"></a>
-
-										<div class="tag-card-body card-body p-0">
-											<p class="text-center card-text">{{ $val.Username }}<br>
-												<span class="text-muted tag-card-subtitle"
-													  id="status-{{ $val.Username }}">Offline</span></p>
-										</div>
+										<a href="#">
+											<div class="tag-card-body card-body p-0">
+												<p class="text-center card-text">{{ $val.Username }}<br>
+													<span class="text-muted tag-card-subtitle"
+														  id="status-{{ $val.Username }}">Offline</span></p>
+											</div>
+										</a>
 									</div>
 								{{ end }}
 							</div>
@@ -173,13 +172,15 @@
 
 
 							<div class="stats-btn-grp d-flex">
-								<button class="btn task-buttons" hidden="" id="scan-stop" onclick="stopTask('scan');"><i
+								<button class="btn btn-trans task-buttons" hidden="" id="scan-stop"
+										onclick="stopTask('scan');"><i
 											class="fas fa-stop"></i></button>
-								<button class="btn task-buttons" id="scan-play" onclick="startScan();"><i
+								<button class="btn btn-trans task-buttons" id="scan-play" onclick="startScan();"><i
 											class="fas fa-play" style="color: #149ddd;"></i></button>
-								<button class="btn task-buttons" hidden="" id="scan-redo" onclick="startScan();"><i
+								<button class="btn btn-trans task-buttons" hidden="" id="scan-redo"
+										onclick="startScan();"><i
 											class="fas fa-redo-alt" style="color: #149ddd;"></i></button>
-								<button class="btn task-buttons" hidden="" id="scan-angle-down"><i
+								<button class="btn btn-trans task-buttons" hidden="" id="scan-angle-down"><i
 											class="fas fa-angle-down"></i></button>
 							</div>
 						</div>
@@ -227,6 +228,7 @@
 			</div>
 		</div>
 		{{ template "filebrowse_modal"}}
+		{{ template "user_modal"}}
 	</main>
 	<script src="/static/js/search.js"></script>
 	<script src="/static/js/settings.js"></script>

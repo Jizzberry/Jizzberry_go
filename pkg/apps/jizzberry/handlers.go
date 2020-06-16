@@ -1,7 +1,6 @@
 package jizzberry
 
 import (
-	"fmt"
 	"github.com/Jizzberry/Jizzberry-go/pkg/apps/authentication"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/middleware"
@@ -56,8 +55,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := Context{Files: allFiles}
 	sidebarContext(&ctx, r)
-
-	fmt.Println(ctx.IsAdmin)
 
 	err := helpers.Render(w, http.StatusOK, "home", ctx)
 	if err != nil {
