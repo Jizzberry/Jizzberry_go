@@ -12,7 +12,7 @@ var logger *logrus.Logger
 
 var LogDir string
 
-func Init() {
+func LoggerInit() {
 
 	LogDir = GetWorkingDirectory() + "/logs"
 

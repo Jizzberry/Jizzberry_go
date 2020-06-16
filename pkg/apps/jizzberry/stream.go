@@ -1,6 +1,7 @@
 package jizzberry
 
 import (
+	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -73,7 +74,10 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			data := buffer[:n]
-			w.Write(data)
+			_, err = w.Write(data)
+			if err != nil {
+				helpers.LogError(err.Error(), component)
+			}
 			w.(http.Flusher).Flush()
 		}
 

@@ -77,7 +77,7 @@ function getPage() {
 
 function setActiveButton(id) {
     let container = document.getElementById("home-nav");
-    for (var i = 0; i < container.childElementCount; i++) {
+    for (let i = 0; i < container.childElementCount; i++) {
         if (container.children[i].classList.contains("active")) {
             container.children[i].classList.remove("active");
         }

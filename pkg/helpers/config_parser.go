@@ -29,7 +29,7 @@ type Config struct {
 	FolderRenameFormatter string   `json:"folder_rename_formatter" mapstructure:"folderRenameFormatter"`
 }
 
-func init() {
+func ConfigInit() {
 	viper.SetConfigName(configFileName)
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")

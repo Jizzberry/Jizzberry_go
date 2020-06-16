@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/markbates/pkger"
 	"html/template"
 	"io"
@@ -18,7 +17,7 @@ type TemplateHolder struct {
 
 var Rnd = TemplateHolder{}
 
-func init() {
+func RndInit() {
 	Rnd.template = parseTemplates()
 }
 
@@ -26,10 +25,9 @@ func parseTemplates() *template.Template {
 	t := template.New("")
 	tmp := ""
 
-	err := pkger.Walk("/web/templates/Components", func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(filepath.Join(GetWorkingDirectory(), "web/templates/Components"), func(path string, info os.FileInfo, err error) error {
 		if filepath.Ext(path) == ".html" {
 			open, err := pkger.Open(path)
-			fmt.Println(path)
 			if err != nil {
 				return err
 			}
@@ -43,17 +41,18 @@ func parseTemplates() *template.Template {
 	})
 
 	if err != nil {
-		fmt.Println(err)
+		LogError(err.Error(), component)
 	}
 
 	_, err = t.Parse(tmp)
 	if err != nil {
-		fmt.Println(err)
+		LogError(err.Error(), component)
 	}
 	return t
 }
 
 func Render(w http.ResponseWriter, status int, name string, v interface{}) error {
+	RndInit()
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(status)
 

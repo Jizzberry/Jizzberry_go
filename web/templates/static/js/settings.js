@@ -5,8 +5,13 @@ $(function () {
             type: 'POST',
             url: '/auth/create/',
             data: $(this).serialize(),
+            success: function () {
+                window.location.reload()
+            },
+            error: function (msg) {
+                alert(msg)
+            }
         });
-        window.location.reload()
     });
 })
 

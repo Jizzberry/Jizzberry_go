@@ -4,8 +4,7 @@
 
 	<html lang="en">
 	<head>
-		<meta charset="utf-8">
-		<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+		{{template "meta"}}
 
 		<link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/static/css/jizzberry.css" rel="stylesheet">
@@ -168,6 +167,8 @@
 
 
 								<p class="ml-1 mb-0 pt-2">Scan</p>
+								<button class="btn btn-trans task-buttons" id="scan-play" onclick="startScan();"><i
+											class="fas fa-play" style="color: #149ddd;"></i></button>
 							</div>
 
 
@@ -175,8 +176,6 @@
 								<button class="btn btn-trans task-buttons" hidden="" id="scan-stop"
 										onclick="stopTask('scan');"><i
 											class="fas fa-stop"></i></button>
-								<button class="btn btn-trans task-buttons" id="scan-play" onclick="startScan();"><i
-											class="fas fa-play" style="color: #149ddd;"></i></button>
 								<button class="btn btn-trans task-buttons" hidden="" id="scan-redo"
 										onclick="startScan();"><i
 											class="fas fa-redo-alt" style="color: #149ddd;"></i></button>
