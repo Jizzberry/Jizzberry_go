@@ -719,3 +719,21 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+
+#multiselector-form input {
+    font-size: 20px;
+    border-radius: 7px 0px 0px 7px;
+}
+
+#multiselector-form.button-holder {
+    box-sizing: border-box;
+}
+
+#multiselector-form button {
+    box-shadow: none;
+    outline: none;
+    box-sizing: border-box;
+    color: red;
+    font-size: 20px;
+    border-radius: 0 7px 7px 0;
+}

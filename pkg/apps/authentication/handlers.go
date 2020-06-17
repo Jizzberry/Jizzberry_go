@@ -167,7 +167,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func newUser(w http.ResponseWriter, r *http.Request) {
-	if !ValidateSession(w, r) && IsAdmin(GetUsernameFromSession(r)) {
+	if !ValidateSession(w, r) && IsAdminFromSession(r) {
 		return
 	}
 
@@ -202,11 +202,18 @@ func GetUsernameFromSession(r *http.Request) string {
 	return session.Values[helpers.Usernamekey].(string)
 }
 
-func IsAdmin(username string) bool {
+func IsAdminFromSession(r *http.Request) bool {
+	session, err := SessionsStore.Get(r, helpers.SessionsKey)
+	if err != nil {
+		return false
+	}
+	if session.IsNew {
+		return false
+	}
 	model := auth.Initialize()
 	defer model.Close()
 
-	user := model.Get(auth.Auth{Username: username})
+	user := model.Get(auth.Auth{Username: session.Values[helpers.Usernamekey].(string)})
 	if len(user) > 0 {
 		if user[0].IsAdmin {
 			return true

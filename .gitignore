@@ -17,5 +17,5 @@
 # vendor/
 
 .idea/
-config.*
+config*
 pkged.go

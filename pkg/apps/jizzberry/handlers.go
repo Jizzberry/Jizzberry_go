@@ -174,7 +174,7 @@ func singleSceneHandler(w http.ResponseWriter, r *http.Request) {
 func settingsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "text/html")
 
-	if authentication.IsAdmin(authentication.GetUsernameFromSession(r)) {
+	if authentication.IsAdminFromSession(r) {
 		modelTags := tags.Initialize()
 		defer modelTags.Close()
 
@@ -194,7 +194,7 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func sidebarContext(ctx *Context, r *http.Request) {
-	if authentication.IsAdmin(authentication.GetUsernameFromSession(r)) {
+	if authentication.IsAdminFromSession(r) {
 		ctx.IsAdmin = true
 	} else {
 		ctx.IsAdmin = false

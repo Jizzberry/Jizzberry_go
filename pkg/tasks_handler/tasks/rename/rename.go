@@ -104,7 +104,7 @@ func organize(sceneId int64, progress *int) {
 				return
 			}
 
-			if isFileExists(folders[i]) {
+			if helpers.IsFileExists(folders[i]) {
 				helpers.LogError(fmt.Sprintf("file already exists: %s", folders[i]), component)
 				*progress = 100
 				return
@@ -232,12 +232,4 @@ func getFolder(sceneId int64, title string) []string {
 		return append(finalFolders, basePath)
 	}
 	return finalFolders
-}
-
-func isFileExists(filePath string) bool {
-	info, err := os.Stat(filePath)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
 }

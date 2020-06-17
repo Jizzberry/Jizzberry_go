@@ -1,33 +1,66 @@
 {{ define "multiselector_modal"}}
-<!-- The Modal -->
-<div class="modal" id="multiselectorModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">Modal Heading</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-
-            <!-- Modal body -->
-            <div class="modal-body" id="multiselector-modal-body">
-                <form class="form-inline">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="basic-addon1">@</span>
+    <div
+            class="modal fade"
+            id="multiselectorModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+    >
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body" id="multiselector-modal-body">
+                    <div class="input-group mb-3">
+                        <input
+                                style="
+									background-color: rgb(230, 230, 230);
+									box-shadow: none;
+									border-radius: 30px 0px 0px 30px;
+									outline: none;
+									border: none;
+								"
+                                placeholder="Enter Path Manually"
+                                type="search"
+                                class="form-control pl-4"
+                        />
+                        <div class="input-group-append">
+                            <button
+                                    style="
+										padding-left: 2rem;
+										background-color: aquamarine;
+										box-shadow: none;
+										border-radius: 0px 30px 30px 0px;
+										outline: none;
+										border: none;
+									"
+                                    class="input-group-text"
+                            ></button>
                         </div>
                     </div>
-                </form>
-            </div>
 
-            <!-- Modal footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <nav class="navbar navbar-light">
+                        <form style="font-size: 20px;" class="form-inline" id="multiselector-form">
+
+                        </form>
+                    </nav>
+                </div>
+                <div class="modal-footer">
+                    <button
+                            style="
+								border-radius: 20px;
+								border: none;
+								outline: none;
+								box-shadow: none;
+								padding: 4px 20px;
+							"
+                            type="button"
+                            class="btn btn-primary"
+                    >
+                        SAVE
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 {{ end }}

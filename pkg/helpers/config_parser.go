@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 )
 
+var configPath string
+
 const (
 	Usernamekey    = "username"
 	PasswordKey    = "password"
@@ -15,6 +17,7 @@ const (
 	LoginURL       = "/auth/login/"
 	PrevURLKey     = "prevurl"
 	configFileName = "config"
+	configFormat   = "yaml"
 
 	ThumbnailPath = "./assets/thumbnails"
 
@@ -30,16 +33,15 @@ type Config struct {
 }
 
 func ConfigInit() error {
+	configPath = GetWorkingDirectory()
+
 	viper.SetConfigName(configFileName)
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
+	viper.SetConfigType(configFormat)
+	viper.AddConfigPath(configPath)
 
-	err := viper.ReadInConfig()
-	if err != nil {
-		return err
-	}
+	_ = viper.ReadInConfig()
 
-	err = writeInitial()
+	err := writeInitial()
 	if err != nil {
 		return err
 	}
@@ -132,7 +134,7 @@ func GetSessionsKey() []byte {
 }
 
 func write() error {
-	if err := viper.WriteConfigAs(configFileName + ".yaml"); err != nil {
+	if err := viper.WriteConfigAs(filepath.Join(configPath, configFileName+"."+configFormat)); err != nil {
 		return err
 	}
 	return nil

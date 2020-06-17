@@ -222,7 +222,8 @@ func IsExists() error {
 	execPathProbe := getExecs(filepath.Dir(helpers.GetConfig().FFPROBE), "ffprobe")
 
 	if execPathFFMPEG == "" || execPathProbe == "" {
-		helpers.LogWarning("couldn't find ffmpeg or ffprobe executables", component)
+		helpers.LogWarning("Couldn't find ffmpeg or ffprobe executables", component)
+		helpers.LogInfo("Downloading ffmpeg...", component)
 
 		err := DownloadAndExtract()
 
@@ -243,5 +244,6 @@ func IsExists() error {
 	if err != nil {
 		return err
 	}
+	helpers.LogInfo("Downloaded ffmpeg", component)
 	return nil
 }

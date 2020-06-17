@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"bytes"
-	"github.com/markbates/pkger"
 	"html/template"
 	"io"
 	"net/http"
@@ -27,17 +26,22 @@ func parseTemplates() *template.Template {
 
 	err := filepath.Walk(filepath.Join(GetWorkingDirectory(), "web/templates/Components"), func(path string, info os.FileInfo, err error) error {
 		if filepath.Ext(path) == ".html" {
-			open, err := pkger.Open(path)
+			open, err := os.Open(path)
 			if err != nil {
 				return err
 			}
+
 			buf := new(strings.Builder)
 			if _, err := io.Copy(buf, open); err != nil {
 				return err
 			}
 			tmp += buf.String()
+			err = open.Close()
+			if err != nil {
+				return err
+			}
 		}
-		return err
+		return nil
 	})
 
 	if err != nil {

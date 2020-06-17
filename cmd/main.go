@@ -3,11 +3,17 @@ package main
 import (
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry-go/pkg/helpers/initializer"
+	"os"
 )
 
 func main() {
-	helpers.SetWorkingDirectory(".")
-	err := initializer.Init()
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+
+	helpers.SetWorkingDirectory(wd)
+	err = initializer.Init()
 	if err != nil {
 		panic(err)
 		return

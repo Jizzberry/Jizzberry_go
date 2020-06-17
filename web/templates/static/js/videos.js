@@ -51,17 +51,27 @@ function getArrays() {
 }
 
 function openModal(array) {
-    let body = document.getElementById("multiselector-modal-body")
+    let body = document.getElementById("multiselector-form")
 
     if (body != null) {
         body.innerHTML = "";
         console.log(array)
         for (let i = 0; i < array.length; i++) {
-            let text = document.createElement("span");
-            let remove = document.createElement("button")
-            let div = document.createElement("div");
-            text.textContent = array[i];
-            remove.onclick = removeElement;
+            let holder = document.createElement("div");
+
+            let inputGrp = document.createElement("div");
+            inputGrp.className = "input-group";
+
+            let inputField = document.createElement("input");
+            inputField.type = "text";
+            inputField.className = "form-control"
+            inputField.disabled = true;
+            inputField.placeholder = array[i];
+
+            inputGrp.appendChild(inputField)
+
+            let buttonHolder = document.createElement("div")
+            buttonHolder.className = "input-group-prepend button-holder"
 
             function removeElement() {
                 array.splice(i, 1)
@@ -69,9 +79,16 @@ function openModal(array) {
                 openModal(array)
             }
 
-            // div.appendChild(text)
-            // div.appendChild(remove)
-            // body.appendChild(div)
+            let button = document.createElement("button")
+            button.className = "input-group-text bg-light";
+            button.onclick = removeElement;
+
+            buttonHolder.appendChild(button)
+
+            holder.appendChild(inputGrp)
+            holder.appendChild(buttonHolder)
+
+            body.appendChild(holder)
         }
     }
 }

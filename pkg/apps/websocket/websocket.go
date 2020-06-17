@@ -60,7 +60,7 @@ func serveWS(w http.ResponseWriter, r *http.Request, hub *Hub) {
 
 	username := authentication.GetUsernameFromSession(r)
 
-	client := &Client{username: username, conn: conn, send: make(chan interface{}, 1), isAdmin: func() bool { return authentication.IsAdmin(username) }()}
+	client := &Client{username: username, conn: conn, send: make(chan interface{}, 1), isAdmin: func() bool { return authentication.IsAdminFromSession(r) }()}
 	hub.register <- client
 
 	go client.writeData()
