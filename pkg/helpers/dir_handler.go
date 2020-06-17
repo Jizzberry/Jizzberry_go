@@ -1,24 +1,37 @@
 package helpers
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 )
 
-func CreateDirs() {
+func CreateDirs() error {
 	basePath := GetWorkingDirectory()
 
-	makeDir(filepath.Join(basePath, filepath.FromSlash("/assets/database")))
-	makeDir(filepath.Join(basePath, filepath.FromSlash("/assets/json")))
-	makeDir(filepath.Join(basePath, filepath.FromSlash("/assets/ffmpeg")))
-	makeDir(filepath.Join(basePath, filepath.FromSlash(ThumbnailPath)))
-	makeDir(filepath.Join(basePath, filepath.FromSlash("/logs")))
+	err := makeDir(filepath.Join(basePath, filepath.FromSlash("/assets/database")))
+	if err != nil {
+		return err
+	}
+	err = makeDir(filepath.Join(basePath, filepath.FromSlash("/assets/json")))
+	if err != nil {
+		return err
+	}
+	err = makeDir(filepath.Join(basePath, filepath.FromSlash("/assets/ffmpeg")))
+	if err != nil {
+		return err
+	}
+	err = makeDir(filepath.Join(basePath, filepath.FromSlash(ThumbnailPath)))
+	if err != nil {
+		return err
+	}
+	err = makeDir(filepath.Join(basePath, filepath.FromSlash("/logs")))
+	return nil
 }
 
-func makeDir(dir string) {
+func makeDir(dir string) error {
 	err := os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+	return nil
 }

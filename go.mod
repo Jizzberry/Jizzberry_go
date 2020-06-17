@@ -3,7 +3,6 @@ module github.com/Jizzberry/Jizzberry-go
 go 1.14
 
 require (
-	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-ole/go-ole v1.2.4
 	github.com/gocolly/colly/v2 v2.0.1
 	github.com/gorilla/mux v1.7.4

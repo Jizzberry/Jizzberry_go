@@ -57,7 +57,7 @@ func QueryBuilderCreate(i interface{}, tableName string) (string, []interface{})
 	for i := 0; i < v.NumField(); i++ {
 		row := t.Field(i).Tag.Get("row")
 
-		if checkPK(t.Field(i)) {
+		if isPK(t.Field(i)) {
 			continue
 		}
 
@@ -118,7 +118,7 @@ func QueryBuilderUpdate(i interface{}, tableName string) (string, []interface{})
 	argsCount := 0
 	for i := 0; i < v.NumField(); i++ {
 
-		if checkPK(t.Field(i)) {
+		if isPK(t.Field(i)) {
 			searchBy = i
 			continue
 		}
@@ -172,13 +172,13 @@ func checkEmpty(value reflect.Value) bool {
 		helpers.LogError(err.Error(), component)
 	}
 	if matchedBool {
-		// Bool cant be pk
+		// Bool cant be search factor
 		return true
 	}
 
 	return !value.IsValid()
 }
 
-func checkPK(field reflect.StructField) bool {
-	return field.Tag.Get("pk") != ""
+func isPK(field reflect.StructField) bool {
+	return field.Tag.Get("pk") == "auto"
 }

@@ -14,7 +14,7 @@ const (
 )
 
 type Actor struct {
-	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
+	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
 	Name        string `row:"name" type:"like" json:"name"`
 	UrlID       string `row:"urlid" type:"exact" json:"urlid"`
 	Website     string `row:"website" type:"exact" json:"website"`
@@ -46,7 +46,10 @@ func (a ActorsModel) Create(actors []Actor) {
 	}
 
 	if a.isEmpty() {
-		database.RunMigrations()
+		err := database.RunMigrations()
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
 	}
 
 	for _, act := range actors {

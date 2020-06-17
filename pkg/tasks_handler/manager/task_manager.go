@@ -12,8 +12,6 @@ import (
 	"time"
 )
 
-const component = "TaskManager"
-
 type TasksStorage struct {
 	Cancel   map[string]*context.CancelFunc
 	Progress map[string]*int

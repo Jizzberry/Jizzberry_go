@@ -29,17 +29,21 @@ type Config struct {
 	FolderRenameFormatter string   `json:"folder_rename_formatter" mapstructure:"folderRenameFormatter"`
 }
 
-func ConfigInit() {
+func ConfigInit() error {
 	viper.SetConfigName(configFileName)
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		fmt.Print(err.Error())
+		return err
 	}
 
-	writeInitial()
+	err = writeInitial()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func parseConfig() Config {
@@ -55,7 +59,7 @@ func GetConfig() Config {
 	return parseConfig()
 }
 
-func WriteConfig(config Config) {
+func WriteConfig(config Config) error {
 	if config.FolderRenameFormatter != "" {
 		viper.Set("fileRenameFormatter", config.FolderRenameFormatter)
 	}
@@ -75,14 +79,17 @@ func WriteConfig(config Config) {
 	if config.Paths != nil {
 		viper.Set("videoPaths", config.Paths)
 	}
-	write()
+	err := write()
+	return err
 }
 
-func writeInitial() {
+func writeInitial() error {
 	if string(GetSessionsKey()) == "" {
 		viper.Set("sessionsKey", GenerateRandomKey(50))
-		write()
+		err := write()
+		return err
 	}
+	return nil
 }
 
 func AddPath(path string) error {
@@ -99,7 +106,10 @@ func AddPath(path string) error {
 		}
 	}
 	viper.Set("videoPaths", append(configHolder.Paths, path))
-	write()
+	err := write()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -108,8 +118,10 @@ func RemovePath(path string) error {
 	for i, p := range configHolder.Paths {
 		if p == path {
 			viper.Set("videoPaths", append(configHolder.Paths[:i], configHolder.Paths[i+1:]...))
-			write()
-			return nil
+			err := write()
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return fmt.Errorf("path not found")
@@ -119,10 +131,11 @@ func GetSessionsKey() []byte {
 	return []byte(viper.GetString("sessionsKey"))
 }
 
-func write() {
+func write() error {
 	if err := viper.WriteConfigAs(configFileName + ".yaml"); err != nil {
-		fmt.Println(err)
+		return err
 	}
+	return nil
 }
 
 func GenerateRandomKey(l int) string {

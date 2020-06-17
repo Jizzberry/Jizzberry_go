@@ -26,7 +26,7 @@ const (
 )
 
 type Files struct {
-	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id,string"`
+	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id,string"`
 	FileName    string `row:"file_name" type:"like" json:"file_name"`
 	FilePath    string `row:"file_path" type:"like" json:"file_path"`
 	DateCreated string `row:"date_created" type:"exact" json:"date_created"`
@@ -38,24 +38,24 @@ type Files struct {
 	URL         string `row:"url" type:"exact" json:"url"`
 }
 
-type FilesModel struct {
+type Model struct {
 	conn *sql.DB
 }
 
-func Initialize() *FilesModel {
-	return &FilesModel{
+func Initialize() *Model {
+	return &Model{
 		conn: database.GetConn(router.GetDatabase(tableName)),
 	}
 }
 
-func (f FilesModel) Close() {
+func (f Model) Close() {
 	err := f.conn.Close()
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
 }
 
-func (f FilesModel) Create(files Files) int64 {
+func (f Model) Create(files Files) int64 {
 	mutexFiles.Lock()
 	genId, exists := f.IsExists(files.FilePath)
 
@@ -86,7 +86,7 @@ func (f FilesModel) Create(files Files) int64 {
 	return genID
 }
 
-func (f FilesModel) Delete(files Files) {
+func (f Model) Delete(files Files) {
 	mutexFiles.Lock()
 
 	if f.isEmpty() {
@@ -112,7 +112,7 @@ func (f FilesModel) Delete(files Files) {
 	mutexFiles.Unlock()
 }
 
-func (f FilesModel) Update(files Files) {
+func (f Model) Update(files Files) {
 	mutexFiles.Lock()
 
 	if f.isEmpty() {
@@ -140,7 +140,7 @@ func (f FilesModel) Update(files Files) {
 
 }
 
-func (f FilesModel) Get(filesQuery Files) []Files {
+func (f Model) Get(filesQuery Files) []Files {
 	query, args := models.QueryBuilderGet(filesQuery, tableName)
 	allFiles := make([]Files, 0)
 
@@ -162,7 +162,7 @@ func (f FilesModel) Get(filesQuery Files) []Files {
 	return allFiles
 }
 
-func (f FilesModel) isEmpty() bool {
+func (f Model) isEmpty() bool {
 	rows, err := f.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name=?`, tableName)
 
 	if err != nil {
@@ -184,9 +184,12 @@ func (f FilesModel) isEmpty() bool {
 	return false
 }
 
-func (f FilesModel) IsExists(filePath string) (int64, bool) {
+func (f Model) IsExists(filePath string) (int64, bool) {
 	if f.isEmpty() {
-		database.RunMigrations()
+		err := database.RunMigrations()
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
 		return -1, false
 	}
 

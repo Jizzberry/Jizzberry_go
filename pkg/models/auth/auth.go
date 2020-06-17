@@ -20,24 +20,24 @@ type Auth struct {
 	IsAdmin  bool   `row:"isadmin" type:"exact"`
 }
 
-type AuthModel struct {
+type Model struct {
 	conn *sql.DB
 }
 
-func Initialize() *AuthModel {
-	return &AuthModel{
+func Initialize() *Model {
+	return &Model{
 		conn: database.GetConn(router.GetDatabase(tableName)),
 	}
 }
 
-func (a AuthModel) Close() {
+func (a Model) Close() {
 	err := a.conn.Close()
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
 }
 
-func (a AuthModel) Create(auth Auth) {
+func (a Model) Create(auth Auth) {
 	auth.Password = hashPassword(auth.Password)
 
 	query, args := models.QueryBuilderCreate(auth, tableName)
@@ -48,7 +48,7 @@ func (a AuthModel) Create(auth Auth) {
 	}
 }
 
-func (a AuthModel) Get(auth Auth) []Auth {
+func (a Model) Get(auth Auth) []Auth {
 	query, args := models.QueryBuilderGet(auth, tableName)
 	result := make([]Auth, 0)
 

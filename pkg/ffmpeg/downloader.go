@@ -77,11 +77,14 @@ func untar(path string) error {
 			if err != nil {
 				return err
 			}
-			w.Close()
+			err = w.Close()
+			if err != nil {
+				return err
+			}
 		}
 	}
-	f.Close()
-	return nil
+	err = f.Close()
+	return err
 }
 
 func unzip(path string) error {
@@ -100,7 +103,10 @@ func unzip(path string) error {
 		)
 
 		if file.FileInfo().IsDir() {
-			os.MkdirAll(extractedFilePath, file.Mode())
+			err := os.MkdirAll(extractedFilePath, file.Mode())
+			if err != nil {
+				return err
+			}
 		} else {
 
 			outputFile, err := os.OpenFile(
@@ -116,9 +122,15 @@ func unzip(path string) error {
 			if err != nil {
 				return err
 			}
-			outputFile.Close()
+			err = outputFile.Close()
+			if err != nil {
+				return err
+			}
 		}
-		zippedFile.Close()
+		err = zippedFile.Close()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -227,6 +239,9 @@ func IsExists() error {
 		FFMEPG:  execPathFFMPEG,
 		FFPROBE: execPathProbe,
 	}
-	helpers.WriteConfig(config)
+	err := helpers.WriteConfig(config)
+	if err != nil {
+		return err
+	}
 	return nil
 }

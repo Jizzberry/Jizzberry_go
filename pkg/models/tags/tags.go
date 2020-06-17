@@ -14,29 +14,29 @@ const (
 )
 
 type Tag struct {
-	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
+	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
 	Name        string `row:"tag" type:"like" json:"generated_id"`
 	Count       int64  `row:"count" type:"exact" json:"count"`
 }
 
-type TagsModel struct {
+type Model struct {
 	conn *sql.DB
 }
 
-func Initialize() *TagsModel {
-	return &TagsModel{
+func Initialize() *Model {
+	return &Model{
 		conn: database.GetConn(router.GetDatabase(tableName)),
 	}
 }
 
-func (t TagsModel) Close() {
+func (t Model) Close() {
 	err := t.conn.Close()
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
 }
 
-func (t TagsModel) isEmpty() bool {
+func (t Model) isEmpty() bool {
 	rows, err := t.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name=?`, tableName)
 
 	if err != nil {
@@ -59,9 +59,12 @@ func (t TagsModel) isEmpty() bool {
 	return false
 }
 
-func (t TagsModel) IsExists(filePath string) (int64, bool) {
+func (t Model) IsExists(filePath string) (int64, bool) {
 	if t.isEmpty() {
-		database.RunMigrations()
+		err := database.RunMigrations()
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
 		return -1, false
 	}
 
@@ -85,7 +88,7 @@ func (t TagsModel) IsExists(filePath string) (int64, bool) {
 	return -1, false
 }
 
-func (t TagsModel) Create(tags Tag) int64 {
+func (t Model) Create(tags Tag) int64 {
 	genId, exists := t.IsExists(tags.Name)
 
 	if exists {
@@ -106,7 +109,7 @@ func (t TagsModel) Create(tags Tag) int64 {
 	return genID
 }
 
-func (t TagsModel) Delete(tag string) {
+func (t Model) Delete(tag string) {
 	_, err := t.conn.Exec(`DELETE FROM tags WHERE tag = ?`, tag)
 
 	if err != nil {
@@ -114,7 +117,7 @@ func (t TagsModel) Delete(tag string) {
 	}
 }
 
-func (t TagsModel) Get(tagsQuery Tag) []Tag {
+func (t Model) Get(tagsQuery Tag) []Tag {
 	query, args := models.QueryBuilderGet(tagsQuery, tableName)
 	allTags := make([]Tag, 0)
 

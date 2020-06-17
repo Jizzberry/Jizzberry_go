@@ -20,7 +20,7 @@ func GetConn(databasePath string) *sql.DB {
 	return conn
 }
 
-func RunMigrations() {
+func RunMigrations() error {
 	dataDatabasepath := router.GetDatabase("files")
 	actorsDatabasepath := router.GetDatabase("actors")
 	authDatabasepath := router.GetDatabase("auth")
@@ -37,22 +37,34 @@ func RunMigrations() {
 		FileSystem: pkger.Dir("/pkg/database/migrations/auth"),
 	}
 
-	doMigrate(migrationsData, dataDatabasepath)
-	doMigrate(migrationsActors, actorsDatabasepath)
-	doMigrate(migrationsAuth, authDatabasepath)
-
+	err := doMigrate(migrationsData, dataDatabasepath)
+	if err != nil {
+		return err
+	}
+	err = doMigrate(migrationsActors, actorsDatabasepath)
+	if err != nil {
+		return err
+	}
+	err = doMigrate(migrationsAuth, authDatabasepath)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func doMigrate(migrations *migrate.HttpFileSystemMigrationSource, databasePath string) {
+func doMigrate(migrations *migrate.HttpFileSystemMigrationSource, databasePath string) error {
 	conn := GetConn(databasePath)
 
 	n, err := migrate.Exec(conn, "sqlite3", migrations, migrate.Up)
 
 	if err != nil {
-		fmt.Print(err)
+		return err
 	}
 
-	conn.Close()
+	err = conn.Close()
+	if err != nil {
+		return err
+	}
 	fmt.Printf("Applied %d migrations!\n", n)
-
+	return nil
 }

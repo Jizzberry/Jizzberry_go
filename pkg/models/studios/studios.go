@@ -14,29 +14,29 @@ const (
 )
 
 type Studio struct {
-	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
+	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
 	Studio      string `row:"studio" type:"like" json:"generated_id"`
 	Count       int64  `row:"count" type:"exact" json:"count"`
 }
 
-type StudiosModel struct {
+type Model struct {
 	conn *sql.DB
 }
 
-func Initialize() *StudiosModel {
-	return &StudiosModel{
+func Initialize() *Model {
+	return &Model{
 		conn: database.GetConn(router.GetDatabase(tableName)),
 	}
 }
 
-func (s StudiosModel) Close() {
+func (s Model) Close() {
 	err := s.conn.Close()
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
 }
 
-func (s StudiosModel) isEmpty() bool {
+func (s Model) isEmpty() bool {
 	rows, err := s.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name=?`, tableName)
 
 	if err != nil {
@@ -59,9 +59,12 @@ func (s StudiosModel) isEmpty() bool {
 	return false
 }
 
-func (s StudiosModel) IsExists(studio string) (int64, bool) {
+func (s Model) IsExists(studio string) (int64, bool) {
 	if s.isEmpty() {
-		database.RunMigrations()
+		err := database.RunMigrations()
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
 		return -1, false
 	}
 
@@ -85,7 +88,7 @@ func (s StudiosModel) IsExists(studio string) (int64, bool) {
 	return -1, false
 }
 
-func (s StudiosModel) Create(studios []Studio) {
+func (s Model) Create(studios []Studio) {
 	tx, err := s.conn.Begin()
 
 	if err != nil {
@@ -115,7 +118,7 @@ func (s StudiosModel) Create(studios []Studio) {
 	}
 }
 
-func (s StudiosModel) Delete(studio string) {
+func (s Model) Delete(studio string) {
 	_, err := s.conn.Exec(`DELETE FROM tags WHERE tag = ?`, studio)
 
 	if err != nil {
@@ -123,7 +126,7 @@ func (s StudiosModel) Delete(studio string) {
 	}
 }
 
-func (s StudiosModel) Get(studiosQuery Studio) []Studio {
+func (s Model) Get(studiosQuery Studio) []Studio {
 	query, args := models.QueryBuilderGet(studiosQuery, tableName)
 	allStudios := make([]Studio, 0)
 

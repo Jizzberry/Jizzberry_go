@@ -297,7 +297,10 @@ func configHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		helpers.WriteConfig(config)
+		err = helpers.WriteConfig(config)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
 
 		encoder := json.NewEncoder(w)
 		encoder.SetIndent("", "\t")

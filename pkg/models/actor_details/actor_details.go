@@ -18,7 +18,7 @@ const (
 var mutexDetails = &sync.Mutex{}
 
 type ActorDetails struct {
-	GeneratedId int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
+	GeneratedId int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
 	ActorId     int64  `row:"actor_id" type:"exact" json:"actor_id"`
 	Name        string `row:"name" type:"like" json:"name"`
 	Birthday    string `row:"born" type:"like" json:"birthday"`
@@ -48,7 +48,10 @@ func (a ActorDetailsModel) Create(details ActorDetails) int64 {
 	mutexDetails.Lock()
 
 	if a.isEmpty() {
-		database.RunMigrations()
+		err := database.RunMigrations()
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
 	}
 
 	if ok, gen := a.IsExists(details.ActorId); ok {
@@ -74,7 +77,10 @@ func (a ActorDetailsModel) Create(details ActorDetails) int64 {
 
 func (a ActorDetailsModel) Delete(details ActorDetails) {
 	if a.isEmpty() {
-		database.RunMigrations()
+		err := database.RunMigrations()
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
 		return
 	}
 
