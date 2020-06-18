@@ -235,15 +235,18 @@ func IsExists() error {
 		// Should no longer be empty if download succeeds
 		execPathProbe = getExecs("", "ffprobe")
 		execPathFFMPEG = getExecs("", "ffmpeg")
+		config := helpers.Config{
+			FFMEPG:  execPathFFMPEG,
+			FFPROBE: execPathProbe,
+		}
+		err = helpers.WriteConfig(config)
+		if err != nil {
+			return err
+		}
+
+		helpers.LogInfo("Downloaded ffmpeg", component)
+	} else {
+		helpers.LogInfo("Found ffmpeg at: "+execPathFFMPEG, component)
 	}
-	config := helpers.Config{
-		FFMEPG:  execPathFFMPEG,
-		FFPROBE: execPathProbe,
-	}
-	err := helpers.WriteConfig(config)
-	if err != nil {
-		return err
-	}
-	helpers.LogInfo("Downloaded ffmpeg", component)
 	return nil
 }
