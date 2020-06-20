@@ -1,6 +1,14 @@
 package api
 
-func GetDirectory(path string) (driveMap [][]string) {
+import (
+	"path/filepath"
+	"strings"
+)
+
+func GetDirectory(path string) (b []browse) {
+	if path == "" {
+		path = "/"
+	}
 
 	allFiles, err := getAllFolders(filepath.FromSlash(path))
 	if err != nil {
@@ -9,9 +17,15 @@ func GetDirectory(path string) (driveMap [][]string) {
 
 	for _, f := range allFiles {
 		split := strings.Split(f, "/")
-		driveMap = append(driveMap, []string{split[len(split)-1], f})
+		b = append(b, browse{
+			Name: split[len(split)-1],
+			Path: f,
+		})
 	}
 
-	driveMap = append(driveMap, []string{"..", filepath.Join(path, "..")})
+	b = append(b, browse{
+		Name: "..",
+		Path: filepath.Join(path, ".."),
+	})
 	return
 }
