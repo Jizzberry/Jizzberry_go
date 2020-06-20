@@ -1,4 +1,4 @@
-module github.com/Jizzberry/Jizzberry-go
+module github.com/Jizzberry/Jizzberry_go
 
 go 1.14
 
