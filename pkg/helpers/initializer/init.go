@@ -17,7 +17,7 @@ import (
 	"syscall"
 )
 
-var addr = ":8000"
+var addr = ":6969"
 
 const art = ` 
 $$$$$\ $$\                     $$\                                               
