@@ -2,12 +2,12 @@ package tasks_handler
 
 import (
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/files"
+	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers/factory"
 	"os"
 	"path/filepath"
 	"regexp"

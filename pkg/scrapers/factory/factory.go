@@ -2,7 +2,7 @@ package factory
 
 import (
 	"context"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
 )
 
 type ActorsImpl interface {

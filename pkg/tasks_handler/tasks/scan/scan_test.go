@@ -2,10 +2,10 @@ package scan_test
 
 import (
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/database"
-	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scan"
+	"github.com/Jizzberry/Jizzberry_go/pkg/database"
+	"github.com/Jizzberry/Jizzberry_go/pkg/database/router"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks/scan"
 	"io/ioutil"
 	"os"
 	"path/filepath"

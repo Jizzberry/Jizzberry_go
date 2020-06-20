@@ -1,8 +1,8 @@
 package authentication
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/auth"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/auth"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"golang.org/x/crypto/bcrypt"

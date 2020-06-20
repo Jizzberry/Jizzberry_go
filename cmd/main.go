@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers/initializer"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers/initializer"
 	"os"
 )
 

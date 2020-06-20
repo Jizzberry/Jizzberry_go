@@ -1,8 +1,8 @@
 package pornhub
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers/factory"
 	"github.com/gocolly/colly/v2"
 	"regexp"
 	"strings"

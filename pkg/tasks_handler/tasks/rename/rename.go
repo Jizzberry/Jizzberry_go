@@ -3,9 +3,9 @@ package rename
 import (
 	"context"
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/files"
+	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler"
 	"io"
 	"os"
 	"path/filepath"

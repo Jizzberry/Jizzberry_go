@@ -1,9 +1,9 @@
 package websocket
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/apps/authentication"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/manager"
+	"github.com/Jizzberry/Jizzberry_go/pkg/apps/authentication"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/manager"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"net/http"

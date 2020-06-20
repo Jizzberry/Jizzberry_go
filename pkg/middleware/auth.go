@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/apps/authentication"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/apps/authentication"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/gorilla/mux"
 	"net/http"
 )

@@ -1,7 +1,7 @@
 package websocket
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/gorilla/websocket"
 )
 

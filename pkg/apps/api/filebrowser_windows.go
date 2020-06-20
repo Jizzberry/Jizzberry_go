@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"path/filepath"
 	"strings"
 	"syscall"

@@ -3,11 +3,11 @@ package manager
 import (
 	"context"
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/rename"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scan"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scrapeActors"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scrapeStudios"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks/rename"
+	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks/scan"
+	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks/scrapeActors"
+	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks/scrapeStudios"
 	"strconv"
 	"time"
 )

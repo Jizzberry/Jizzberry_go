@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
+	"github.com/Jizzberry/Jizzberry_go/pkg/database/router"
 	"github.com/markbates/pkger"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rubenv/sql-migrate"

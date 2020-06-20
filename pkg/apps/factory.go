@@ -1,11 +1,11 @@
 package apps
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/apps/api"
-	"github.com/Jizzberry/Jizzberry-go/pkg/apps/authentication"
-	"github.com/Jizzberry/Jizzberry-go/pkg/apps/jizzberry"
-	"github.com/Jizzberry/Jizzberry-go/pkg/apps/websocket"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/apps/api"
+	"github.com/Jizzberry/Jizzberry_go/pkg/apps/authentication"
+	"github.com/Jizzberry/Jizzberry_go/pkg/apps/jizzberry"
+	"github.com/Jizzberry/Jizzberry_go/pkg/apps/websocket"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/gorilla/mux"
 	"net/http"
 	"path/filepath"

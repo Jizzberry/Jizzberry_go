@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"io/ioutil"
 	"path/filepath"
 )

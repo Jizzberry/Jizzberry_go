@@ -2,10 +2,10 @@ package scrapers
 
 import (
 	"context"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/pornhub"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
+	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers/factory"
+	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers/pornhub"
 	"sync"
 )
 

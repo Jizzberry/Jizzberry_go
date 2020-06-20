@@ -2,7 +2,7 @@ package pornhub
 
 import (
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/gocolly/colly/v2"
 	"path/filepath"
 	"strconv"

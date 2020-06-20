@@ -1,8 +1,8 @@
 package jizzberry
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/files"
 	"github.com/gorilla/mux"
 	"net/http"
 	"os"

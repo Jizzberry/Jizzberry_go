@@ -4,7 +4,7 @@ import (
 	"archive/tar"
 	"archive/zip"
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/xi2/xz"
 	"io"
 	"net/http"

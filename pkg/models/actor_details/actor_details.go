@@ -3,10 +3,10 @@ package actor_details
 import (
 	"database/sql"
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/database"
-	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models"
+	"github.com/Jizzberry/Jizzberry_go/pkg/database"
+	"github.com/Jizzberry/Jizzberry_go/pkg/database/router"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models"
 	"sync"
 )
 

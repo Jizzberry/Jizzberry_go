@@ -2,7 +2,7 @@ package scrapeStudios
 
 import (
 	"context"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers"
 )
 
 type ScrapeStudios struct {

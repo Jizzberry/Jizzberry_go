@@ -1,13 +1,13 @@
 package jizzberry
 
 import (
-	"github.com/Jizzberry/Jizzberry-go/pkg/apps/authentication"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/middleware"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/auth"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/files"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/tags"
+	"github.com/Jizzberry/Jizzberry_go/pkg/apps/authentication"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/middleware"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/auth"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/files"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/tags"
 	"github.com/gorilla/mux"
 	"math/rand"
 	"net/http"
