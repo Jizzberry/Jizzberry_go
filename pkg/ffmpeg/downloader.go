@@ -32,8 +32,11 @@ func getUrl() (string, string) {
 
 		case "arm64":
 			return "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz", "tar.xz"
+
+		case "amd64":
+			return "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz", "tar.xz"
 		}
-		return "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz", "tar.xz"
+		break
 
 	case "darwin":
 		return "https://ffmpeg.zeranoe.com/builds/macos64/static/ffmpeg-4.1-macos64-static.zip", "zip"
@@ -180,6 +183,11 @@ func DownloadAndExtract() error {
 		}
 	}
 
+	err = os.Remove(downloadPath)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	return nil
 }
 
@@ -235,6 +243,16 @@ func IsExists() error {
 		// Should no longer be empty if download succeeds
 		execPathProbe = getExecs("", "ffprobe")
 		execPathFFMPEG = getExecs("", "ffmpeg")
+
+		err = setExecutablePerms(execPathFFMPEG)
+		if err != nil {
+			return err
+		}
+		err = setExecutablePerms(execPathProbe)
+		if err != nil {
+			return err
+		}
+
 		config := helpers.Config{
 			FFMEPG:  execPathFFMPEG,
 			FFPROBE: execPathProbe,
