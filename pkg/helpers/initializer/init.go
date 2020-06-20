@@ -2,6 +2,7 @@ package initializer
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/apps"
 	"github.com/Jizzberry/Jizzberry_go/pkg/database"
@@ -16,8 +17,6 @@ import (
 	"strings"
 	"syscall"
 )
-
-var addr = ":6969"
 
 const art = ` 
 $$$$$\ $$\                     $$\                                               
@@ -78,14 +77,18 @@ func initHelpers() error {
 
 func initWebApp() error {
 	fmt.Println(art)
+
+	addr := flag.String("addr", ":6969", "Address of server [default :6969]")
+	flag.Parse()
+
 	router := mux.NewRouter()
 
 	apps.RegisterFileServer(router)
 	apps.RegisterApps(router)
 
-	helpers.LogInfo("Server starting at "+addr, "Web")
+	helpers.LogInfo("Server starting at "+*addr, "Web")
 
-	err := http.ListenAndServe(addr, router)
+	err := http.ListenAndServe(*addr, router)
 	if err != nil {
 		return err
 	}
