@@ -63,11 +63,11 @@ func Init() error {
 }
 
 func initHelpers() error {
-	err := helpers.CreateDirs()
+	err := helpers.ConfigInit()
 	if err != nil {
 		return err
 	}
-	err = helpers.ConfigInit()
+	err = helpers.CreateDirs()
 	if err != nil {
 		return err
 	}

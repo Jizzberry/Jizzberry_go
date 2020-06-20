@@ -20,7 +20,7 @@ func CreateDirs() error {
 	if err != nil {
 		return err
 	}
-	err = makeDir(filepath.Join(basePath, filepath.FromSlash(ThumbnailPath)))
+	err = makeDir(filepath.FromSlash(ThumbnailPath))
 	if err != nil {
 		return err
 	}

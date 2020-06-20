@@ -47,12 +47,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		helpers.LogError(err.Error(), component)
 	}
 
-	username := r.FormValue(helpers.Usernamekey)
+	username := r.FormValue(helpers.UsernameKey)
 	password := r.FormValue(helpers.PasswordKey)
 
 	if username != "" && password != "" {
 		if userIsValid(username, password) {
-			session.Values[helpers.Usernamekey] = username
+			session.Values[helpers.UsernameKey] = username
 			prevURL := session.Values[helpers.PrevURLKey]
 
 			session.Options.MaxAge = 30 * 60
@@ -101,7 +101,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	delete(session.Values, helpers.Usernamekey)
+	delete(session.Values, helpers.UsernameKey)
 	session.Options.MaxAge = -1
 
 	err = session.Save(r, w)
@@ -144,7 +144,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	val := session.Values[helpers.Usernamekey]
+	val := session.Values[helpers.UsernameKey]
 
 	if val != nil {
 		model := auth.Initialize()
@@ -176,7 +176,7 @@ func newUser(w http.ResponseWriter, r *http.Request) {
 		helpers.LogError(err.Error(), component)
 	}
 
-	username := r.FormValue(helpers.Usernamekey)
+	username := r.FormValue(helpers.UsernameKey)
 	password := r.FormValue(helpers.PasswordKey)
 	admin := r.FormValue("isAdmin")
 
@@ -199,7 +199,7 @@ func GetUsernameFromSession(r *http.Request) string {
 		return ""
 	}
 
-	return session.Values[helpers.Usernamekey].(string)
+	return session.Values[helpers.UsernameKey].(string)
 }
 
 func IsAdminFromSession(r *http.Request) bool {
@@ -213,7 +213,7 @@ func IsAdminFromSession(r *http.Request) bool {
 	model := auth.Initialize()
 	defer model.Close()
 
-	user := model.Get(auth.Auth{Username: session.Values[helpers.Usernamekey].(string)})
+	user := model.Get(auth.Auth{Username: session.Values[helpers.UsernameKey].(string)})
 	if len(user) > 0 {
 		if user[0].IsAdmin {
 			return true

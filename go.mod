@@ -10,7 +10,7 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/markbates/pkger v0.16.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
-	github.com/rubenv/sql-migrate v0.0.0-20200429072036-ae26b214fa43
+	github.com/rubenv/sql-migrate v0.0.0-20200616145509-8d140a17f351
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.7.0
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816

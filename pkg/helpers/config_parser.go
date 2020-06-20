@@ -8,18 +8,19 @@ import (
 	"path/filepath"
 )
 
-var configPath string
+var (
+	configPath    string
+	ThumbnailPath string
+)
 
 const (
-	Usernamekey    = "username"
+	UsernameKey    = "username"
 	PasswordKey    = "password"
 	SessionsKey    = "sessions"
 	LoginURL       = "/auth/login/"
 	PrevURLKey     = "prevurl"
 	configFileName = "config"
 	configFormat   = "yaml"
-
-	ThumbnailPath = "./assets/thumbnails"
 
 	component = "Helpers"
 )
@@ -33,7 +34,7 @@ type Config struct {
 }
 
 func ConfigInit() error {
-	configPath = GetWorkingDirectory()
+	initPaths()
 
 	viper.SetConfigName(configFileName)
 	viper.SetConfigType(configFormat)
@@ -46,6 +47,11 @@ func ConfigInit() error {
 		return err
 	}
 	return nil
+}
+
+func initPaths() {
+	configPath = GetWorkingDirectory()
+	ThumbnailPath = filepath.Join(GetWorkingDirectory(), "assets/thumbnails")
 }
 
 func parseConfig() Config {

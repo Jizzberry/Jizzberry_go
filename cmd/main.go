@@ -16,6 +16,5 @@ func main() {
 	err = initializer.Init()
 	if err != nil {
 		panic(err)
-		return
 	}
 }
