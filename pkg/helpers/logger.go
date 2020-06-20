@@ -32,7 +32,7 @@ func LoggerInit() {
 		MaxAge:     7, // Days
 		Compress:   false,
 	}
-	mWriter := io.MultiWriter(os.Stderr, l)
+	mWriter := io.MultiWriter(os.Stdout, l)
 	logger.SetOutput(mWriter)
 }
 
