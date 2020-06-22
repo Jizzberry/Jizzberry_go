@@ -1,0 +1,86 @@
+{{ define "singleTag" }}
+
+    <!DOCTYPE html>
+
+    <html lang="en">
+    <head>
+        {{template "meta"}}
+
+        <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/jizzberry.css" rel="stylesheet">
+        <link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
+
+        <title>{{ (index .Studios 0).Name }}</title>
+    </head>
+
+    <body>
+    {{template "topbar"}}
+
+
+    <main>
+        {{template "sidenav" .IsAdmin}}
+
+
+        <div class="main-content">
+            <div class="pt-5 pl-5">
+                <div class="channels-top ml-5 mr-5 mb-0">
+                    <div class="channels-profile d-flex justify-content-between">
+                        <div class="d-flex">
+                            <img class="img-fluid bg-dark channel-circle-img"
+                                 onerror="this.src='/static/img/txt-logo.svg'"
+                                 src="/static/img/txt-logo.svg">
+
+                            <p class="mt-2 ml-4 channel-single-title">{{ (index .Tags 0).Name }}</p>
+                        </div>
+                    </div>
+
+
+                    <div class="channels-navbar">
+                        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                            <div class="collapse navbar-collapse">
+                                <div class="navbar-nav">
+                                    <a class="nav-item nav-link active channel-tab-text" href="#">Home</a>
+                                    <a class="nav-item nav-link channel-tab-text" href="#">About</a>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+
+                    <hr class="m-0">
+                </div>
+
+
+                <div class="channels-bottom ml-5 mr-5">
+                    <div class="row my-4">
+                        {{range $val := .Files}}
+
+                            <div class="col-md-3 video-card-container">
+                                <div class="video-card">
+                                    <a href="/Jizzberry/scene/{{$val.GeneratedID}}"><img alt="Card image cap"
+                                                                                         class="card-img-top img-fluid"
+                                                                                         onerror="this.src='/static/img/txt-logo.svg'"
+                                                                                         src="/thumbnails/{{$val.GeneratedID}}.png"></a>
+
+                                    <div class="video-card-body card-body d-flex">
+                                        <p class="video-card-text"><a
+                                                    href="/Jizzberry/scene/{{$val.GeneratedID}}">{{$val.FileName}}</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/vendor/fontawesome/js/all.min.js"></script>
+    <script src="/static/js/navbar.js"></script>
+    </body>
+    </html>
+
+{{ end }}

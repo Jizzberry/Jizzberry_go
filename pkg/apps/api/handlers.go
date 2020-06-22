@@ -217,7 +217,7 @@ func studiosHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		studios = model.Get(studios2.Studio{GeneratedID: int64(genId)})
 	} else if len(queryParams["name"]) > 0 {
-		studios = model.Get(studios2.Studio{Studio: "%" + queryParams["name"][0] + "%"})
+		studios = model.Get(studios2.Studio{Name: "%" + queryParams["name"][0] + "%"})
 	} else {
 		studios = model.Get(studios2.Studio{})
 	}

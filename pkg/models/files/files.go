@@ -261,7 +261,7 @@ func setStudioRelation(genId int64, studio string) {
 			studiosModel := studios.Initialize()
 			defer studiosModel.Close()
 			for _, s := range split {
-				tmp := studiosModel.Get(studios.Studio{Studio: s})[0]
+				tmp := studiosModel.Get(studios.Studio{Name: s})[0]
 				relation[strconv.FormatInt(tmp.GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp.GeneratedID, 10)], strconv.FormatInt(genId, 10))
 			}
 		}
@@ -269,6 +269,17 @@ func setStudioRelation(genId int64, studio string) {
 		writeJson(jsonFile, relation)
 	}
 
+}
+
+func GetStudioRelations(studioId string) []string {
+	jsonFile := readJson(router.GetJson("studiosRelation"))
+	defer jsonFile.Close()
+
+	relation := parseJson(jsonFile)
+	if val, ok := relation[studioId]; ok {
+		return val
+	}
+	return nil
 }
 
 func setTagRelation(genId int64, tag string) {
@@ -294,6 +305,17 @@ func setTagRelation(genId int64, tag string) {
 		writeJson(jsonFile, relation)
 	}
 
+}
+
+func GetTagRelations(tagId string) []string {
+	jsonFile := readJson(router.GetJson("tagsRelation"))
+	defer jsonFile.Close()
+
+	relation := parseJson(jsonFile)
+	if val, ok := relation[tagId]; ok {
+		return val
+	}
+	return nil
 }
 
 func deleteRelation(relations *map[string][]string, genID string) {

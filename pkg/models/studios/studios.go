@@ -15,7 +15,7 @@ const (
 
 type Studio struct {
 	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
-	Studio      string `row:"studio" type:"like" json:"generated_id"`
+	Name        string `row:"studio" type:"like" json:"generated_id"`
 	Count       int64  `row:"count" type:"exact" json:"count"`
 }
 
@@ -97,12 +97,12 @@ func (s Model) Create(studios []Studio) {
 	}
 
 	for _, stud := range studios {
-		_, exists := s.IsExists(stud.Studio)
+		_, exists := s.IsExists(stud.Name)
 		if exists {
 			continue
 		}
 
-		_, err := tx.Exec(`INSERT INTO studios (studio) SELECT ? WHERE NOT EXISTS(SELECT 1 FROM studios WHERE studio = ?)`, stud.Studio, stud.Studio)
+		_, err := tx.Exec(`INSERT INTO studios (studio) SELECT ? WHERE NOT EXISTS(SELECT 1 FROM studios WHERE studio = ?)`, stud.Name, stud.Name)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 			err := tx.Rollback()
@@ -138,7 +138,7 @@ func (s Model) Get(studiosQuery Studio) []Studio {
 
 	for row.Next() {
 		studio := Studio{}
-		err := row.Scan(&studio.GeneratedID, &studio.Studio, &studio.Count)
+		err := row.Scan(&studio.GeneratedID, &studio.Name, &studio.Count)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 		}
