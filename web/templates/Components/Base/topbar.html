@@ -1,29 +1,78 @@
 {{ define "topbar" }}
-    <div class="container-fluid m-0 p-0 topbar-container">
-        <div class="top-nav row m-0 pb-0">
-            <div class="col-md-3 d-flex pt-1 active">
-                <button class="btn mr-5" id="nav-toggle" onclick="toggleNav();">
-                    <i class="fas fa-bars nav-toggle"></i>
-                </button>
-                <img class="img-fluid circle-logo" src="/static/img/Jizzberry_Logo.svg"/>
-                <img class="img-fluid text-logo" src="/static/img/txt-logo.svg"/>
-            </div>
-            <div class="col-md-6 pl-5">
-                <div class="search searchbar">
-                    <i class="fas fa-search"></i>
-                    <label>
-                        <input class="typeahead tt-query text-center" autocomplete="off" spellcheck="false" type="text"
-                               placeholder="Search"/>
-                    </label>
-                </div>
-            </div>
-            <div style="justify-content: flex-end;" class="col-md-3 pt-3 d-flex">
-                <div class="mr-4 d-flex">
-                    <p class="profile-text">
-                        Ovenoboyo
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
+<div
+	style="box-sizing: border-box;"
+	class="container-fluid m-0 p-0 topbar-container"
+>
+	<div class="top-nav row m-0 pb-0">
+		<div class="col-md-3 d-flex pt-1 active">
+			<button class="btn mr-5" id="nav-toggle" onclick="toggleNav();">
+				<i class="fas fa-bars nav-toggle"></i>
+			</button>
+			<img
+				class="img-fluid circle-logo mr-3"
+				src="/static/img/Jizzberry_Logo.svg"
+			/>
+			<img class="img-fluid text-logo" src="/static/img/txt-logo.svg" />
+		</div>
+		<div class="col-md-6 pl-5">
+			<i
+				style="font-size: 18px; position: absolute; top: 1.2rem;"
+				class="fas fa-search ml-3 mr-0"
+			></i>
+			<div class="search searchbar mt-2 d-flex justify-content-center">
+				<label class="text-center">
+					<input
+						class="typeahead tt-query text-center p-0 mt-2"
+						autocomplete="off"
+						spellcheck="false"
+						type="text"
+						placeholder="Search"
+					/>
+				</label>
+			</div>
+		</div>
+		<div
+			style="justify-content: flex-end; padding-top: 0.75rem;"
+			class="col-md-3 d-flex"
+		>
+			<div class="mr-4 d-flex">
+				<ul class="nav nav-tabs">
+					<li class="nav-item dropdown">
+						<a
+							style="
+								background-color: transparent;
+								outline: none;
+								border: none;
+								font-weight: bolder;
+								font-size: 20px;
+							"
+							class="nav-link mt-0"
+							data-toggle="dropdown"
+							href="#"
+							role="button"
+							aria-haspopup="true"
+							aria-expanded="false"
+							>Ovenoboyo</a
+						>
+						<div
+							style="background-color: white;"
+							class="dropdown-menu profile-dropdown"
+						>
+							<a
+								style="background-color: white; font-weight: 600;"
+								class="dropdown-item text-dark"
+								href="#"
+								><i
+									style="font-size: 24px; padding-top: 0.25rem;"
+									class="fas fa-sign-out-alt mr-3"
+								></i
+								>Logout
+							</a>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
 {{ end }}

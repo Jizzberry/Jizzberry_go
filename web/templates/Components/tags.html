@@ -1,59 +1,67 @@
 {{ define "tags" }}
-    <!DOCTYPE html>
+<!DOCTYPE html>
 
-    <html>
-    <head>
-        {{template "meta"}}
+<html>
+	<head>
+		{{template "meta"}}
 
-        <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/static/css/jizzberry.css" rel="stylesheet">
-        <link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
+		<link
+			href="/static/vendor/bootstrap/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+		<link href="/static/css/jizzberry.css" rel="stylesheet" />
+		<link
+			href="/static/img/Jizzberry_Logo.svg"
+			rel="icon"
+			type="image/svg+xml"
+		/>
 
-        <title>Tags</title>
-    </head>
+		<title>Tags</title>
+	</head>
 
-    <body>
-    {{template "topbar"}}
+	<body>
+		{{template "topbar"}}
 
+		<main>
+			{{template "sidenav" .IsAdmin}}
 
-    <main>
-        {{template "sidenav" .IsAdmin}}
+			<div class="main-content" id="content">
+				<div class="pt-5 pl-5">
+					<h4 class="mb-4 page-header">Actors</h4>
 
+					<div class="video-card-group">
+						<div class="row">
+							{{range $val := .Tags}}
 
-        <div class="main-content" id="content">
-            <div class="pt-5 pl-5">
-                <h4 class="mb-4 page-header">Actors</h4>
+							<div class="col-xl-3 col-sm-6 mb-3">
+								<div class="channels-card">
+									<div class="channels-card-image">
+										<a href="/Jizzberry/tags/{{$val.GeneratedID}}/"
+											><img
+												alt=""
+												class="img-fluid"
+												onerror="this.src='/static/img/txt-logo.svg'"
+												src="/thumbnails/t{{$val.GeneratedID}}"
+										/></a>
+									</div>
 
-
-                <div class="video-card-group">
-                    <div class="row">
-                        {{range $val := .Tags}}
-
-                            <div class="col-xl-3 col-sm-6 mb-3">
-                                <div class="channels-card">
-                                    <div class="channels-card-image">
-                                        <a href="/Jizzberry/tags/{{$val.GeneratedID}}/"><img alt="" class="img-fluid"
-                                                                                             onerror="this.src='/static/img/txt-logo.svg'"
-                                                                                             src="/thumbnails/t{{$val.GeneratedID}}"></a>
-                                    </div>
-
-                                    <div class="channels-card-body">
-                                        <div class="channels-title">
-                                            <a href="/Jizzberry/tags/{{$val.Name}}/">{{$val.Name}}</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {{end}}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-    <script src="/static/vendor/jquery/jquery.min.js"></script>
-    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/static/vendor/fontawesome/js/all.min.js"></script>
-    <script src="/static/js/navbar.js"></script>
-    </body>
-    </html>
+									<div class="channels-card-body">
+										<div class="channels-title">
+											<a href="/Jizzberry/tags/{{$val.Name}}/">{{$val.Name}}</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							{{end}}
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+		<script src="/static/vendor/jquery/jquery.min.js"></script>
+		<script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<script src="/static/vendor/fontawesome/js/all.min.js"></script>
+		<script src="/static/js/navbar.js"></script>
+	</body>
+</html>
 {{ end }}

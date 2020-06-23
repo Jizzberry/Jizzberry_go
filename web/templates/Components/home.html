@@ -1,56 +1,68 @@
 {{ define "home" }}
 
-	<!DOCTYPE html>
+<!DOCTYPE html>
 
-	<html lang="en">
+<html lang="en">
 	<head>
 		{{template "meta"}}
 
-		<link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-		<link href="/static/css/jizzberry.css" rel="stylesheet">
-		<link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
+		<link
+			href="/static/vendor/bootstrap/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+		<link href="/static/css/jizzberry.css" rel="stylesheet" />
+		<link
+			href="/static/img/Jizzberry_Logo.svg"
+			rel="icon"
+			type="image/svg+xml"
+		/>
 
 		<title>Home!</title>
 	</head>
 
 	<body>
-	{{template "topbar"}}
+		{{template "topbar"}}
 
+		<main>
+			{{template "sidenav" .IsAdmin}}
 
-	<main>
-		{{template "sidenav" .IsAdmin}}
+			<div class="main-content" id="content">
+				<div class="pt-5 pl-5">
+					<h4 class="mb-4 page-header">Scenes</h4>
 
-
-		<div class="main-content" id="content">
-			<div class="pt-5 pl-5">
-				<h4 class="mb-4 page-header">Scenes</h4>
-
-
-				<div>
-					<div class="row">
-						{{range $val := .Files}}
+					<div>
+						<div class="row">
+							{{range $val := .Files}}
 
 							<div class="col-md-3 video-card-container">
 								<div class="video-card">
-									<a href="/Jizzberry/scene/{{$val.GeneratedID}}"><img class="card-img-top img-fluid" onerror="this.src='/static/img/txt-logo.svg'" src="/thumbnails/{{$val.GeneratedID}}.png"></a>
+									<a href="/Jizzberry/scene/{{$val.GeneratedID}}"
+										><img
+											class="card-img-top img-fluid"
+											onerror="this.src='/static/img/txt-logo.svg'"
+											src="/thumbnails/{{$val.GeneratedID}}.png"
+									/></a>
 
 									<div class="video-card-body card-body d-flex">
-										<p class="video-card-text"><a href="/Jizzberry/scene/{{$val.GeneratedID}}">{{$val.FileName}}</a>
+										<p class="video-card-text">
+											<a href="/Jizzberry/scene/{{$val.GeneratedID}}"
+												>{{$val.FileName}}</a
+											>
 										</p>
 									</div>
 								</div>
 							</div>
-						{{end}}
+							{{end}}
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	</main>
-	<script src="/static/vendor/jquery/jquery.min.js"></script>
-	<script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<script src="/static/vendor/fontawesome/js/all.min.js"></script>
-	<script src="/static/js/navbar.js"></script>
+		</main>
+		<script src="/static/vendor/jquery/jquery.min.js"></script>
+		<script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<script src="/static/vendor/fontawesome/js/all.min.js"></script>
+		<script src="/static/js/navbar.js"></script>
 	</body>
-	</html>
+</html>
 
 {{ end }}
