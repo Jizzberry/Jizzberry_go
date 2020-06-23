@@ -4,52 +4,63 @@
 
 	<html lang="en">
 	<head>
-        {{template "meta"}}
+		{{template "meta"}}
 
-        <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/static/css/jizzberry.css" rel="stylesheet">
-        <link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
+		<link
+				href="/static/vendor/bootstrap/css/bootstrap.min.css"
+				rel="stylesheet"
+		/>
+		<link href="/static/css/jizzberry.css" rel="stylesheet"/>
+		<link
+				href="/static/img/Jizzberry_Logo.svg"
+				rel="icon"
+				type="image/svg+xml"
+		/>
 
-        <title>Settings</title>
-    </head>
+		<title>Settings</title>
+	</head>
 
-    <body>
-    {{template "vendors"}}
+	<body>
+	<script src="/static/vendor/jquery/jquery.min.js"></script>
+	<script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<script src="/static/vendor/fontawesome/js/all.min.js"></script>
 
-    {{template "topbar"}}
+	{{template "topbar"}}
 
+	<main>
+		{{template "sidenav" .IsAdmin}}
 
-    <main>
-        {{template "sidenav" .IsAdmin}}
-
-
-        <div class="main-content" id="content">
-            <div hidden="" id="config">
+		<div class="main-content" id="content">
+			<div hidden="" id="config">
 				<div class="pt-5 pl-5">
 					<div class="config">
 						<h4 class="mb-4 page-header">Config</h4>
 
-
 						<div class="added-path mb-5">
-
 							<div class="d-flex">
 								<h5>Added Paths</h5>
 
-								<div class="btn " data-target="#fileBrowseModal" data-toggle="modal"
-									 onclick="getFolders('')">
-									<i class="fas fa-plus"></i><a href="#"></a>
+								<div
+										class="btn pt-0"
+										data-target="#fileBrowseModal"
+										data-toggle="modal"
+										onclick="getFolders('')"
+								>
+									<i class="fas fa-plus ml-3"></i><a href="#"></a>
 								</div>
 							</div>
 
-							<hr class="mt-0">
-
+							<hr class="mt-0"/>
 
 							<nav>
 								{{range $val := .Config.Paths}}
 
 									<div class="path-link">
 										<span><a href="#">{{$val}}</a></span>
-										<div class="btn btn-trans" onclick="removePath('{{$val}}')">
+										<div
+												class="btn btn-trans pt-0"
+												onclick="removePath('{{$val}}')"
+										>
 											<span><i class="fas fa-times"></i> <a href="#"></a></span>
 										</div>
 									</div>
@@ -57,41 +68,52 @@
 							</nav>
 						</div>
 
-
 						<div class="rename-config mb-5">
 							<h5>Rename Config</h5>
 
-							<hr class="mt-0">
-
+							<hr class="mt-0"/>
 
 							<div class="mb-3">
 								<div class="d-flex">
 									<fieldset class="mr-4">
-										<legend>File Rename Formatter</legend> <input id="fileForm" name="fname" type="text" value="{{ .Config.FileRenameFormatter }}">
+										<legend>File Rename Formatter</legend>
+										<input
+												id="fileForm"
+												name="fname"
+												type="text"
+												value="{{ .Config.FileRenameFormatter }}"
+										/>
 									</fieldset>
 								</div>
 							</div>
 
-
 							<div>
 								<div class="d-flex">
 									<fieldset class="mr-4">
-										<legend>Folder Rename Formatter</legend> <input id="folderForm" name="fname" type="text" value="{{ .Config.FolderRenameFormatter }}">
+										<legend>Folder Rename Formatter</legend>
+										<input
+												id="folderForm"
+												name="fname"
+												type="text"
+												value="{{ .Config.FolderRenameFormatter }}"
+										/>
 									</fieldset>
 								</div>
 							</div>
 						</div>
 
-
 						<div class="tags mb-5">
 							<h5>Tags</h5>
 
-							<hr class="mt-0">
-
+							<hr class="mt-0"/>
 
 							<div class="d-flex">
 								<div class="card mr-5 tag-card">
-									<a href="#"><img class="card-img-top plus-card-img" src="/static/img/plus.png"></a>
+									<a href="#"
+									><img
+												class="card-img-top plus-card-img"
+												src="/static/img/plus.png"
+										/></a>
 
 									<div class="tag-card-body card-body p-0">
 										<p class="text-center card-text">New Tag</p>
@@ -101,8 +123,11 @@
 
 									<div class="tag-card card mr-5">
 										<div class="tag-card-body card-body p-0">
-											<p class="text-center card-text">{{$val.Name}}<br>
-												<span class="text-muted tag-card-subtitle">{{$val.Count}} videos</span>
+											<p class="text-center card-text">
+												{{$val.Name}}<br/>
+												<span class="text-muted tag-card-subtitle"
+												>{{$val.Count}} videos</span
+												>
 											</p>
 										</div>
 									</div>
@@ -110,17 +135,18 @@
 							</div>
 						</div>
 
-
 						<div class="Users mb-2">
 							<h5>Users</h5>
 
-							<hr class="mt-0">
-
+							<hr class="mt-0"/>
 
 							<div class="tag-cards d-flex">
 								<div class="tag-card card mr-5">
-									<a href="#" data-toggle="modal" data-target="#usercreation"><img
-												class="card-img-top plus-card-img" src="/static/img/plus.png">
+									<a href="#" data-toggle="modal" data-target="#usercreation"
+									><img
+												class="card-img-top plus-card-img"
+												src="/static/img/plus.png"
+										/>
 										<div class="tag-card-body card-body p-0">
 											<p class="text-center card-text">New User</p>
 										</div>
@@ -131,9 +157,14 @@
 									<div class="tag-card card mr-5">
 										<a href="#">
 											<div class="tag-card-body card-body p-0">
-												<p class="text-center card-text">{{ $val.Username }}<br>
-													<span class="text-muted tag-card-subtitle"
-														  id="status-{{ $val.Username }}">Offline</span></p>
+												<p class="text-center card-text">
+													{{ $val.Username }}<br/>
+													<span
+															class="text-muted tag-card-subtitle"
+															id="status-{{ $val.Username }}"
+													>Offline</span
+													>
+												</p>
 											</div>
 										</a>
 									</div>
@@ -142,14 +173,18 @@
 						</div>
 					</div>
 
-
 					<div class="btn-grp">
 						<button class="btn reset-btn" type="button">Reset</button>
-						<button class="btn save-btn" onclick="postConfig();" type="button">Save</button>
+						<button
+								class="btn save-btn"
+								onclick="postConfig();"
+								type="button"
+						>
+							Save
+						</button>
 					</div>
 				</div>
 			</div>
-
 
 			<div id="tasks">
 				<div class="pt-5 pl-5" id="tasks-container">
@@ -160,74 +195,98 @@
 							<div class="d-flex ml-2">
 								<span></span>
 
-								<p class="mr-3 mb-0 pt-2 textprogress" id="scan-textprogress">
-								</p>
+								<p
+										class="mr-4 mb-0 pt-1 h5 font-weight-normal textprogress"
+										id="scan-textprogress"
+								></p>
 
-
-								<p class="ml-1 mb-0 pt-2">Scan</p>
-								<button class="btn btn-trans task-buttons" id="scan-play" onclick="startScan();"><i
-											class="fas fa-play" style="color: #149ddd;"></i></button>
+								<p class="ml-1 mb-0 pt-1 mr-3 h5 font-weight-normal">Scan</p>
+								<button
+										class="btn btn-trans task-buttons"
+										id="scan-play"
+										onclick="startScan();"
+								>
+									<i class="fas fa-play text-primary"></i>
+								</button>
 							</div>
 
-
 							<div class="stats-btn-grp d-flex">
-								<button class="btn btn-trans task-buttons" hidden="" id="scan-stop"
-										onclick="stopTask('scan');"><i
-											class="fas fa-stop"></i></button>
-								<button class="btn btn-trans task-buttons" hidden="" id="scan-redo"
-										onclick="startScan();"><i
-											class="fas fa-redo-alt" style="color: #149ddd;"></i></button>
-								<button class="btn btn-trans task-buttons" hidden="" id="scan-angle-down"><i
-											class="fas fa-angle-down"></i></button>
+								<button
+										class="btn btn-trans task-buttons"
+										hidden=""
+										id="scan-stop"
+										onclick="stopTask('scan');"
+								>
+									<i class="fas fa-stop"></i>
+								</button>
+								<button
+										class="btn btn-trans task-buttons"
+										hidden=""
+										id="scan-redo"
+										onclick="startScan();"
+								>
+									<i class="fas fa-redo-alt text-primary"></i>
+								</button>
+								<button
+										class="btn btn-trans task-buttons"
+										hidden=""
+										id="scan-angle-down"
+								>
+									<i class="fas fa-2x text-muted fa-angle-down pt-1"></i>
+								</button>
 							</div>
 						</div>
 
-
-						<div class="stats-body d-flex flex-column" id="scan-body" style="height: 0">
+						<div
+								class="stats-body d-flex flex-column"
+								id="scan-body"
+								style="height: 0;"
+						>
 							<div class="progress my-3">
-								<div class="progress-bar" id="scan-progressbar" role="progressbar" style="width: 0;">
-								</div>
+								<div
+										class="progress-bar"
+										id="scan-progressbar"
+										role="progressbar"
+										style="width: 0;"
+								></div>
 							</div>
 
-
 							<div class="p-grp d-flex">
-								<p class="mr-5"><strong class="mr-1">Started:</strong><span>69 min ago</span>
+								<p class="mr-5">
+									<strong class="mr-1">Started:</strong
+									><span>69 min ago</span>
 								</p>
 
-
-								<p class="mr-5"><strong class="mr-1">Status:</strong><span>alive</span>
+								<p class="mr-5">
+									<strong class="mr-1">Status:</strong><span>alive</span>
 								</p>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-
 
 			<div hidden="" id="logs">
 				<div class="pt-5 pl-5">
 					<h4 class="mb-4 page-header">Logs</h4>
 
-
 					<div class="row m-0">
 						<div class="col-11 p-0">
-							<div class="list-group mt-1" id="list-tab" role="tablist">
-							</div>
+							<div class="list-group mt-1" id="list-tab" role="tablist"></div>
 						</div>
 
-
 						<div class="mt-3 col-11 p-0">
-							<div class="tab-content" id="nav-tabContent">
-							</div>
+							<div class="tab-content" id="nav-tabContent"></div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		{{ template "filebrowse_modal"}}
-		{{ template "user_modal"}}
+		{{ template "filebrowse_modal"}} {{ template "user_modal"}}
 	</main>
+	<script src="/static/js/search.js"></script>
 	<script src="/static/js/settings.js"></script>
+	<script src="/static/js/navbar.js"></script>
 	</body>
 	</html>
 
