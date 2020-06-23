@@ -193,7 +193,7 @@ func scrapeListHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	t := make([]task, 0)
 	t = append(t, task{Uid: manager.StartScrapeActors()})
-	t = append(t, task{Uid: manager.StartScrapeStudios()})
+	//t = append(t, task{Uid: manager.StartScrapeStudios()})
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&t)

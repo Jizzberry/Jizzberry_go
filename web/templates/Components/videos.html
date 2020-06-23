@@ -118,27 +118,25 @@
 										</div>
 									</div>
 								</div>
-							</div></a>
-						{{ end }}
-					</div>
-				</div>
-			</div>
-		</div>
-	</main>
-	{{ template "multiselector_modal" }}
-	{{ template "query_modal" }}
+                            </div>
+                        </a>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    {{ template "multiselector_modal" }}
+    {{ template "query_modal" }}
 
+    {{template "vendors"}}
 
-	<script src="/static/vendor/jquery/jquery.min.js"></script>
-	<script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<script src="/static/vendor/fontawesome/js/all.min.js"></script>
-	<script src="/static/vendor/plyr/dist/plyr.polyfilled.min.js"></script>
-	<script src="/static/js/videos.js"></script>
-	<script src="/static/js/query.js"></script>
-	<script src="/static/js/navbar.js"></script>
-	<script>
-		const player = new Plyr(document.getElementById('videoPlayer'));
-	</script>
-	</body>
-	</html>
+    <script src="/static/vendor/plyr/dist/plyr.polyfilled.min.js"></script>
+    <script src="/static/js/videos.js"></script>
+    <script src="/static/js/query.js"></script>
+    <script>
+        const player = new Plyr(document.getElementById('videoPlayer'));
+    </script>
+    </body>
+    </html>
 {{ end }}

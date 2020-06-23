@@ -4,29 +4,27 @@
 
 	<html lang="en">
 	<head>
-		{{template "meta"}}
+        {{template "meta"}}
 
-		<link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-		<link href="/static/css/jizzberry.css" rel="stylesheet">
-		<link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
+        <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/jizzberry.css" rel="stylesheet">
+        <link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
 
-		<title>Settings</title>
-	</head>
+        <title>Settings</title>
+    </head>
 
-	<body>
-	<script src="/static/vendor/jquery/jquery.min.js"></script>
-	<script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<script src="/static/vendor/fontawesome/js/all.min.js"></script>
+    <body>
+    {{template "vendors"}}
 
-	{{template "topbar"}}
+    {{template "topbar"}}
 
 
-	<main>
-		{{template "sidenav" .IsAdmin}}
+    <main>
+        {{template "sidenav" .IsAdmin}}
 
 
-		<div class="main-content" id="content">
-			<div hidden="" id="config">
+        <div class="main-content" id="content">
+            <div hidden="" id="config">
 				<div class="pt-5 pl-5">
 					<div class="config">
 						<h4 class="mb-4 page-header">Config</h4>
@@ -229,9 +227,7 @@
 		{{ template "filebrowse_modal"}}
 		{{ template "user_modal"}}
 	</main>
-	<script src="/static/js/search.js"></script>
 	<script src="/static/js/settings.js"></script>
-	<script src="/static/js/navbar.js"></script>
 	</body>
 	</html>
 

@@ -13,14 +13,60 @@ $("body").on("click","#parser-toggle", function(){
     }
 });
 
-let actors = ["test", "hello", "bye"];
-let tags = ["test", "hello", "bye"];
-let studios = ["test", "hello", "bye"];
+
+let actors = [];
+let tags = [];
+let studios = [];
 
 let urlSplit = window.location.href.split("/");
 let sceneId = urlSplit[urlSplit.length - 1]
 
 getArrays()
+
+
+const actorsData = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+        url: "/api/actors?name=%QUERY",
+        wildcard: '%QUERY',
+        filter: function (response) {
+            console.log(response);
+            return response;
+        }
+    }
+});
+
+const tagsData = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+        url: "/api/tags?name=%QUERY",
+        wildcard: '%QUERY',
+        filter: function (response) {
+            console.log(response);
+            return response;
+        }
+    }
+});
+
+const studiosData = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+        url: "/api/studios?name=%QUERY",
+        wildcard: '%QUERY',
+        filter: function (response) {
+            console.log(response);
+            return response;
+        }
+    }
+});
+
+studiosData.initialize();
+tagsData.initialize();
+actorsData.initialize();
+
 
 function getArrays() {
     let xhr = new XMLHttpRequest();
@@ -50,12 +96,11 @@ function getArrays() {
     xhr.send();
 }
 
-function openModal(array) {
+function refreshModalData(array) {
     let body = document.getElementById("multiselector-form")
 
     if (body != null) {
         body.innerHTML = "";
-        console.log(array)
         for (let i = 0; i < array.length; i++) {
             let holder = document.createElement("div");
 
@@ -76,7 +121,7 @@ function openModal(array) {
             function removeElement() {
                 array.splice(i, 1)
                 console.log(array)
-                openModal(array)
+                refreshModalData(array)
             }
 
             let button = document.createElement("button")
@@ -93,16 +138,38 @@ function openModal(array) {
     }
 }
 
+function addDataArray(arrayName, element) {
+    switch (arrayName) {
+        case "actors":
+            actors.push(element)
+            refreshModalData(actors)
+            return;
+        case "tags":
+            tags.push(element);
+            refreshModalData(tags)
+            return;
+        case "studios":
+            studios.push(element)
+            refreshModalData(studios)
+            return;
+        default:
+            return;
+    }
+}
+
 function openActorsModal() {
-    openModal(actors);
+    refreshModalData(actors);
+    reinitializeTypeahead("actors")
 }
 
 function openTagsModal() {
-    openModal(tags);
+    refreshModalData(tags);
+    reinitializeTypeahead("tags")
 }
 
 function openStudiosModal() {
-    openModal(studios);
+    refreshModalData(studios);
+    reinitializeTypeahead("studios")
 }
 
 function saveMetadata() {
@@ -130,3 +197,39 @@ function saveMetadata() {
         studios: studios,
     }));
 }
+
+function reinitializeTypeahead(type) {
+    let source
+    switch (type) {
+        case "actors":
+            source = actorsData.ttAdapter();
+            break;
+        case "tags":
+            source = tagsData.ttAdapter();
+            break
+        case "studios":
+            source = studiosData.ttAdapter();
+            break
+        default:
+            return
+    }
+    $('#multiselector-modal-body .typeahead').typeahead("destroy");
+
+    $('#multiselector-modal-body .typeahead').typeahead(
+        {
+            hint: true,
+            minLength: 0,
+            highlight: true,
+        },
+        {
+            name: 'items',
+            displayKey: 'name',
+            source: source,
+            templates: {
+                suggestion: Handlebars.compile("<p><button onclick='addDataArray(\"" + type + "\", \"{{name}}\")' style='display: block;'>{{name}}</button></p>")
+            },
+            limit: 8
+        },
+    );
+}
+
