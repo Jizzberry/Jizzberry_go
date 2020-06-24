@@ -9,15 +9,9 @@ import (
 	"sync"
 )
 
-var actorScrapers = make([]factory.ActorsImpl, 0)
-var videoScrapers = make([]factory.VideosImpl, 0)
-var studioScrapers = make([]factory.StudiosImpl, 0)
-
-func RegisterScrapers() {
-	actorScrapers = append(actorScrapers, pornhub.Pornhub{})
-	videoScrapers = append(videoScrapers, pornhub.Pornhub{})
-	studioScrapers = append(studioScrapers, pornhub.Pornhub{})
-}
+var actorScrapers = []factory.ActorsImpl{pornhub.Pornhub{}}
+var videoScrapers = []factory.VideosImpl{pornhub.Pornhub{}}
+var studioScrapers = []factory.StudiosImpl{pornhub.Pornhub{}}
 
 func ScrapeActor(actors actor.Actor) *actor_details.ActorDetails {
 	detailsModel := actor_details.Initialize()

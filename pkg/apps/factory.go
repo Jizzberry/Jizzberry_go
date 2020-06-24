@@ -8,7 +8,6 @@ import (
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/gorilla/mux"
 	"net/http"
-	"path/filepath"
 )
 
 type App interface {
@@ -25,7 +24,7 @@ func RegisterApps(r *mux.Router) {
 
 func RegisterFileServer(r *mux.Router) {
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/",
-		http.FileServer(http.Dir(filepath.Join(helpers.GetWorkingDirectory(), "web/templates/static"))),
+		http.FileServer(http.Dir(helpers.StaticPath)),
 	))
 
 	r.PathPrefix("/thumbnails/").Handler(http.StripPrefix("/thumbnails/",
@@ -33,6 +32,6 @@ func RegisterFileServer(r *mux.Router) {
 	))
 
 	r.PathPrefix("/logs/").Handler(http.StripPrefix("/logs/",
-		http.FileServer(http.Dir(helpers.LogDir)),
+		http.FileServer(http.Dir(helpers.LogsPath)),
 	))
 }

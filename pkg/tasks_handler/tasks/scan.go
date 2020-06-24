@@ -1,4 +1,4 @@
-package scan
+package tasks
 
 import (
 	"context"
@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-const component = "Scan"
+const component = "Tasks"
 
 type Scan struct {
 }
@@ -41,7 +41,7 @@ func worker(paths []string, ctx context.Context, progress *int) {
 	}
 	progressMutex := sync.Mutex{}
 	tmp := make(chan int, len(files))
-	updateProgress(progress, 0, len(files), &progressMutex)
+	updateProgress(progress, tmp, len(files), &progressMutex)
 
 	filesModel := files2.Initialize()
 	defer filesModel.Close()
@@ -49,11 +49,12 @@ func worker(paths []string, ctx context.Context, progress *int) {
 	for _, f := range files {
 		maxController <- struct{}{}
 		wg.Add(1)
-		go func() {
+
+		go func(f string) {
 			select {
 			case <-ctx.Done():
-				wg.Done()
 				updateProgress(progress, tmp, len(files), &progressMutex)
+				wg.Done()
 				<-maxController
 				return
 			default:
@@ -69,11 +70,11 @@ func worker(paths []string, ctx context.Context, progress *int) {
 				} else {
 					helpers.LogInfo(fmt.Sprintf("skipped %s", f), component)
 				}
-				wg.Done()
 				updateProgress(progress, tmp, len(files), &progressMutex)
+				wg.Done()
 				<-maxController
 			}
-		}()
+		}(f)
 	}
 	wg.Wait()
 	close(tmp)
@@ -126,7 +127,7 @@ func joinString(full *string, part string, seperator bool) {
 func updateProgress(progress *int, current chan int, total int, mutex *sync.Mutex) {
 	mutex.Lock()
 	current <- 1
-	*progress = int(float32(len(current)/total) * 100)
+	*progress = int(float32(len(current)) / float32(total) * 100)
 	mutex.Unlock()
 }
 
@@ -154,7 +155,7 @@ func createFile(filepath string, info os.FileInfo, ext string) files2.Files {
 	file.FileName = strings.ReplaceAll(info.Name(), ext, "")
 	file.Length = ffmpeg.GetLength(filepath)
 	file.FileSize = ByteCountDecimal(info.Size())
-	file.DateCreated = time.Unix(info.ModTime().Unix(), 0).Format("01-02-06")
+	file.DateCreated = time.Unix(info.ModTime().Unix(), 0).Format(helpers.DateLayout)
 	file.FilePath = filepath
 	file.Tags = ""
 	file.Actors = getActors(info.Name())

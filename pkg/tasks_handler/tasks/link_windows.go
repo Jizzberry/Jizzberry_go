@@ -1,4 +1,4 @@
-package rename
+package tasks
 
 import (
 	"github.com/go-ole/go-ole"

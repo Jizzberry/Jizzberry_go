@@ -9,7 +9,6 @@ import (
 	"github.com/Jizzberry/Jizzberry_go/pkg/ffmpeg"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/auth"
-	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/ssh/terminal"
 	"net/http"
@@ -17,19 +16,6 @@ import (
 	"strings"
 	"syscall"
 )
-
-const art = ` 
-$$$$$\ $$\                     $$\                                               
-   \__$$ |\__|                    $$ |                                              
-      $$ |$$\ $$$$$$$$\ $$$$$$$$\ $$$$$$$\   $$$$$$\   $$$$$$\   $$$$$$\  $$\   $$\ 
-      $$ |$$ |\____$$  |\____$$  |$$  __$$\ $$  __$$\ $$  __$$\ $$  __$$\ $$ |  $$ |
-$$\   $$ |$$ |  $$$$ _/   $$$$ _/ $$ |  $$ |$$$$$$$$ |$$ |  \__|$$ |  \__|$$ |  $$ |
-$$ |  $$ |$$ | $$  _/    $$  _/   $$ |  $$ |$$   ____|$$ |      $$ |      $$ |  $$ |
-\$$$$$$  |$$ |$$$$$$$$\ $$$$$$$$\ $$$$$$$  |\$$$$$$$\ $$ |      $$ |      \$$$$$$$ |
- \______/ \__|\________|\________|\_______/  \_______|\__|      \__|       \____$$ |
-                                                                          $$\   $$ |
-                                                                          \$$$$$$  |
-                                                                           \______/`
 
 func Init() error {
 	err := initHelpers()
@@ -41,8 +27,6 @@ func Init() error {
 	if err != nil {
 		return err
 	}
-
-	scrapers.RegisterScrapers()
 
 	err = ffmpeg.IsExists()
 	if err != nil {
@@ -76,7 +60,7 @@ func initHelpers() error {
 }
 
 func initWebApp() error {
-	fmt.Println(art)
+	fmt.Println(helpers.Art)
 
 	addr := flag.String("addr", ":6969", "Address of server [default :6969]")
 	flag.Parse()

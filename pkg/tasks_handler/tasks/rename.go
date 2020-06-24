@@ -1,4 +1,4 @@
-package rename
+package tasks
 
 import (
 	"context"
@@ -12,8 +12,6 @@ import (
 	"regexp"
 	"strings"
 )
-
-const component = "Rename"
 
 type Rename struct {
 }

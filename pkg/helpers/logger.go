@@ -10,12 +10,7 @@ import (
 
 var logger *logrus.Logger
 
-var LogDir string
-
 func LoggerInit() {
-
-	LogDir = GetWorkingDirectory() + "/logs"
-
 	logger = &logrus.Logger{
 		Out:   os.Stderr,
 		Level: logrus.DebugLevel,
@@ -26,7 +21,7 @@ func LoggerInit() {
 	}
 
 	l := &lumberjack.Logger{
-		Filename:   LogDir + "/latest.log",
+		Filename:   LogsPath + "/latest.log",
 		MaxSize:    1, // MegaBytes
 		MaxBackups: 8, // Max Files
 		MaxAge:     7, // Days

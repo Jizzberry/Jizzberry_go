@@ -6,17 +6,15 @@ import (
 )
 
 func CreateDirs() error {
-	basePath := GetWorkingDirectory()
-
-	err := makeDir(filepath.Join(basePath, filepath.FromSlash("/assets/database")))
+	err := makeDir(filepath.FromSlash(DatabasePath))
 	if err != nil {
 		return err
 	}
-	err = makeDir(filepath.Join(basePath, filepath.FromSlash("/assets/json")))
+	err = makeDir(filepath.FromSlash(JsonPath))
 	if err != nil {
 		return err
 	}
-	err = makeDir(filepath.Join(basePath, filepath.FromSlash("/assets/ffmpeg")))
+	err = makeDir(filepath.FromSlash(FFMPEGPath))
 	if err != nil {
 		return err
 	}
@@ -24,7 +22,7 @@ func CreateDirs() error {
 	if err != nil {
 		return err
 	}
-	err = makeDir(filepath.Join(basePath, filepath.FromSlash("/logs")))
+	err = makeDir(filepath.FromSlash(LogsPath))
 	return nil
 }
 

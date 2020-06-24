@@ -1,6 +1,7 @@
 package files
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -340,8 +341,8 @@ func readJson(filename string) *os.File {
 }
 
 func parseJson(file *os.File) map[string][]string {
-
 	byteValue, _ := ioutil.ReadAll(file)
+	byteValue = bytes.Trim(byteValue, "\x00")
 	relation := make(map[string][]string)
 
 	if len(byteValue) > 0 {
@@ -355,6 +356,11 @@ func parseJson(file *os.File) map[string][]string {
 
 func writeJson(file *os.File, relation map[string][]string) {
 	bytes, err := json.Marshal(relation)
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
+
+	err = file.Truncate(0)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}

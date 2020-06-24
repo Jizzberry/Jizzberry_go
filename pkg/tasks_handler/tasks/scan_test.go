@@ -1,11 +1,11 @@
-package scan_test
+package tasks_test
 
 import (
 	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/database"
 	"github.com/Jizzberry/Jizzberry_go/pkg/database/router"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks/scan"
+	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -49,7 +49,7 @@ func runTestRW(t *testing.T, dir string) {
 		t.Error(err)
 	}
 
-	scan.Scan{}.Start([]string{dir})
+	tasks.Scan{}.Start([]string{dir})
 
 	time.Sleep(5 * time.Second)
 
@@ -70,7 +70,7 @@ func runTestCancel(t *testing.T, dir string) {
 		t.Error(err)
 	}
 
-	cancel, _ := scan.Scan{}.Start([]string{dir})
+	cancel, _ := tasks.Scan{}.Start([]string{dir})
 	tmp := *cancel
 	time.Sleep(3 * time.Second)
 	tmp()

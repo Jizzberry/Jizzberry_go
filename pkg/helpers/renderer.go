@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -24,7 +25,9 @@ func parseTemplates() *template.Template {
 	t := template.New("")
 	tmp := ""
 
-	err := filepath.Walk(filepath.Join(GetWorkingDirectory(), "web/templates/Components"), func(path string, info os.FileInfo, err error) error {
+	fmt.Println(StaticPath)
+
+	err := filepath.Walk(TemplatePath, func(path string, info os.FileInfo, err error) error {
 		if filepath.Ext(path) == ".html" {
 			open, err := os.Open(path)
 			if err != nil {

@@ -145,7 +145,7 @@ func DownloadAndExtract() error {
 		return fmt.Errorf("download ffmpeg manually")
 	}
 
-	downloadPath := filepath.FromSlash(helpers.GetWorkingDirectory() + "/assets/ffmpeg/" + "ffmpeg." + ext)
+	downloadPath := filepath.Join(helpers.FFMPEGPath, "ffmpeg."+ext)
 
 	_ = os.Remove(downloadPath)
 
@@ -194,7 +194,7 @@ func DownloadAndExtract() error {
 func getExecs(path string, file string) string {
 	var execPath = ""
 	if path == "" {
-		path = helpers.GetWorkingDirectory() + "/assets/ffmpeg/"
+		path = helpers.FFMPEGPath
 	}
 
 	if _, err := os.Stat(filepath.FromSlash(path)); err != nil {

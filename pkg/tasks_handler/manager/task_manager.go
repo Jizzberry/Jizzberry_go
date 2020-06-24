@@ -4,10 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks/rename"
-	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks/scan"
-	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks/scrapeActors"
-	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks/scrapeStudios"
+	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks"
 	"strconv"
 	"time"
 )
@@ -29,7 +26,7 @@ func StartScan() string {
 		return uid
 	}
 
-	cancel, progress := scan.Scan{}.Start(helpers.GetConfig().Paths)
+	cancel, progress := tasks.Scan{}.Start(helpers.GetConfig().Paths)
 	GlobalTasksStorage.Cancel[uid] = cancel
 	GlobalTasksStorage.Progress[uid] = progress
 	return uid
@@ -53,7 +50,7 @@ func StartScrapeActors() string {
 		return uid
 	}
 
-	cancel, progress := scrapeActors.ScrapeActors{}.Start()
+	cancel, progress := tasks.ScrapeActors{}.Start()
 	GlobalTasksStorage.Cancel[uid] = cancel
 	GlobalTasksStorage.Progress[uid] = progress
 	return uid
@@ -66,7 +63,7 @@ func StartScrapeStudios() string {
 		return uid
 	}
 
-	cancel, progress := scrapeStudios.ScrapeStudios{}.Start()
+	cancel, progress := tasks.ScrapeStudios{}.Start()
 	GlobalTasksStorage.Cancel[uid] = cancel
 	GlobalTasksStorage.Progress[uid] = progress
 	return uid
@@ -75,7 +72,7 @@ func StartScrapeStudios() string {
 //Rename shouldn't be stopped
 func StartRename(sceneId int64) string {
 	uid := strconv.FormatInt(time.Now().Unix(), 10)
-	cancel, progress := rename.Rename{}.Start(sceneId)
+	cancel, progress := tasks.Rename{}.Start(sceneId)
 	GlobalTasksStorage.Cancel[uid] = cancel
 	GlobalTasksStorage.Progress[uid] = progress
 	return uid

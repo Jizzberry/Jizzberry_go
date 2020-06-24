@@ -16,7 +16,7 @@ func QueryBuilderGet(i interface{}, tableName string) (string, []interface{}) {
 	var searchByRow string
 	var searchByIndex int
 	for i := 0; i < v.NumField(); i++ {
-		row := t.Field(i).Tag.Get("row")
+		row := t.Field(i).Tag.Get(helpers.RowStructTag)
 
 		if !checkEmpty(v.Field(i)) {
 			searchByRow = row
@@ -55,7 +55,7 @@ func QueryBuilderCreate(i interface{}, tableName string) (string, []interface{})
 	args := make([]interface{}, 0)
 
 	for i := 0; i < v.NumField(); i++ {
-		row := t.Field(i).Tag.Get("row")
+		row := t.Field(i).Tag.Get(helpers.RowStructTag)
 
 		if isPK(t.Field(i)) {
 			continue
@@ -96,7 +96,7 @@ func QueryBuilderDelete(i interface{}, tableName string) (string, []interface{})
 	for i := 0; i < v.NumField(); i++ {
 
 		if !checkEmpty(v.Field(i)) {
-			row := t.Field(i).Tag.Get("row")
+			row := t.Field(i).Tag.Get(helpers.RowStructTag)
 			if row != "" {
 				query += row + " = ?"
 				args = append(args, v.Field(i).Interface())
@@ -124,7 +124,7 @@ func QueryBuilderUpdate(i interface{}, tableName string) (string, []interface{})
 		}
 
 		if !checkEmpty(v.Field(i)) {
-			row := t.Field(i).Tag.Get("row")
+			row := t.Field(i).Tag.Get(helpers.RowStructTag)
 			if row != "" {
 				if argsCount < 1 {
 					query += row + " = ?"
@@ -141,7 +141,7 @@ func QueryBuilderUpdate(i interface{}, tableName string) (string, []interface{})
 		return "", nil
 	}
 
-	query += " WHERE " + t.Field(searchBy).Tag.Get("row") + " = ?"
+	query += " WHERE " + t.Field(searchBy).Tag.Get(helpers.RowStructTag) + " = ?"
 	args = append(args, v.Field(searchBy).Interface())
 
 	return query, args
@@ -152,6 +152,7 @@ func checkEmpty(value reflect.Value) bool {
 	matchedInt, err := regexp.MatchString("int", value.Type().String())
 	if err != nil {
 		helpers.LogError(err.Error(), component)
+		return false
 	}
 	if matchedInt {
 		return value.IsZero()
@@ -161,6 +162,7 @@ func checkEmpty(value reflect.Value) bool {
 	matchedString, err := regexp.MatchString("string", value.Type().String())
 	if err != nil {
 		helpers.LogError(err.Error(), component)
+		return false
 	}
 	if matchedString {
 		return value.String() == ""
@@ -170,6 +172,7 @@ func checkEmpty(value reflect.Value) bool {
 	matchedBool, err := regexp.MatchString("bool", value.Type().String())
 	if err != nil {
 		helpers.LogError(err.Error(), component)
+		return false
 	}
 	if matchedBool {
 		// Bool cant be search factor
@@ -180,5 +183,5 @@ func checkEmpty(value reflect.Value) bool {
 }
 
 func isPK(field reflect.StructField) bool {
-	return field.Tag.Get("pk") == "auto"
+	return field.Tag.Get(helpers.PKStructTag) == "auto"
 }
