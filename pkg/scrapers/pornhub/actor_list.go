@@ -34,7 +34,8 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 		actorSlice := make([]actor.Actor, 0)
 		element.ForEach("a[data-mxptype=Pornstar]", func(i int, element1 *colly.HTMLElement) {
 			// Scrape only actor having full name
-			if len(strings.FieldsFunc(element1.Attr("data-mxptext"), splitter)) > 1 {
+			split := strings.FieldsFunc(element1.Attr("data-mxptext"), splitter)
+			if len(split) < 4 && len(split) > 1 {
 				actorSlice = append(actorSlice, actor.Actor{
 					Name:    element1.Attr("data-mxptext"),
 					UrlID:   "",
