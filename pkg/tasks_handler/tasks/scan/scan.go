@@ -43,6 +43,9 @@ func worker(paths []string, ctx context.Context, progress *int) {
 	tmp := make(chan int, len(files))
 	*progress = 0
 
+	filesModel := files2.Initialize()
+	defer filesModel.Close()
+
 	for _, f := range files {
 		maxController <- struct{}{}
 		wg.Add(1)
@@ -57,7 +60,6 @@ func worker(paths []string, ctx context.Context, progress *int) {
 				<-maxController
 				return
 			default:
-				filesModel := files2.Initialize()
 				file := files2.Files{}
 
 				_, exists := filesModel.IsExists(f)
@@ -71,17 +73,22 @@ func worker(paths []string, ctx context.Context, progress *int) {
 					file.DateCreated = time.Unix(info.ModTime().Unix(), 0).Format("01-02-06")
 					file.FilePath = f
 					file.Tags = ""
-					data := tasks_handler.MatchActorToTitle(info.Name())
-					var join string
-					for i, a := range data {
+					actorsData := tasks_handler.MatchActorToTitle(info.Name())
+					var joinActors string
+					for i, a := range actorsData {
 						scraped := scrapers.ScrapeActor(a)
 						actor_details.Initialize().Create(*scraped)
-						join += a.Name
-						if i != len(data)-1 {
-							join += ", "
-						}
+						joinString(&joinActors, a.Name, i != len(actorsData)-1)
 					}
-					file.Actors = join
+					file.Actors = joinActors
+
+					var joinStudios string
+					studiosData := tasks_handler.MatchStudioToTitle(info.Name())
+					for i, s := range studiosData {
+						joinString(&joinStudios, s.Name, i != len(actorsData)-1)
+					}
+
+					file.Studios = joinStudios
 
 					genId := filesModel.Create(file)
 
@@ -139,4 +146,11 @@ func lenInSec(length string) (secs int64) {
 		secs += int64(float64(val) * math.Pow(60, float64(i)))
 	}
 	return
+}
+
+func joinString(full *string, part string, seperator bool) {
+	*full += part
+	if seperator {
+		*full += ", "
+	}
 }

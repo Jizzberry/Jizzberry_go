@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const component = "FFMPEG"
@@ -23,10 +24,23 @@ func GenerateThumbnail(generatedId int64, path string, interval int64) {
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
 
-	err := cmd.Run()
-
+	err := cmd.Start()
 	if err != nil {
 		_ = os.Remove(outFile)
+		return
+	}
+
+	done := make(chan error)
+	go func() { done <- cmd.Wait() }()
+	select {
+	case err = <-done:
+		return
+	case <-time.After(120 * time.Second):
+		err := cmd.Process.Kill()
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
+		return
 	}
 }
 

@@ -29,15 +29,15 @@ func Initialize() *Model {
 	}
 }
 
-func (s Model) Close() {
-	err := s.conn.Close()
+func (m Model) Close() {
+	err := m.conn.Close()
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
 }
 
-func (s Model) isEmpty() bool {
-	rows, err := s.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name=?`, tableName)
+func (m Model) isEmpty() bool {
+	rows, err := m.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name=?`, tableName)
 
 	if err != nil {
 		helpers.LogError(err.Error(), component)
@@ -59,8 +59,8 @@ func (s Model) isEmpty() bool {
 	return false
 }
 
-func (s Model) IsExists(studio string) (int64, bool) {
-	if s.isEmpty() {
+func (m Model) IsExists(studio string) (int64, bool) {
+	if m.isEmpty() {
 		err := database.RunMigrations()
 		if err != nil {
 			helpers.LogError(err.Error(), component)
@@ -68,7 +68,7 @@ func (s Model) IsExists(studio string) (int64, bool) {
 		return -1, false
 	}
 
-	fetch, err := s.conn.Query(`SELECT generated_id FROM studios WHERE studio = ?`, studio)
+	fetch, err := m.conn.Query(`SELECT generated_id FROM studios WHERE studio = ?`, studio)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 		return -1, false
@@ -88,8 +88,8 @@ func (s Model) IsExists(studio string) (int64, bool) {
 	return -1, false
 }
 
-func (s Model) Create(studios []Studio) {
-	tx, err := s.conn.Begin()
+func (m Model) Create(studios []Studio) {
+	tx, err := m.conn.Begin()
 
 	if err != nil {
 		helpers.LogError(err.Error(), component)
@@ -97,12 +97,12 @@ func (s Model) Create(studios []Studio) {
 	}
 
 	for _, stud := range studios {
-		_, exists := s.IsExists(stud.Name)
+		_, exists := m.IsExists(stud.Name)
 		if exists {
 			continue
 		}
 
-		_, err := tx.Exec(`INSERT INTO studios (studio) SELECT ? WHERE NOT EXISTS(SELECT 1 FROM studios WHERE studio = ?)`, stud.Name, stud.Name)
+		_, err := tx.Exec(`INSERT INTO studios (studio, count) SELECT ?, ? WHERE NOT EXISTS(SELECT 1 FROM studios WHERE studio = ?)`, stud.Name, stud.Count, stud.Name)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 			err := tx.Rollback()
@@ -118,19 +118,19 @@ func (s Model) Create(studios []Studio) {
 	}
 }
 
-func (s Model) Delete(studio string) {
-	_, err := s.conn.Exec(`DELETE FROM tags WHERE tag = ?`, studio)
+func (m Model) Delete(studio string) {
+	_, err := m.conn.Exec(`DELETE FROM tags WHERE tag = ?`, studio)
 
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
 }
 
-func (s Model) Get(studiosQuery Studio) []Studio {
+func (m Model) Get(studiosQuery Studio) []Studio {
 	query, args := models.QueryBuilderGet(studiosQuery, tableName)
 	allStudios := make([]Studio, 0)
 
-	row, err := s.conn.Query(query, args...)
+	row, err := m.conn.Query(query, args...)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 		return allStudios
@@ -146,4 +146,38 @@ func (s Model) Get(studiosQuery Studio) []Studio {
 	}
 
 	return allStudios
+}
+
+func (m Model) GetFromTitle(names []string) []Studio {
+	fetched := make([]Studio, 0)
+	for _, name := range names {
+		rows, err := m.conn.Query(`SELECT generated_id, studio FROM studios WHERE (studio LIKE ? COLLATE NOCASE) 
+                                                         OR (replace(studio, ' ', '') LIKE ? COLLATE NOCASE)`, "%"+name+"%", name)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+			return fetched
+		}
+
+		for rows.Next() {
+			var actor = Studio{}
+			err := rows.Scan(&actor.GeneratedID, &actor.Name)
+			if err != nil {
+				helpers.LogError(err.Error(), component)
+			}
+
+			if !containsStudio(fetched, actor) {
+				fetched = append(fetched, actor)
+			}
+		}
+	}
+	return fetched
+}
+
+func containsStudio(s []Studio, e Studio) bool {
+	for _, a := range s {
+		if a.GeneratedID == e.GeneratedID {
+			return true
+		}
+	}
+	return false
 }

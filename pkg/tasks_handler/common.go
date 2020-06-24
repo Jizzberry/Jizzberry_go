@@ -6,6 +6,7 @@ import (
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/files"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/studios"
 	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers/factory"
 	"os"
@@ -20,6 +21,45 @@ func Splitter(r rune) bool {
 	return r == ' ' || r == '.' || r == '-' || r == '_' || r == '[' || r == ']' || r == '(' || r == ')'
 }
 
+func MatchStudioToTitle(title string) []studios.Studio {
+	split := strings.FieldsFunc(title, Splitter)
+
+	recognisedStudios := make([]studios.Studio, 0)
+
+	studiosModel := studios.Initialize()
+	defer studiosModel.Close()
+
+	split = cleanSlice(split)
+
+	allStudios := studiosModel.GetFromTitle(split)
+
+	for _, a := range allStudios {
+		regex := RegexpBuilder(a.Name)
+		r, err := regexp.Compile(regex)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+			return recognisedStudios
+		}
+
+		matches := r.FindAllString(title, -1)
+		if len(matches) > 0 {
+			recognisedStudios = append(recognisedStudios, a)
+		}
+	}
+	return recognisedStudios
+}
+
+func cleanSlice(slice []string) []string {
+	words := make([]string, 0)
+	for i := range slice {
+		// Avoid articles ig
+		if len(slice[i]) > 2 && strings.ToLower(slice[i]) != "the" {
+			words = append(words, slice[i])
+		}
+	}
+	return words
+}
+
 func MatchActorToTitle(title string) []actor.Actor {
 	split := strings.FieldsFunc(title, Splitter)
 
@@ -28,14 +68,9 @@ func MatchActorToTitle(title string) []actor.Actor {
 	actorsModel := actor.Initialize()
 	defer actorsModel.Close()
 
-	words := make([]string, 0)
-	for i := range split {
-		// Avoid articles ig
-		if len(split[i]) > 2 && strings.ToLower(split[i]) != "the" {
-			words = append(words, split[i])
-		}
-	}
-	allActors := actorsModel.GetFromTitle(words)
+	split = cleanSlice(split)
+
+	allActors := actorsModel.GetFromTitle(split)
 
 	for _, a := range allActors {
 		regex := RegexpBuilder(a.Name)

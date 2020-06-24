@@ -23,6 +23,7 @@ func GetConn(databasePath string) *sql.DB {
 func RunMigrations() error {
 	dataDatabasepath := router.GetDatabase("files")
 	actorsDatabasepath := router.GetDatabase("actors")
+	studiosDatabasepath := router.GetDatabase("studios")
 	authDatabasepath := router.GetDatabase("auth")
 
 	migrationsData := &migrate.HttpFileSystemMigrationSource{
@@ -31,6 +32,10 @@ func RunMigrations() error {
 
 	migrationsActors := &migrate.HttpFileSystemMigrationSource{
 		FileSystem: pkger.Dir("/pkg/database/migrations/actors"),
+	}
+
+	migrationsStudios := &migrate.HttpFileSystemMigrationSource{
+		FileSystem: pkger.Dir("/pkg/database/migrations/studios"),
 	}
 
 	migrationsAuth := &migrate.HttpFileSystemMigrationSource{
@@ -46,6 +51,10 @@ func RunMigrations() error {
 		return err
 	}
 	err = doMigrate(migrationsAuth, authDatabasepath)
+	if err != nil {
+		return err
+	}
+	err = doMigrate(migrationsStudios, studiosDatabasepath)
 	if err != nil {
 		return err
 	}

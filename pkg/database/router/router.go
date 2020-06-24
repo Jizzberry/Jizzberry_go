@@ -19,7 +19,7 @@ func GetDatabase(table string) string {
 		return filepath.FromSlash(databaseDir + "/jizzberry_data.db")
 
 	case "studios":
-		return filepath.FromSlash(databaseDir + "/jizzberry_data.db")
+		return filepath.FromSlash(databaseDir + "/studios.db")
 
 	case "actors":
 		return filepath.FromSlash(databaseDir + "/actors.db")

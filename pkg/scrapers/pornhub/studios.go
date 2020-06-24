@@ -30,6 +30,7 @@ func (p Pornhub) ScrapeStudiosList(ctx context.Context) {
 	)
 
 	studioModel := studios.Initialize()
+	defer studioModel.Close()
 
 	c.OnHTML("body", func(element *colly.HTMLElement) {
 		element.ForEach(".channelGridWrapper", func(i int, element *colly.HTMLElement) {
