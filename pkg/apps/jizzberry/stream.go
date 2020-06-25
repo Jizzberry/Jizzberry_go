@@ -36,6 +36,7 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 
 	file, err := os.Open(path)
 	if err != nil {
+		helpers.LogError(err.Error(), component)
 		w.WriteHeader(500)
 		return
 	}
@@ -76,10 +77,7 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			data := buffer[:n]
-			_, err = w.Write(data)
-			if err != nil {
-				helpers.LogError(err.Error(), component)
-			}
+			_, _ = w.Write(data)
 			w.(http.Flusher).Flush()
 		}
 
@@ -148,19 +146,13 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 
 			if writeBytes >= contentEndValue {
 				data := buffer[:BUFSIZE-writeBytes+contentEndValue+1]
-				_, err := w.Write(data)
-				if err != nil {
-					helpers.LogError(err.Error(), component)
-				}
+				_, _ = w.Write(data)
 				w.(http.Flusher).Flush()
 				break
 			}
 
 			data := buffer[:n]
-			_, err = w.Write(data)
-			if err != nil {
-				helpers.LogError(err.Error(), component)
-			}
+			_, _ = w.Write(data)
 			w.(http.Flusher).Flush()
 		}
 	}

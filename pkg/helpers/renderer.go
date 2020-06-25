@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -24,8 +23,6 @@ func RndInit() {
 func parseTemplates() *template.Template {
 	t := template.New("")
 	tmp := ""
-
-	fmt.Println(StaticPath)
 
 	err := filepath.Walk(TemplatePath, func(path string, info os.FileInfo, err error) error {
 		if filepath.Ext(path) == ".html" {

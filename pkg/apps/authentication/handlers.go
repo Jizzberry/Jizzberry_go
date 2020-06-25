@@ -38,7 +38,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// If user is already logged in, don't show login page again until logout
 	if ValidateSession(w, r) {
-		http.Redirect(w, r, "/Jizzberry/", http.StatusFound)
+		http.Redirect(w, r, "/Jizzberry/home", http.StatusFound)
 		return
 	}
 
@@ -77,7 +77,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			http.Redirect(w, r, "/Jizzberry/", http.StatusFound)
+			http.Redirect(w, r, "/Jizzberry/home", http.StatusFound)
 			return
 		}
 
