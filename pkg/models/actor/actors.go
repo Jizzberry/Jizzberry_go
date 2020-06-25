@@ -2,8 +2,7 @@ package actor
 
 import (
 	"database/sql"
-	"github.com/Jizzberry/Jizzberry_go/pkg/database"
-	"github.com/Jizzberry/Jizzberry_go/pkg/database/router"
+	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models"
 )
@@ -15,29 +14,29 @@ const (
 
 type Actor struct {
 	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
-	Name        string `row:"name" type:"like" json:"name"`
+	Name        string `row:"name" type:"exact" json:"name"`
 	UrlID       string `row:"urlid" type:"exact" json:"urlid"`
 	Website     string `row:"website" type:"exact" json:"website"`
 }
 
-type ActorsModel struct {
+type Model struct {
 	conn *sql.DB
 }
 
-func Initialize() *ActorsModel {
-	return &ActorsModel{
-		conn: database.GetConn(router.GetDatabase(tableName)),
+func Initialize() *Model {
+	return &Model{
+		conn: models.GetConn(tableName),
 	}
 }
 
-func (a ActorsModel) Close() {
+func (a Model) Close() {
 	err := a.conn.Close()
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
 }
 
-func (a ActorsModel) Create(actors []Actor) {
+func (a Model) Create(actors []Actor) {
 	tx, err := a.conn.Begin()
 
 	if err != nil {
@@ -45,20 +44,13 @@ func (a ActorsModel) Create(actors []Actor) {
 		return
 	}
 
-	if a.isEmpty() {
-		err := database.RunMigrations()
-		if err != nil {
-			helpers.LogError(err.Error(), component)
-		}
-	}
-
 	for _, act := range actors {
-		_, err := tx.Exec(`INSERT INTO actors (name, website, urlid) SELECT ?, ?, ? WHERE NOT EXISTS(SELECT 1 FROM actors WHERE name = ?)`, act.Name, act.Website, act.UrlID, act.Name)
-		if err != nil {
-			helpers.LogError(err.Error(), component)
-			err := tx.Rollback()
+		if exist, _ := models.IsValueExists(a.conn, act.Name, "name", tableName); !exist {
+			query, args := models.QueryBuilderCreate(act, tableName)
+			_, err := tx.Exec(query, args...)
 			if err != nil {
 				helpers.LogError(err.Error(), component)
+				break
 			}
 		}
 	}
@@ -66,102 +58,48 @@ func (a ActorsModel) Create(actors []Actor) {
 	err = tx.Commit()
 	if err != nil {
 		helpers.LogError(err.Error(), component)
+		return
 	}
+
+	helpers.LogInfo(fmt.Sprintf("Added actors: %v", actors), component)
 }
 
-func (a ActorsModel) GetExact(name string) Actor {
-	actor := Actor{Name: name}
-
-	rows, err := a.conn.Query(`SELECT generated_id, name, website, urlid FROM actors WHERE name = ?`, name)
-	if err != nil {
-		helpers.LogError(err.Error(), component)
-		return actor
-	}
-
-	for rows.Next() {
-		err := rows.Scan(&actor.GeneratedID, &actor.Name, &actor.Website, &actor.UrlID)
-		if err != nil {
-			helpers.LogError(err.Error(), component)
-		}
-	}
-	return actor
-}
-
-func (a ActorsModel) GetFromTitle(names []string) []Actor {
+func (a Model) GetFromTitle(names []string) []Actor {
 	fetched := make([]Actor, 0)
 	for _, name := range names {
-		rows, err := a.conn.Query(`SELECT generated_id, name, website, urlid FROM actors WHERE (name LIKE ? COLLATE NOCASE) 
-                                                         OR (replace(name, ' ', '') LIKE ? COLLATE NOCASE)`, "%"+name+"%", name)
+		query, args := models.QueryBuilderMatch(Actor{Name: name}, tableName)
+		rows, err := a.conn.Query(query, args...)
 		if err != nil {
 			helpers.LogError(err.Error(), component)
 			return fetched
 		}
 
-		for rows.Next() {
-			var actor = Actor{}
-			err := rows.Scan(&actor.GeneratedID, &actor.Name, &actor.Website, &actor.UrlID)
-			if err != nil {
-				helpers.LogError(err.Error(), component)
-			}
-
-			if !containsActors(fetched, actor) {
-				fetched = append(fetched, actor)
-			}
-		}
+		models.GetIntoStruct(rows, &fetched)
+		fetched = removeDupl(fetched)
 	}
 	return fetched
 }
 
-func (a ActorsModel) Get(actor Actor) []Actor {
-	allActors := make([]Actor, 0)
+func (a Model) Get(actor Actor) (allActors []Actor) {
 	query, args := models.QueryBuilderGet(actor, tableName)
 
-	rows, err := a.conn.Query(query, args...)
+	row, err := a.conn.Query(query, args...)
 	if err != nil {
 		helpers.LogError(err.Error(), component)
-		return allActors
+		return
 	}
 
-	for rows.Next() {
-		actor := Actor{}
-		err := rows.Scan(&actor.GeneratedID, &actor.Name, &actor.UrlID, &actor.Website)
-		if err != nil {
-			helpers.LogError(err.Error(), component)
-		}
-		allActors = append(allActors, actor)
-	}
-
-	return allActors
+	models.GetIntoStruct(row, &allActors)
+	return
 }
 
-func (a ActorsModel) isEmpty() bool {
-	rows, err := a.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name=?`, tableName)
-
-	if err != nil {
-		helpers.LogError(err.Error(), component)
-		return true
-	}
-	defer rows.Close()
-	var count int
-
-	for rows.Next() {
-		err := rows.Scan(&count)
-		if err != nil {
-			helpers.LogError(err.Error(), component)
+func removeDupl(s []Actor) (list []Actor) {
+	keys := make(map[int64]bool)
+	for _, entry := range s {
+		if _, ok := keys[entry.GeneratedID]; !ok {
+			keys[entry.GeneratedID] = true
+			list = append(list, entry)
 		}
 	}
-
-	if count < 0 {
-		return true
-	}
-	return false
-}
-
-func containsActors(s []Actor, e Actor) bool {
-	for _, a := range s {
-		if a.GeneratedID == e.GeneratedID {
-			return true
-		}
-	}
-	return false
+	return
 }

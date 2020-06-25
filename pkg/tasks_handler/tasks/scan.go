@@ -58,7 +58,7 @@ func worker(paths []string, ctx context.Context, progress *int) {
 				<-maxController
 				return
 			default:
-				if _, exists := filesModel.IsExists(f); !exists {
+				if exists := filesModel.IsExists(f); !exists {
 					info, err := os.Stat(f)
 					if err != nil {
 						helpers.LogError(err.Error(), component)
@@ -146,7 +146,7 @@ func getStudios(title string) (joinStudios string) {
 	for i, s := range studiosData {
 		joinString(&joinStudios, s.Name, i != len(studiosData)-1)
 	}
-	return joinStudios
+	return
 }
 
 func createFile(filepath string, info os.FileInfo, ext string) files2.Files {

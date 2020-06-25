@@ -17,7 +17,7 @@ func ScrapeActor(actors actor.Actor) *actor_details.ActorDetails {
 	detailsModel := actor_details.Initialize()
 	defer detailsModel.Close()
 
-	if ok, _ := detailsModel.IsExists(actors.GeneratedID); !ok {
+	if detailsModel.IsExists(actors.GeneratedID) {
 		for _, i := range actorScrapers {
 			if i.GetWebsite() == actors.Website {
 				details, _ := i.ScrapeActor(actors.Name)

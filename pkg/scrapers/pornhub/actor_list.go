@@ -12,6 +12,9 @@ import (
 )
 
 func (p Pornhub) ScrapeActorList(ctx context.Context) {
+	model := actor.Initialize()
+	defer model.Close()
+
 	c := colly.NewCollector(colly.AllowURLRevisit(),
 		colly.UserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11"))
 
@@ -36,15 +39,13 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 			// Scrape only actor having full name
 			split := strings.FieldsFunc(element1.Attr("data-mxptext"), splitter)
 			if len(split) < 4 && len(split) > 1 {
-				actorSlice = append(actorSlice, actor.Actor{
+				actorSlice = appendIfNotExists(actorSlice, actor.Actor{
 					Name:    element1.Attr("data-mxptext"),
 					UrlID:   "",
 					Website: p.GetWebsite(),
 				})
 			}
 		})
-		model := actor.Initialize()
-		defer model.Close()
 
 		model.Create(actorSlice)
 
@@ -79,4 +80,13 @@ func (p Pornhub) ScrapeActorList(ctx context.Context) {
 
 func splitter(r rune) bool {
 	return r == ' ' || r == '.' || r == '-' || r == '_'
+}
+
+func appendIfNotExists(slice []actor.Actor, actor2 actor.Actor) []actor.Actor {
+	for _, a := range slice {
+		if a.Name == actor2.Name {
+			return slice
+		}
+	}
+	return append(slice, actor2)
 }

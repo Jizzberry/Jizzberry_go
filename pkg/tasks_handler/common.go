@@ -101,7 +101,7 @@ func MatchActorExact(name string) *[]actor.Actor {
 	defer model.Close()
 
 	actors := make([]actor.Actor, 0)
-	actors = append(actors, model.GetExact(name))
+	actors = append(actors, model.Get(actor.Actor{Name: name})...)
 
 	return &actors
 }

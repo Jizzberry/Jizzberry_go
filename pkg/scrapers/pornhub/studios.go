@@ -2,6 +2,7 @@ package pornhub
 
 import (
 	"context"
+	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/studios"
 	"github.com/gocolly/colly/v2"
@@ -43,7 +44,7 @@ func (p Pornhub) ScrapeStudiosList(ctx context.Context) {
 	})
 
 	c.OnError(func(response *colly.Response, err error) {
-		helpers.LogError(err.Error(), p.GetWebsite())
+		helpers.LogError(fmt.Sprintf("Response error: %s - %s", response.Request.URL, err.Error()), p.GetWebsite())
 	})
 
 	c.OnRequest(func(request *colly.Request) {
@@ -56,7 +57,7 @@ func (p Pornhub) ScrapeStudiosList(ctx context.Context) {
 		}
 	})
 
-	for i := 1; i < 90; i++ {
+	for i := 1; i < 87; i++ {
 		url := "https://www.pornhub.com/channels?o=rk&page=" + strconv.Itoa(i)
 		err := q.AddURL(url)
 		if err != nil {
