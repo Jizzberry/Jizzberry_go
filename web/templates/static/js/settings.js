@@ -1,309 +1,308 @@
 $(function () {
-    $('#usercreationform').submit(function (event) {
-        event.preventDefault();
-        $.ajax({
-            type: 'POST',
-            url: '/auth/create/',
-            data: $(this).serialize(),
-            success: function () {
-                window.location.reload()
-            },
-            error: function (msg) {
-                alert(msg)
-            }
-        });
-    });
-})
+	$("#usercreationform").submit(function (event) {
+		event.preventDefault();
+		$.ajax({
+			type: "POST",
+			url: "/auth/create/",
+			data: $(this).serialize(),
+			success: function () {
+				window.location.reload();
+			},
+			error: function (msg) {
+				alert(msg);
+			},
+		});
+	});
+});
 
 function postConfig() {
-    const inputFolder = document.getElementById("folderForm");
-    const inputFile = document.getElementById("fileForm");
+	const inputFolder = document.getElementById("folderForm");
+	const inputFile = document.getElementById("fileForm");
 
-    let xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
+	let xhr = new XMLHttpRequest();
+	xhr.withCredentials = true;
 
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-        }
-    }
+	xhr.onreadystatechange = function () {
+		if (xhr.readyState === XMLHttpRequest.DONE) {
+		}
+	};
 
-    xhr.open("POST", '/api/config', true);
-    xhr.send(JSON.stringify({
-        file_rename_formatter: inputFile.value,
-        folder_rename_formatter: inputFolder.value,
-    }));
+	xhr.open("POST", "/api/config", true);
+	xhr.send(
+		JSON.stringify({
+			file_rename_formatter: inputFile.value,
+			folder_rename_formatter: inputFolder.value,
+		})
+	);
 }
 
 function removePath(path) {
-    let xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
+	let xhr = new XMLHttpRequest();
+	xhr.withCredentials = true;
 
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            window.location.reload();
-        }
-    }
+	xhr.onreadystatechange = function () {
+		if (xhr.readyState === XMLHttpRequest.DONE) {
+			window.location.reload();
+		}
+	};
 
-    xhr.open("DELETE", '/api/setPath?path=' + path, true);
-    xhr.send();
+	xhr.open("DELETE", "/api/setPath?path=" + path, true);
+	xhr.send();
 }
 
 function startScan() {
-    let xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
-    xhr.open("POST", '/api/startScanTask', true);
-    xhr.send();
+	let xhr = new XMLHttpRequest();
+	xhr.withCredentials = true;
+	xhr.open("POST", "/api/startScanTask", true);
+	xhr.send();
 }
 
 function stopTask(name) {
-    let xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
-    xhr.open("POST", '/api/stopTask?uid='+name, true);
-    xhr.send();
+	let xhr = new XMLHttpRequest();
+	xhr.withCredentials = true;
+	xhr.open("POST", "/api/stopTask?uid=" + name, true);
+	xhr.send();
 
-    resetControls(name)
+	resetControls(name);
 }
 
 const sessionsSocket = new WebSocket(
-    'ws://'
-    + window.location.host
-    + '/ws/session'
-    + ''
+	"ws://" + window.location.host + "/ws/session" + ""
 );
 
-sessionsSocket.onmessage = function(e) {
-    let parsed = JSON.parse(e.data)
-    if (parsed['type'] === "progress") {
-        handleProgress(parsed);
-    } else if (parsed['type'] === "status") {
-        setUserStatus(parsed)
-    }
+sessionsSocket.onmessage = function (e) {
+	let parsed = JSON.parse(e.data);
+	if (parsed["type"] === "progress") {
+		handleProgress(parsed);
+	} else if (parsed["type"] === "status") {
+		setUserStatus(parsed);
+	}
 };
 
-sessionsSocket.onclose = function(e) {
-    console.error(e);
+sessionsSocket.onclose = function (e) {
+	console.error(e);
 };
 
 function handleProgress(data) {
-    let text = document.getElementById(data['key'] + "-textprogress");
-    let bar = document.getElementById(data['key'] + "-progressbar");
+	let text = document.getElementById(data["key"] + "-textprogress");
+	let bar = document.getElementById(data["key"] + "-progressbar");
 
-    if (text == null || bar == null) {
-        createTask(data['key'], data['value']);
-    } else {
-        text.textContent = data['value'] + "%"
-        text.hidden = false
-        bar.style.width = data['value'] + "%"
-    }
+	if (text == null || bar == null) {
+		createTask(data["key"], data["value"]);
+	} else {
+		text.textContent = data["value"] + "%";
+		text.hidden = false;
+		bar.style.width = data["value"] + "%";
+	}
 
-    setProgressControls(data['key'], parseInt(data['value']));
+	setProgressControls(data["key"], parseInt(data["value"]));
 }
 
 function setProgressControls(name, progress) {
-    let dropdown = document.getElementById(name + "-angle-down");
-    let stop =  document.getElementById(name + "-stop");
-    let start = document.getElementById(name + "-play");
-    let redo = document.getElementById(name + "-redo");
+	let dropdown = document.getElementById(name + "-angle-down");
+	let stop = document.getElementById(name + "-stop");
+	let start = document.getElementById(name + "-play");
+	let redo = document.getElementById(name + "-redo");
 
-    if (progress >= 0) {
-        dropdown.hidden = false
-        stop.hidden = false
-        start.hidden = true
-        redo.hidden = true
-        dropdownSetter(name)
+	if (progress >= 0) {
+		dropdown.hidden = false;
+		stop.hidden = false;
+		start.hidden = true;
+		redo.hidden = true;
+		dropdownSetter(name);
 
-        if (progress > 99) {
-            stop.hidden = true
-            redo.hidden = false
-        }
-    }
+		if (progress > 99) {
+			stop.hidden = true;
+			redo.hidden = false;
+		}
+	}
 }
 
 function resetControls(name) {
-    let text = document.getElementById(name + "-textprogress");
-    let bar = document.getElementById(name + "-progressbar");
-    let dropdown = document.getElementById(name + "-angle-down");
-    let stop =  document.getElementById(name + "-stop");
-    let start = document.getElementById(name + "-play");
-    let redo = document.getElementById(name + "-redo");
+	let text = document.getElementById(name + "-textprogress");
+	let bar = document.getElementById(name + "-progressbar");
+	let dropdown = document.getElementById(name + "-angle-down");
+	let stop = document.getElementById(name + "-stop");
+	let start = document.getElementById(name + "-play");
+	let redo = document.getElementById(name + "-redo");
 
-    text.textContent = "0%";
-    bar.style.width = "0";
-    dropdown.hidden = true
-    stop.hidden = true
-    start.hidden = false
-    redo.hidden = true
+	text.textContent = "0%";
+	bar.style.width = "0";
+	dropdown.hidden = true;
+	stop.hidden = true;
+	start.hidden = false;
+	redo.hidden = true;
 }
 
-function handleDropdown (name) {
-    let dropdown = document.getElementById(name + "-angle-down")
-    let task = document.getElementById(name + "-body")
+function handleDropdown(name) {
+	let dropdown = document.getElementById(name + "-angle-down");
+	let task = document.getElementById(name + "-body");
 
-    if (dropdown.classList.contains("active")) {
-        task.style.height = "0";
-        dropdown.classList.remove("active")
-    } else {
-        task.style.height = "initial"
-        dropdown.classList.add("active")
-    }
+	if (dropdown.classList.contains("active")) {
+		task.style.height = "0";
+		dropdown.classList.remove("active");
+	} else {
+		task.style.height = "initial";
+		dropdown.classList.add("active");
+	}
 }
 
 function dropdownSetter(name) {
-    let dropdown = document.getElementById(name + "-angle-down")
+	let dropdown = document.getElementById(name + "-angle-down");
 
-    if (dropdown != null) {
-        dropdown.setAttribute("onclick", "handleDropdown(\"" + name + "\");")
-    }
+	if (dropdown != null) {
+		dropdown.setAttribute("onclick", 'handleDropdown("' + name + '");');
+	}
 }
 
 function createTask(name, progress) {
-    let container = document.getElementById("tasks-container");
+	let container = document.getElementById("tasks-container");
 
-    let outermostDiv = document.createElement('div');
-    outermostDiv.className = "task-stats mb-4";
+	let outermostDiv = document.createElement("div");
+	outermostDiv.className = "task-stats mb-4";
 
-    let topTextHolder = document.createElement('div');
-    topTextHolder.className = "stats-head d-flex";
-    outermostDiv.appendChild(topTextHolder);
+	let topTextHolder = document.createElement("div");
+	topTextHolder.className = "stats-head d-flex";
+	outermostDiv.appendChild(topTextHolder);
 
-    let flexDiv = document.createElement('div');
-    flexDiv.className = "d-flex ml-2";
-    topTextHolder.appendChild(flexDiv)
+	let flexDiv = document.createElement("div");
+	flexDiv.className = "d-flex ml-2";
+	topTextHolder.appendChild(flexDiv);
 
-    let emptySpan = document.createElement('span');
+	let emptySpan = document.createElement("span");
 
-    let paragraphElement0 = document.createElement('p');
-    paragraphElement0.style.fontWeight = "700";
-    paragraphElement0.className = "text-warning mr-3 mb-0 pt-2";
-    paragraphElement0.textContent = "30 mins";
+	let paragraphElement0 = document.createElement("p");
+	paragraphElement0.style.fontWeight = "700";
+	paragraphElement0.className = "text-warning mr-3 mb-0 pt-2";
+	paragraphElement0.textContent = "30 mins";
 
-    let paragraphElement1 = document.createElement('p');
-    paragraphElement1.style.fontWeight = "700";
-    paragraphElement1.className = "mr-3 mb-0 pt-2"
-    paragraphElement1.id = name + "-textprogress"
-    paragraphElement1.textContent = progress + "%"
+	let paragraphElement1 = document.createElement("p");
+	paragraphElement1.style.fontWeight = "700";
+	paragraphElement1.className = "mr-3 mb-0 pt-2";
+	paragraphElement1.id = name + "-textprogress";
+	paragraphElement1.textContent = progress + "%";
 
-    let paragraphElement2 = document.createElement("p");
-    paragraphElement2.style.fontStyle = "italic";
-    paragraphElement2.className = "ml-3 mb-0 pt-2";
-    paragraphElement2.textContent = name
+	let paragraphElement2 = document.createElement("p");
+	paragraphElement2.style.fontStyle = "italic";
+	paragraphElement2.className = "ml-3 mb-0 pt-2";
+	paragraphElement2.textContent = name;
 
-    flexDiv.appendChild(paragraphElement0);
-    flexDiv.appendChild(paragraphElement1);
-    flexDiv.appendChild(paragraphElement2);
+	flexDiv.appendChild(paragraphElement0);
+	flexDiv.appendChild(paragraphElement1);
+	flexDiv.appendChild(paragraphElement2);
 
-    let buttonsDiv = document.createElement("div");
-    buttonsDiv.className = "stats-btn-grp d-flex";
-    topTextHolder.appendChild(buttonsDiv);
+	let buttonsDiv = document.createElement("div");
+	buttonsDiv.className = "stats-btn-grp d-flex";
+	topTextHolder.appendChild(buttonsDiv);
 
-    let makeButton = function(name, type) {
-        let buttonElement = document.createElement("button")
-        buttonElement.style.width = "3rem";
-        buttonElement.className = "btn";
-        buttonElement.id = name + "-" + type;
+	let makeButton = function (name, type) {
+		let buttonElement = document.createElement("button");
+		buttonElement.style.width = "3rem";
+		buttonElement.className = "btn";
+		buttonElement.id = name + "-" + type;
 
-        let icon = document.createElement("i");
-        icon.className = "fas fa-" + type;
+		let icon = document.createElement("i");
+		icon.className = "fas fa-" + type;
 
-        buttonElement.appendChild(icon);
-        return buttonElement;
-    }
+		buttonElement.appendChild(icon);
+		return buttonElement;
+	};
 
-    buttonsDiv.appendChild(makeButton(name, "stop"));
-    buttonsDiv.appendChild(makeButton(name, "play"));
-    buttonsDiv.appendChild(makeButton(name, "redo"));
-    buttonsDiv.appendChild(makeButton(name, "angle-down"));
+	buttonsDiv.appendChild(makeButton(name, "stop"));
+	buttonsDiv.appendChild(makeButton(name, "play"));
+	buttonsDiv.appendChild(makeButton(name, "redo"));
+	buttonsDiv.appendChild(makeButton(name, "angle-down"));
 
-    let taskBody = document.createElement("div");
-    taskBody.className = 'stats-body d-flex flex-column';
-    taskBody.style.height = "0";
-    taskBody.style.overflow = "hidden";
-    taskBody.id = name + "-body";
-    outermostDiv.appendChild(taskBody);
+	let taskBody = document.createElement("div");
+	taskBody.className = "stats-body d-flex flex-column";
+	taskBody.style.height = "0";
+	taskBody.style.overflow = "hidden";
+	taskBody.id = name + "-body";
+	outermostDiv.appendChild(taskBody);
 
-    let divProgressContainer = document.createElement("div");
-    divProgressContainer.className = "progress my-3";
+	let divProgressContainer = document.createElement("div");
+	divProgressContainer.className = "progress my-3";
 
-    let progressbar = document.createElement("div");
-    progressbar.className = "progress-bar";
-    progressbar.role = "progressbar"
-    progressbar.id = name + "-progressbar"
+	let progressbar = document.createElement("div");
+	progressbar.className = "progress-bar";
+	progressbar.role = "progressbar";
+	progressbar.id = name + "-progressbar";
 
-    divProgressContainer.appendChild(progressbar);
+	divProgressContainer.appendChild(progressbar);
 
-    let divSubText = document.createElement("div");
-    divSubText.className = "p-grp d-flex";
-    divSubText.innerHTML = "<p class=\"mr-5\"><strong class=\"mr-1\">Started:</strong><span>69 min ago</span></p><p class=\"mr-5\"><strong class=\"mr-1\">Status:</strong><span>alive</span></p>";
+	let divSubText = document.createElement("div");
+	divSubText.className = "p-grp d-flex";
+	divSubText.innerHTML =
+		'<p class="mr-5"><strong class="mr-1">Started:</strong><span>69 min ago</span></p><p class="mr-5"><strong class="mr-1">Status:</strong><span>alive</span></p>';
 
-    taskBody.appendChild(divProgressContainer);
-    taskBody.appendChild(divSubText);
+	taskBody.appendChild(divProgressContainer);
+	taskBody.appendChild(divSubText);
 
-    container.appendChild(outermostDiv);
-
+	container.appendChild(outermostDiv);
 }
 
-function reqListener () {
-    const parser = new DOMParser();
-    let htmlDoc = parser.parseFromString(this.responseText, 'text/html');
-    let files = htmlDoc.getElementsByTagName("a");
-    for (let i = 0; i < files.length; i++) {
-        console.log(files[i].href)
-        createLogTab(files[i].textContent.split(".")[0].replace(" ", "-"))
-        createLogContent(files[i].textContent.replace(" ", "-").split(".")[0], "/logs/" + files[i].textContent.replace(" ", "%20"))
-    }
+function reqListener() {
+	const parser = new DOMParser();
+	let htmlDoc = parser.parseFromString(this.responseText, "text/html");
+	let files = htmlDoc.getElementsByTagName("a");
+	for (let i = 0; i < files.length; i++) {
+		console.log(files[i].href);
+		createLogTab(files[i].textContent.split(".")[0].replace(" ", "-"));
+		createLogContent(
+			files[i].textContent.replace(" ", "-").split(".")[0],
+			"/logs/" + files[i].textContent.replace(" ", "%20")
+		);
+	}
 }
 
 function createLogTab(name) {
-    let container = document.getElementById("list-tab")
-    let fileTab = document.createElement("a")
-    fileTab.className = "list-group-item list-group-item-action";
-    fileTab.href = "#" + name
-    fileTab.setAttribute("data-toggle", "list")
-    fileTab.role = "tab"
-    fileTab.textContent = name
+	let container = document.getElementById("list-tab");
+	let fileTab = document.createElement("a");
+	fileTab.className = "list-group-item list-group-item-action";
+	fileTab.href = "#" + name;
+	fileTab.setAttribute("data-toggle", "list");
+	fileTab.role = "tab";
+	fileTab.textContent = name;
 
-    container.appendChild(fileTab)
+	container.appendChild(fileTab);
 }
 
 function createLogContent(name, url) {
-    function logsContentHandler() {
-        let container = document.getElementById("nav-tabContent");
-        let logsContent = document.createElement("div");
-        logsContent.className = "tab-pane fade p-2";
-        logsContent.style.boxShadow = "0 0 10px 1px lightgray";
-        logsContent.style.borderRadius = "7px";
-        logsContent.style.height = "30rem";
-        logsContent.style.overflow = "scroll";
-        logsContent.id = name
-        logsContent.role = "tabpanel";
+	function logsContentHandler() {
+		let container = document.getElementById("nav-tabContent");
+		let logsContent = document.createElement("div");
+		logsContent.className = "tab-pane fade p-2";
+		logsContent.style.boxShadow = "0 0 10px 1px lightgray";
+		logsContent.style.borderRadius = "7px";
+		logsContent.style.height = "30rem";
+		logsContent.style.overflow = "scroll";
+		logsContent.id = name;
+		logsContent.role = "tabpanel";
 
-        let pre = document.createElement("pre");
-        pre.textContent = this.responseText;
-        pre.style.overflow = "unset"
-        logsContent.appendChild(pre)
+		let pre = document.createElement("pre");
+		pre.textContent = this.responseText;
+		pre.style.overflow = "unset";
+		logsContent.appendChild(pre);
 
-        container.appendChild(logsContent)
-    }
+		container.appendChild(logsContent);
+	}
 
-    let logsReq = new XMLHttpRequest();
-    logsReq.addEventListener("load", logsContentHandler);
-    logsReq.open("GET", url);
-    logsReq.send();
-
+	let logsReq = new XMLHttpRequest();
+	logsReq.addEventListener("load", logsContentHandler);
+	logsReq.open("GET", url);
+	logsReq.send();
 }
 
 function setUserStatus(data) {
-    let value = data['value']
-    for (let i in value) {
-        if (value[i]['Online']) {
-            document.getElementById("status-" + i).textContent = "Online"
-        }
-    }
+	let value = data["value"];
+	for (let i in value) {
+		if (value[i]["Online"]) {
+			document.getElementById("status-" + i).textContent = "Online";
+		}
+	}
 }
 
 var oReq = new XMLHttpRequest();
 oReq.addEventListener("load", reqListener);
 oReq.open("GET", "/logs/");
 oReq.send();
-
-

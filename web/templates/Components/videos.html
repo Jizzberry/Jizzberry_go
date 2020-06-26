@@ -1,283 +1,192 @@
 {{ define "singleScene" }}
-	<!DOCTYPE html>
+<!DOCTYPE html>
 
-	<html lang="en">
-	<head>
-		{{template "meta"}}
+<html lang="en">
 
-		<link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-		<link href="/static/css/jizzberry.css" rel="stylesheet">
-		<link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
-		<link href="/static/vendor/plyr/dist/plyr.css" rel="stylesheet">
+<head>
+	{{template "meta"}}
 
-		<title>{{ (index .Files 0).FileName }}</title>
-	</head>
+	<link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="/static/css/jizzberry.css" rel="stylesheet" />
+	<link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml" />
+	<link href="/static/vendor/plyr/dist/plyr.css" rel="stylesheet" />
 
-	<body>
-		{{template "topbar"}}
+	<title>{{ (index .Files 0).FileName }}</title>
+</head>
 
-		<main>
-			{{template "sidenav" .IsAdmin}}
+<body>
+	{{template "topbar"}}
 
-			<div class="main-content" id="content">
-				<div class="pt-5 pl-5">
-					<div class="row">
-						<div class="col-md-8">
-							<video
-								controls=""
-								crossorigin=""
-								data-poster="/thumbnails/p{{ (index .Files 0).GeneratedID }}.png"
-								id="videoPlayer"
-								playsinline=""
-							>
-								<source
-									src="/Jizzberry/stream/{{(index .Files 0).GeneratedID}}"
-									type="video/mp4"
-								/>
-								Your browser does not support HTML5 video.
-							</video>
+	<main>
+		{{template "sidenav" .IsAdmin}}
 
-							<div
-								class="d-flex flex-row justify-content-between mb-4 mt-3 ml-3 video-title-container"
-							>
-								<p class="h4 text-dark">
-									{{ (index .Files 0).FileName }}
-								</p>
-								<button class="btn" id="parser-toggle">
-									<span><i class="fas fa-edit"></i></span>
-								</button>
-							</div>
+		<div class="main-content" id="content">
+			<div class="pt-5 pl-5">
+				<div class="row">
+					<div class="col-md-8">
+						<video controls="" crossorigin=""
+							data-poster="/thumbnails/p{{ (index .Files 0).GeneratedID }}.png" id="videoPlayer"
+							playsinline="">
+							<source src="/Jizzberry/stream/{{(index .Files 0).GeneratedID}}" type="video/mp4" />
+							Your browser does not support HTML5 video.
+						</video>
 
-							<div id="metadata-viewer">
-								<div class="video-description">
-									<div class="p-tags">
-										<p style="font-size: 18px; font-weight: 600;">Cast:</p>
-										<p style="font-size: 14px;" class="text-muted">
-											{{ .ActorList }}
-										</p>
+						<div class="d-flex flex-row justify-content-between mb-4 mt-3 ml-2 video-title-container">
+							<p class="h5 text-dark text-truncate">
+								{{ (index .Files 0).FileName }}
+							</p>
+							<button class="btn ml-5" id="parser-toggle">
+								<span><i class="fas fa-edit"></i></span>
+							</button>
+						</div>
 
-										<p style="font-size: 18px; font-weight: 600;">Tags:</p>
-										<p style="font-size: 14px;" class="text-muted">
-											{{ (index .Files 0).Tags }}
-										</p>
+						<div id="metadata-viewer">
+							<div class="video-description">
+								<div class="p-tags">
+									<p style="font-size: 16px; font-weight: 600;">Cast:</p>
+									<p style="font-size: 14px;" class="text-muted">
+										{{ .ActorList }}
+									</p>
 
-										<p style="font-size: 18px; font-weight: 600;">Studio:</p>
-										<p style="font-size: 14px;" class="text-muted">
-											{{ (index .Files 0).Studios }}
-										</p>
-									</div>
-								</div>
+									<p style="font-size: 16px; font-weight: 600;">Tags:</p>
+									<p style="font-size: 14px;" class="text-muted">
+										{{ (index .Files 0).Tags }}
+									</p>
 
-								<div class="video-description">
-									<div class="p-tags">
-										<p style="font-size: 18px; font-weight: 600;">Path:</p>
-										<p style="font-size: 14px;" class="text-muted">
-											{{ (index .Files 0).FilePath }}
-										</p>
-
-										<p style="font-size: 18px; font-weight: 600;">
-											Date Created :
-										</p>
-										<p style="font-size: 14px;" class="text-muted">
-											{{ (index .Files 0).DateCreated }}
-										</p>
-
-										<p style="font-size: 18px; font-weight: 600;">Size:</p>
-										<p style="font-size: 14px;" class="text-muted">
-											{{ (index .Files 0).FileSize }}
-										</p>
-
-										<p style="font-size: 18px; font-weight: 600;">Length:</p>
-										<p style="font-size: 14px;" class="text-muted">
-											{{ (index .Files 0).Length }}
-										</p>
-									</div>
+									<p style="font-size: 16px; font-weight: 600;">Studio:</p>
+									<p style="font-size: 14px;" class="text-muted">
+										{{ (index .Files 0).Studios }}
+									</p>
 								</div>
 							</div>
 
-							<form
-								style="
+							<div class="video-description">
+								<div class="p-tags">
+									<p style="font-size: 16px; font-weight: 600;">Path:</p>
+									<p style="font-size: 14px;" class="text-muted">
+										{{ (index .Files 0).FilePath }}
+									</p>
+
+									<p style="font-size: 16px; font-weight: 600;">
+										Date Created :
+									</p>
+									<p style="font-size: 14px;" class="text-muted">
+										{{ (index .Files 0).DateCreated }}
+									</p>
+
+									<p style="font-size: 16px; font-weight: 600;">Size:</p>
+									<p style="font-size: 14px;" class="text-muted">
+										{{ (index .Files 0).FileSize }}
+									</p>
+
+									<p style="font-size: 16px; font-weight: 600;">Length:</p>
+									<p style="font-size: 14px;" class="text-muted">
+										{{ (index .Files 0).Length }}
+									</p>
+								</div>
+							</div>
+						</div>
+
+						<form style="
 									background-color: rgb(250, 250, 250);
 									border-radius: 12px;
 									box-sizing: border-box !important;
 									box-shadow: 0 0 10px 1px lightgray;
-								"
-								class="d-none"
-								id="metadata-parser"
-								name="metadata-parser"
-							>
-								<div class="form-group d-flex pt-4 px-3">
-									<label
-										style="font-size: 16px; font-weight: 600;"
-										for="metadata-title"
-										>Title</label
-									>
-									<input
-										style="width: 42rem;"
-										class="form-control"
-										data-target="#queryModal"
-										data-toggle="modal"
-										id="metadata-title"
-										name="title"
-										onclick="fetchQueryResults('Mila Azul')"
-										placeholder="Title"
-										type="text"
-										value="{{ (index .Files 0).FileName }}"
-									/>
-								</div>
+								" class="d-none" id="metadata-parser" name="metadata-parser">
+							<div class="form-group d-flex pt-4 px-3">
+								<label style="font-size: 16px; font-weight: 600;" for="metadata-title">Title</label>
+								<input style="width: 42rem;" class="form-control" data-target="#queryModal"
+									data-toggle="modal" id="metadata-title" name="title"
+									onclick="fetchQueryResults('Mila Azul')" placeholder="Title" type="text"
+									value="{{ (index .Files 0).FileName }}" />
+							</div>
 
-								<div class="form-group d-flex px-3">
-									<label
-										style="font-size: 16px; font-weight: 600;"
-										for="metadata-url"
-										>URL</label
-									>
-									<input
-										style="width: 42rem;"
-										class="form-control"
-										id="metadata-url"
-										name="url"
-										placeholder="URL"
-										type="url"
-									/>
-								</div>
+							<div class="form-group d-flex px-3">
+								<label style="font-size: 16px; font-weight: 600;" for="metadata-url">URL</label>
+								<input style="width: 42rem;" class="form-control" id="metadata-url" name="url"
+									placeholder="URL" type="url" />
+							</div>
 
-								<div class="form-group d-flex px-3">
-									<label
-										style="font-size: 16px; font-weight: 600;"
-										for="metadata-date"
-										>Date</label
-									><input
-										style="width: 42rem;"
-										class="form-control"
-										id="metadata-date"
-										name="date"
-										type="text"
-										value="{{ (index .Files 0).DateCreated }}"
-									/>
-								</div>
+							<div class="form-group d-flex px-3">
+								<label style="font-size: 16px; font-weight: 600;" for="metadata-date">Date</label><input
+									style="width: 42rem;" class="form-control" id="metadata-date" name="date"
+									type="text" value="{{ (index .Files 0).DateCreated }}" />
+							</div>
 
-								<div class="form-group d-flex px-3">
-									<label style="font-size: 16px; font-weight: 600;" for="studio"
-										>Studio</label
-									>
-									<input
-										style="width: 42rem;"
-										class="form-control"
-										data-target="#multiselectorModal"
-										data-toggle="modal"
-										id="metadata-studio"
-										name="studio"
-										onclick="openStudiosModal();"
-										placeholder="Search..."
-										readonly
-										type="search"
-									/>
-								</div>
+							<div class="form-group d-flex px-3">
+								<label style="font-size: 16px; font-weight: 600;" for="studio">Studio</label>
+								<input style="width: 42rem;" class="form-control" data-target="#multiselectorModal"
+									data-toggle="modal" id="metadata-studio" name="studio" onclick="openStudiosModal();"
+									placeholder="Search..." readonly type="search" />
+							</div>
 
-								<div class="form-group d-flex px-3">
-									<label
-										style="font-size: 16px; font-weight: 600;"
-										for="performers"
-										>Actors</label
-									>
-									<input
-										style="width: 42rem;"
-										class="form-control"
-										data-target="#multiselectorModal"
-										data-toggle="modal"
-										id="metadata-actor"
-										name="performers"
-										onclick="openActorsModal();"
-										placeholder="Select actors..."
-										readonly
-										type="text"
-									/>
-								</div>
+							<div class="form-group d-flex px-3">
+								<label style="font-size: 16px; font-weight: 600;" for="performers">Actors</label>
+								<input style="width: 42rem;" class="form-control" data-target="#multiselectorModal"
+									data-toggle="modal" id="metadata-actor" name="performers"
+									onclick="openActorsModal();" placeholder="Select actors..." readonly type="text" />
+							</div>
 
-								<div class="form-group d-flex px-3">
-									<label style="font-size: 16px; font-weight: 600;" for="tag"
-										>Tags</label
-									>
-									<input
-										style="width: 42rem;"
-										class="form-control"
-										data-target="#multiselectorModal"
-										data-toggle="modal"
-										id="metadata-tag"
-										name="tag"
-										onclick="openTagsModal();"
-										placeholder="Select tags..."
-										readonly
-										type="text"
-									/>
-								</div>
-								<button
-									style="
+							<div class="form-group d-flex px-3">
+								<label style="font-size: 16px; font-weight: 600;" for="tag">Tags</label>
+								<input style="width: 42rem;" class="form-control" data-target="#multiselectorModal"
+									data-toggle="modal" id="metadata-tag" name="tag" onclick="openTagsModal();"
+									placeholder="Select tags..." readonly type="text" />
+							</div>
+							<button style="
 										width: 5rem;
 										margin: auto;
 										border-radius: 30px;
 										font-weight: 600;
 										font-size: 18px;
-									"
-									class="btn btn-primary text-center mb-3"
-									onclick="saveMetadata();"
-									type="button"
-								>
-									Save
-								</button>
-							</form>
-						</div>
+									" class="btn btn-primary text-center mb-3" onclick="saveMetadata();" type="button">
+								Save
+							</button>
+						</form>
+					</div>
 
-						<div class="video-list col-md-4 d-flex flex-column">
-							{{range $val := .UpNext}}
-							<a href="/Jizzberry/scene/{{$val.GeneratedID}}">
-								<div class="card mb-3">
-									<div class="row no-gutters">
-										<div class="col-md-5 py-1 pl-1 pr-2">
-											<img
-												class="card-img img-fluid"
-												onerror="this.src='/static/img/txt-logo.svg'"
-												src="/thumbnails/{{$val.GeneratedID}}.png"
-											/>
-										</div>
+					<div class="video-list col-md-4 d-flex flex-column">
+						{{range $val := .UpNext}}
+						<a href="/Jizzberry/scene/{{$val.GeneratedID}}">
+							<div class="card mb-3">
+								<div class="row no-gutters">
+									<div class="col-md-5 py-1 pl-1 pr-2">
+										<img class="card-img img-fluid" onerror="this.src='/static/img/txt-logo.svg'"
+											src="/thumbnails/{{$val.GeneratedID}}.png" />
+									</div>
 
-										<div class="col-md-7">
-											<div class="card-body p-0">
-												<span
-													style="font-size: 17px; font-weight: 700;"
-													class="card-title"
-												>
-													{{ $val.FileName }}
-												</span>
-												<p style="font-size: 14px;" class="text-muted mt-0">
-													<i class="fa fa-calendar mr-2" aria-hidden="true"></i>
-													2/11/2001
-												</p>
+									<div class="col-md-7">
+										<div class="card-body p-0">
+											<span style="font-size: 16px; font-weight: 500;" class="card-title pb-1">
+												{{ $val.FileName }}
+											</span>
+											<p style="font-size: 14px;" class="text-muted mt-0">
+												<i class="fa fa-calendar mr-2" aria-hidden="true"></i>
+												2/11/2001
+											</p>
 
-												<p class="card-text">{{ $val.Studios }}</p>
-											</div>
+											<p class="card-text">{{ $val.Studios }}</p>
 										</div>
 									</div>
-								</div></a
-							>
-							{{ end }}
-						</div>
+								</div>
+							</div>
+						</a>
+						{{ end }}
 					</div>
 				</div>
 			</div>
-		</main>
-    {{ template "multiselector_modal" }}
-    {{ template "query_modal" }}
+		</div>
+	</main>
 
-    {{template "vendors"}}
+	{{ template "multiselector_modal" }} {{ template "query_modal" }} {{template "vendors"}}
 
-    <script src="/static/vendor/plyr/dist/plyr.polyfilled.min.js"></script>
-    <script src="/static/js/videos.js"></script>
-    <script src="/static/js/query.js"></script>
-    <script>
-        const player = new Plyr(document.getElementById('videoPlayer'));
-    </script>
-    </body>
-    </html>
+	<script src="/static/vendor/plyr/dist/plyr.polyfilled.min.js"></script>
+	<script src="/static/js/videos.js"></script>
+	<script src="/static/js/query.js"></script>
+	<script>
+		const player = new Plyr(document.getElementById("videoPlayer"));
+	</script>
+</body>
+
+</html>
 {{ end }}

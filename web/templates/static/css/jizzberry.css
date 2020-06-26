@@ -80,7 +80,8 @@ body {
 	line-height: 30px;
 	padding-right: 2.4rem;
 	width: 620px !important;
-	text-align: center !important;
+	text-align: start !important;
+	overflow-y: scroll !important;
 }
 .tt-query {
 	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
@@ -746,4 +747,3 @@ input:checked + .slider:before {
 }
 
 /* ############## LATEST ############### */
-
