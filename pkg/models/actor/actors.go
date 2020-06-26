@@ -14,7 +14,7 @@ const (
 
 type Actor struct {
 	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
-	Name        string `row:"name" type:"exact" json:"name"`
+	Name        string `row:"name" type:"like" json:"name"`
 	UrlID       string `row:"urlid" type:"exact" json:"urlid"`
 	Website     string `row:"website" type:"exact" json:"website"`
 }
