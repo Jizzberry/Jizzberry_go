@@ -181,7 +181,16 @@ func allStudiosHandler(w http.ResponseWriter, r *http.Request) {
 	model := studios.Initialize()
 	defer model.Close()
 
-	allStudios := model.Get(studios.Studio{})
+	allStudios := make([]studios.Studio, 0)
+
+	keys := files.GetUsedStudios()
+	for _, k := range keys {
+		key, err := strconv.ParseInt(k, 10, 64)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
+		allStudios = append(allStudios, model.Get(studios.Studio{GeneratedID: key})...)
+	}
 
 	ctx := Context{Studios: allStudios}
 	sidebarContext(&ctx, r)

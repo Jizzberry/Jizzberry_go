@@ -74,10 +74,8 @@ func setStudioRelation(genId int64, studio string) {
 				relation[strconv.FormatInt(tmp.GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp.GeneratedID, 10)], strconv.FormatInt(genId, 10))
 			}
 		}
-
 		writeJson(jsonFile, relation)
 	}
-
 }
 
 func GetStudioRelations(studioId string) []string {
@@ -89,6 +87,19 @@ func GetStudioRelations(studioId string) []string {
 		return val
 	}
 	return nil
+}
+
+func GetUsedStudios() []string {
+	jsonFile := readJson(router.GetJson("studiosRelation"))
+	defer jsonFile.Close()
+
+	relation := parseJson(jsonFile)
+
+	keys := make([]string, 0, len(relation))
+	for k := range relation {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 func setTagRelation(genId int64, tag string) {
