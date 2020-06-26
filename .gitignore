@@ -20,3 +20,5 @@
 config*
 pkged.go
 /out/
+/logs/
+/assets/
