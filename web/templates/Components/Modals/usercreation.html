@@ -1,85 +1,58 @@
 {{ define "user_modal"}}
-    <div
-            class="modal fade"
-            id="usercreation"
-            tabindex="-1"
-            role="dialog"
-            aria-hidden="true"
-    >
-        <div class="modal-dialog" role="document">
-            <div class="modal-content px-3">
-                <div class="row">
-                    <div class="offset-4"></div>
-                    <div class="col-5">
-                        <h4 class="modal-title mt-4 ml-3">
-                            New User
-                        </h4>
-                    </div>
-                    <div class="col-3">
-                        <button
-                                style="
+<div class="modal fade" id="usercreation" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content px-3">
+            <div class="row">
+                <div class="offset-4"></div>
+                <div class="col-5">
+                    <h4 class="modal-title mt-4 ml-3">
+                        New User
+                    </h4>
+                </div>
+                <div class="col-3">
+                    <button style="
 									font-size: 30px;
 									margin-top: 1.6rem;
 									color: red;
 									outline: none;
 									border: none;
 									box-shadow: none;
-								"
-                                type="button"
-                                class="close mr-3"
-                                data-dismiss="modal"
-                                aria-label="Close"
-                        >
-                            <span style="color: red;" aria-hidden="true">&times;</span>
+								" type="button" class="close mr-3" data-dismiss="modal" aria-label="Close">
+                        <span style="color: red;" aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form id="usercreationform">
+                    <div class="form-group">
+                        <label class="h6 text-muted" for="username">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Username" />
+                    </div>
+                    <div class="form-group">
+                        <label class="h6 text-muted" for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password"
+                            autocomplete="new-password" />
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <p>Manage Server</p>
+
+                        <label class="switch mt-1">
+                            <input type="checkbox" name="isAdmin" checked />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <hr class="mt-0 button-container">
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary btn-rounded">
+                            Create
                         </button>
                     </div>
-                </div>
-                <div class="modal-body">
-                    <form id="usercreationform">
-                        <div class="form-group">
-                            <label class="h6 text-muted" for="username">Username</label>
-                            <input
-                                    type="text"
-                                    class="form-control"
-                                    id="username"
-                                    name="username"
-                                    placeholder="Username"
-                            />
-                        </div>
-                        <div class="form-group">
-                            <label class="h6 text-muted" for="password">Password</label>
-                            <input
-                                    type="password"
-                                    class="form-control"
-                                    id="password"
-                                    name="password"
-                                    placeholder="Password"
-                                    autocomplete="new-password"
-                            />
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <p>Manage Server</p>
+                </form>
+            </div>
+            <div class="modal-footer border-top-0 d-flex justify-content-end">
 
-                            <label class="switch mt-1">
-                                <input type="checkbox" name="isAdmin" checked/>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                        <hr class="mt-0 button-container">
-                        <div class="d-flex justify-content-end">
-                            <button
-                                    type="submit"
-                                    class="btn btn-primary btn-rounded"
-                            >
-                                Create
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer border-top-0 d-flex justify-content-end">
-
-                </div>
             </div>
         </div>
     </div>
+</div>
 {{ end }}
