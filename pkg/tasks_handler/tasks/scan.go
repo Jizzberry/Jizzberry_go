@@ -133,9 +133,11 @@ func updateProgress(progress *int, current chan int, total int, mutex *sync.Mute
 
 func getActors(title string) (joinActors string) {
 	actorsData := tasks_handler.MatchActorToTitle(title)
+	model := actor_details.Initialize()
+	defer model.Close()
 	for i, a := range actorsData {
 		scraped := scrapers.ScrapeActor(a)
-		actor_details.Initialize().Create(*scraped)
+		model.Create(*scraped)
 		joinString(&joinActors, a.Name, i != len(actorsData)-1)
 	}
 	return joinActors
