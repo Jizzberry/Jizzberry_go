@@ -2257,3 +2257,52 @@
 [ERROR] [Web] 26-06-2020 11:52:03 - http: wrote more than the declared Content-Length 
 [ERROR] [Web] 26-06-2020 11:52:16 - http: wrote more than the declared Content-Length 
 [ERROR] [Web] 26-06-2020 11:53:10 - http: wrote more than the declared Content-Length 
+[INFO] [FFMPEG] 26-06-2020 18:09:56 - Found ffmpeg at: C:\Users\Admin\Desktop\New folder\Jizzberry_go\assets\ffmpeg\ffmpeg-4.1-win64-static\bin\ffmpeg.exe 
+[INFO] [Web] 26-06-2020 18:09:56 - Server starting at :6969 
+[INFO] [FFMPEG] 27-06-2020 11:23:59 - Found ffmpeg at: C:\Users\Admin\Desktop\New folder\Jizzberry_go\assets\ffmpeg\ffmpeg-4.1-win64-static\bin\ffmpeg.exe 
+[INFO] [Web] 27-06-2020 11:23:59 - Server starting at :6969 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\CATHEDRAL CITY.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Droop Snoot.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\ForBiggerBlazes.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\ForBiggerFun.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\ForBiggerEscapes.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\ForBiggerMeltdowns.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Literally on the Freeway.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Nyoom (1).mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\ForBiggerJoyrides.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Please let me in.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Number 1 in Innovation.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Refrigerators.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\STRIKE UP THE BAND.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Scissors.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Nyoom.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\The fresh prince busts a rhyme.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\There can only be one good boy in this town.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\mila azul.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\tabasco.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\🔥 FIRE truck.mp4 
+[INFO] [Scan] 27-06-2020 11:51:25 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\rhyming with barney.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Droop Snoot.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\ForBiggerFun.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\ForBiggerEscapes.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\ForBiggerJoyrides.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\ForBiggerMeltdowns.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Literally on the Freeway.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Number 1 in Innovation.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Nyoom (1).mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\ForBiggerBlazes.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Nyoom.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Please let me in.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Refrigerators.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\CATHEDRAL CITY.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\STRIKE UP THE BAND.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\The fresh prince busts a rhyme.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\There can only be one good boy in this town.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\mila azul.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\rhyming with barney.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\Scissors.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\tabasco.mp4 
+[INFO] [Scan] 27-06-2020 11:52:01 - skipped C:\Users\Admin\Desktop\New folder\Jizzberry_go\random videos\🔥 FIRE truck.mp4 
+[INFO] [FFMPEG] 27-06-2020 19:52:26 - Found ffmpeg at: C:\Users\Admin\Desktop\New folder\Jizzberry_go\assets\ffmpeg\ffmpeg-4.1-win64-static\bin\ffmpeg.exe 
+[INFO] [Web] 27-06-2020 19:52:26 - Server starting at :6969 
+[ERROR] [Web] 27-06-2020 19:54:05 - http: wrote more than the declared Content-Length 
