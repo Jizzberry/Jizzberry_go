@@ -137,7 +137,7 @@ func getActors(title string) (joinActors string) {
 	defer model.Close()
 	for i, a := range actorsData {
 		scraped := scrapers.ScrapeActor(a)
-		model.Create(*scraped)
+		model.Create(scraped)
 		joinString(&joinActors, a.Name, i != len(actorsData)-1)
 	}
 	return joinActors

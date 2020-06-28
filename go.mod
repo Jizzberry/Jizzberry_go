@@ -3,6 +3,7 @@ module github.com/Jizzberry/Jizzberry_go
 go 1.14
 
 require (
+	github.com/ghodss/yaml v1.0.0
 	github.com/go-ole/go-ole v1.2.4
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/gorilla/mux v1.7.4

@@ -165,7 +165,7 @@ func scrapeActorHandler(w http.ResponseWriter, r *http.Request) {
 
 		tmp := model.Get(actor.Actor{GeneratedID: int64(genId)})
 		if len(tmp) > 0 {
-			actors = append(actors, *scrapers.ScrapeActor(tmp[0]))
+			actors = append(actors, scrapers.ScrapeActor(tmp[0]))
 		}
 	}
 

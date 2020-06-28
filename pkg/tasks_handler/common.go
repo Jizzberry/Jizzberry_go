@@ -8,7 +8,6 @@ import (
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/files"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/studios"
 	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers"
-	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers/factory"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -126,7 +125,7 @@ func UpdateDetails(sceneId int64, title string, date string, actors []string, ta
 		data := MatchActorExact(a)
 		for _, a := range *data {
 			scraped := scrapers.ScrapeActor(a)
-			modelActorD.Create(*scraped)
+			modelActorD.Create(scraped)
 		}
 	}
 }
@@ -196,10 +195,10 @@ func GetAllFiles(path string) ([]string, error) {
 
 type bestMatch struct {
 	tagLen int
-	video  factory.Videos
+	video  scrapers.Videos
 }
 
-func calcTaglen(query string, results []factory.Videos) (taglenMatch []bestMatch) {
+func calcTaglen(query string, results []scrapers.Videos) (taglenMatch []bestMatch) {
 
 	for _, videos := range results {
 		videoSlice := make([]bestMatch, 0)
@@ -222,8 +221,8 @@ func calcTaglen(query string, results []factory.Videos) (taglenMatch []bestMatch
 	return taglenMatch
 }
 
-func getBestResult(taglenResults []bestMatch) []factory.Videos {
-	topResults := make([]factory.Videos, 0)
+func getBestResult(taglenResults []bestMatch) []scrapers.Videos {
+	topResults := make([]scrapers.Videos, 0)
 
 	min := taglenResults[0]
 	for _, value := range taglenResults {
@@ -235,8 +234,8 @@ func getBestResult(taglenResults []bestMatch) []factory.Videos {
 	return topResults
 }
 
-func GetQueryResult(query string) []factory.VideoDetails {
-	detailMap := make([]factory.VideoDetails, 0)
+func GetQueryResult(query string) []scrapers.VideoDetails {
+	detailMap := make([]scrapers.VideoDetails, 0)
 	result := scrapers.QueryVideos(query)
 	for _, a := range getBestResult(calcTaglen(query, result)) {
 		details := scrapers.ScrapeVideo(a.Url)

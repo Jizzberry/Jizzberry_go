@@ -1,0 +1,97 @@
+website:
+  "pornhub"
+
+actor:
+  url:
+    "https://www.pornhub.com/pornstar/%QUERY"
+  name:
+    subselector:
+      - "h1[itemprop=name]"
+      - ".name"
+  birthdate:
+    subselector:
+      - ".infoPiece"
+    regex:
+      - "(?i)birthday"
+      - "(?i)born"
+    replace:
+      "(?i)birthday:|(?i)born:; "
+  birthplace:
+    subselector:
+      - ".infoPiece"
+    regex:
+      - "(?i)birth place"
+      - "(?i)birthplace"
+    replace:
+      "(?i)birth place:|(?i)birthplace:; "
+  height:
+    subselector:
+      - ".infoPiece"
+    regex:
+      - "(?i)height"
+    replace:
+      "(?i)height:; "
+  weight:
+    subselector:
+      - ".infoPiece"
+    regex:
+      - "(?i)weight"
+    replace:
+      "(?i)weight:; "
+
+actor_list:
+  last_page:
+    "1742"
+  url:
+    "https://www.pornhub.com/pornstars?o=t&page=%QUERY"
+  name:
+    selector:
+      "a[data-mxptype=Pornstar]"
+    subselector:
+      - "span[class=pornStarName]"
+
+studio_list:
+  last_page:
+    "87"
+  url:
+    "https://www.pornhub.com/channels?o=rk&page=%QUERY"
+  name:
+    selector:
+      ".channelGridWrapper"
+    subselector:
+      - ".usernameLink"
+
+single_video:
+  url_regex:
+    "pornhub"
+  title:
+    subselector:
+      - ".title-container .title .inlineFree"
+  actors:
+    selector:
+      ".pornstarsWrapper"
+    subselector:
+      - "a[data-mxptype=Pornstar]"
+  tags:
+    selector:
+      ".categoriesWrapper"
+    subselector:
+      - "a[href]"
+videos:
+  url:
+    "https://www.pornhub.com/video/search?search=%QUERY"
+  name:
+    selector:
+      "#videoSearchResult .pcVideoListItem"
+    subselector:
+      - "span[class=title]"
+  link:
+    selector:
+      "#videoSearchResult .pcVideoListItem"
+    subselector:
+      - "span[class=title] > a[title]"
+    attr:
+      "href"
+
+
+

@@ -9,6 +9,7 @@ import (
 	"github.com/Jizzberry/Jizzberry_go/pkg/ffmpeg"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/auth"
+	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/ssh/terminal"
 	"net/http"
@@ -37,6 +38,8 @@ func Init() error {
 	if err != nil {
 		return err
 	}
+
+	scrapers.RegisterScrapers()
 
 	err = initWebApp()
 	if err != nil {

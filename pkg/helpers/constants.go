@@ -24,6 +24,39 @@ const (
 	PKStructTag  = "pk"
 	DateLayout   = "01-02-06"
 
+	ScraperWebsite     = "website"
+	ScraperActor       = "actor"
+	ScraperActorList   = "actor_list"
+	ScraperStudioList  = "studio_list"
+	ScraperSingleVideo = "single_video"
+	ScraperVideos      = "videos"
+
+	ActorName   = "name"
+	ActorBday   = "birthdate"
+	ActorBplace = "birthplace"
+	ActorHeight = "height"
+	ActorWeight = "weight"
+
+	ActorListName = "name"
+
+	StudioListName = "name"
+
+	VideosName = "name"
+	VideosLink = "link"
+
+	VideoTitle  = "title"
+	VideoActors = "actors"
+	VideoTags   = "tags"
+
+	YamlForEach       = "selector"
+	YamlSelector      = "subselector"
+	YamlURL           = "url"
+	YamlLastPage      = "last_page"
+	YamlUrlRegex      = "url_regex"
+	YamlForEachAttr   = "attr"
+	YamlStringRegex   = "regex"
+	YamlStringReplace = "replace"
+
 	Art = ` 
 $$$$$\ $$\                     $$\                                               
    \__$$ |\__|                    $$ |                                              

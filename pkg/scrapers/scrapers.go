@@ -4,88 +4,82 @@ import (
 	"context"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
-	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers/factory"
-	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers/pornhub"
 	"sync"
 )
 
-var actorScrapers = []factory.ActorsImpl{pornhub.Pornhub{}}
-var videoScrapers = []factory.VideosImpl{pornhub.Pornhub{}}
-var studioScrapers = []factory.StudiosImpl{pornhub.Pornhub{}}
-
-func ScrapeActor(actors actor.Actor) *actor_details.ActorDetails {
+func ScrapeActor(actors actor.Actor) actor_details.ActorDetails {
 	detailsModel := actor_details.Initialize()
 	defer detailsModel.Close()
 
 	if !detailsModel.IsExists(actors.GeneratedID) {
-		for _, i := range actorScrapers {
-			if i.GetWebsite() == actors.Website {
-				details, _ := i.ScrapeActor(actors.Name)
-				i.ScrapeImage(actors.Name, actors.GeneratedID)
+		if exists, index := MatchWebsite(actors.Website); exists {
+			if scrapers[index].Actor {
+				scraped := getScrapeActor(index, actors.Name)
+				scraped.Name = actors.Name
+				scraped.ActorId = actors.GeneratedID
 
-				details.ActorId = actors.GeneratedID
-				details.Name = actors.Name
-				return &details
+				return scraped
 			}
 		}
 	}
 	if actors.GeneratedID > 0 {
 		details := detailsModel.Get(actor_details.ActorDetails{ActorId: actors.GeneratedID})
 		if len(details) > 0 {
-			return &details[0]
+			return details[0]
 		}
-		return &actor_details.ActorDetails{}
-	} else {
-		details := actor_details.ActorDetails{}
-		details.Name = actors.Name
-		return &details
 	}
-
+	details := actor_details.ActorDetails{}
+	details.Name = actors.Name
+	details.ActorId = actors.GeneratedID
+	return details
 }
 
 func ScrapeActorList(ctx context.Context, progress *int) {
-	tmp := make(chan int, len(actorScrapers))
 	progressMutex := sync.Mutex{}
-	for _, i := range actorScrapers {
-		*progress = 1
-		go func(i factory.ActorsImpl) {
-			i.ScrapeActorList(ctx)
-			tmp <- 1
-			progressMutex.Lock()
-			*progress = int(float32(len(tmp)) / float32(len(actorScrapers)) * 100)
-			progressMutex.Unlock()
-		}(i)
+	*progress = 1
+	for index, s := range scrapers {
+		if s.ActorList {
+			go func(index int) {
+				getScrapeActorsList(index)
+				progressMutex.Lock()
+				*progress = int(float32(index) / float32(len(scrapers)) * 100)
+				progressMutex.Unlock()
+			}(index)
+		}
 	}
 }
 
 func ScrapeStudioList(ctx context.Context, progress *int) {
-	tmp := make(chan int, len(studioScrapers))
 	progressMutex := sync.Mutex{}
-	for _, i := range studioScrapers {
-		go func(i factory.StudiosImpl) {
-			i.ScrapeStudiosList(ctx)
-			tmp <- 1
-			progressMutex.Lock()
-			*progress = int(float32(len(tmp)) / float32(len(actorScrapers)) * 100)
-			progressMutex.Unlock()
-		}(i)
-	}
-}
-
-func ScrapeVideo(url string) factory.VideoDetails {
-	for _, i := range videoScrapers {
-		if i.ParseUrl(url) {
-			return i.ScrapeVideo(url)
+	for i, s := range scrapers {
+		if s.StudioList {
+			go func(i int) {
+				getScrapeStudiosList(i)
+				progressMutex.Lock()
+				*progress = int(float32(i) / float32(len(scrapers)) * 100)
+				progressMutex.Unlock()
+			}(i)
 		}
 	}
-
-	return factory.VideoDetails{}
 }
 
-func QueryVideos(query string) []factory.Videos {
-	scrapedVideos := make([]factory.Videos, 0)
-	for _, i := range videoScrapers {
-		scrapedVideos = append(scrapedVideos, i.QueryVideos(query)...)
+func ScrapeVideo(url string) VideoDetails {
+	for i, s := range scrapers {
+		if s.Video {
+			if matchUrlToScraper(url) {
+				return getScrapedVideo(i, url)
+			}
+		}
+	}
+	return VideoDetails{}
+}
+
+func QueryVideos(query string) []Videos {
+	scrapedVideos := make([]Videos, 0)
+	for i, s := range scrapers {
+		if s.QueryVideos {
+			scrapedVideos = append(scrapedVideos, getQueryVideo(i, query)...)
+		}
 	}
 	return scrapedVideos
 }
