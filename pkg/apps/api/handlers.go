@@ -129,7 +129,7 @@ func actorsHandler(w http.ResponseWriter, r *http.Request) {
 	model := actor.Initialize()
 	defer model.Close()
 
-	if len(queryParams["generated_id"]) > 0 {
+	if len(queryParams["actor_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
 		if err != nil {
 			helpers.LogError(err.Error(), component)
@@ -192,8 +192,8 @@ func scanHandler(w http.ResponseWriter, _ *http.Request) {
 func scrapeListHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	t := make([]task, 0)
-	t = append(t, task{Uid: manager.StartScrapeActors()})
-	//t = append(t, task{Uid: manager.StartScrapeStudios()})
+	//t = append(t, task{Uid: manager.StartScrapeActors()})
+	t = append(t, task{Uid: manager.StartScrapeStudios()})
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&t)
@@ -213,7 +213,7 @@ func studiosHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
 		if err != nil {
-			fmt.Println(err)
+			helpers.LogError(err.Error(), component)
 		}
 		studios = model.Get(studios2.Studio{GeneratedID: int64(genId)})
 	} else if len(queryParams["name"]) > 0 {

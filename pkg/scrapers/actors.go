@@ -16,6 +16,7 @@ func getScrapeActorsList(i int) {
 	if data != nil {
 		lastPage := safeConvertInt(data[helpers.YamlLastPage])
 		url := safeCastString(safeSelectFromMap(safeMapCast(data), helpers.YamlURL))
+		selector := safeSelectFromMap(data, helpers.YamlForEach)
 
 		if lastPage < 0 || url == "" {
 			helpers.LogError("last_page or url not specified", component)
@@ -26,17 +27,18 @@ func getScrapeActorsList(i int) {
 		defer model.Close()
 
 		c := getColly(func(e *colly.HTMLElement) {
-			dest := make([]string, 0)
-			links := make([]string, 0)
-			getDataAndScrape(data, helpers.ActorListName, e, &dest, true, func(s string) bool {
-				split := len(strings.FieldsFunc(s, splitter))
-				return split <= 3 && split > 1
+			headers := []string{helpers.ActorListName, helpers.ActorListURLID}
+			dest := make([][]string, len(headers))
+
+			scrapeList(selector, data, headers, &dest, e, func(s string, i int) bool {
+				if i == 0 {
+					split := len(strings.FieldsFunc(s, splitter))
+					return split <= 3 && split > 1
+				}
+				return true
 			})
-			getDataAndScrape(data, helpers.ActorListURLID, e, &links, true, func(s string) bool {
-				split := len(strings.FieldsFunc(s, splitter))
-				return split <= 3 && split > 1
-			})
-			addActors(model, dest, links, website)
+
+			addActors(model, dest[0], dest[1], website)
 		},
 		)
 
@@ -65,11 +67,11 @@ func getScrapeActor(i int, actor actor.Actor) (actorDetails actor_details.ActorD
 		url := safeCastString(data[helpers.YamlURL])
 		if url != "" {
 			headers := []string{helpers.ActorName, helpers.ActorBday, helpers.ActorBplace, helpers.ActorHeight, helpers.ActorWeight}
-			destinations := []interface{}{&actorDetails.Name, &actorDetails.Birthday, &actorDetails.Birthplace, &actorDetails.Height, &actorDetails.Weight}
+			destinations := []*string{&actorDetails.Name, &actorDetails.Birthday, &actorDetails.Birthplace, &actorDetails.Height, &actorDetails.Weight}
 
 			c := getColly(func(e *colly.HTMLElement) {
 				for i := range headers {
-					getDataAndScrape(data, headers[i], e, destinations[i], false, func(string) bool { return true })
+					getDataAndScrape(data, headers[i], e, destinations[i], func(string) bool { return true })
 				}
 			})
 

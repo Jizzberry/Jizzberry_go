@@ -14,7 +14,7 @@ const (
 
 type Studio struct {
 	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
-	Name        string `row:"studio" type:"like" json:"generated_id"`
+	Name        string `row:"studio" type:"like" json:"name"`
 }
 
 type Model struct {

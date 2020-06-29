@@ -52,8 +52,8 @@ const (
 
 	ImageLink = "link"
 
-	YamlForEach       = "selector"
-	YamlSelector      = "subselector"
+	YamlForEach       = "foreach"
+	YamlSelector      = "selector"
 	YamlURL           = "url"
 	YamlLastPage      = "last_page"
 	YamlUrlRegex      = "url_regex"

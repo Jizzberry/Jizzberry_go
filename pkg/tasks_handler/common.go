@@ -1,7 +1,6 @@
 package tasks_handler
 
 import (
-	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
@@ -239,7 +238,6 @@ func GetQueryResult(query string) []scrapers.VideoDetails {
 	result := scrapers.QueryVideos(query)
 	for _, a := range getBestResult(calcTaglen(query, result)) {
 		details := scrapers.ScrapeVideo(a.Url)
-		fmt.Println(details)
 
 		for _, a := range MatchActorToTitle(a.Name) {
 			if !sliceContains(details.Actors, a.Name) {

@@ -13,6 +13,7 @@ func getScrapeStudiosList(i int) {
 	if data != nil {
 		lastPage := safeConvertInt(data[helpers.YamlLastPage])
 		url := safeCastString(safeSelectFromMap(safeMapCast(data), helpers.YamlURL))
+		selector := safeSelectFromMap(data, helpers.YamlForEach)
 
 		if lastPage < 0 || url == "" {
 			helpers.LogError("last_page or url not specified", component)
@@ -23,9 +24,10 @@ func getScrapeStudiosList(i int) {
 		defer model.Close()
 
 		c := getColly(func(e *colly.HTMLElement) {
-			dest := make([]string, 0)
-			getDataAndScrape(data, helpers.StudioListName, e, &dest, true, func(string) bool { return true })
-			addStudio(model, dest)
+			headers := []string{helpers.StudioListName}
+			dest := make([][]string, len(headers))
+			scrapeList(selector, data, headers, &dest, e, func(s string, i int) bool { return true })
+			addStudio(model, dest[0])
 		},
 		)
 

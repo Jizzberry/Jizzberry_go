@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -100,12 +99,7 @@ func makeVideoStruct(name string, link string, website string) (videos Videos) {
 	return
 }
 
-func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface{}, attr string, e *colly.HTMLElement, dest interface{}, condition func(string) bool) {
-	v := reflect.ValueOf(dest)
-	if v.Kind() != reflect.Ptr {
-		helpers.LogError("Destination not a ptr", component)
-		return
-	}
+func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface{}, attr string, e *colly.HTMLElement, dest *string, condition func(string) bool) {
 	for _, i := range subselector {
 		var name []string
 		if attr == "" {
@@ -113,11 +107,14 @@ func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface
 		} else {
 			name = e.ChildAttrs(i.(string), attr)
 		}
+
+		if i.(string) == "*" {
+			name = []string{e.Text}
+		}
 		for _, n := range name {
 			for _, r := range regex {
 				if r.MatchString(n) {
 					split := strings.Split(replacer, ";")
-					base := v.Elem()
 					var value string
 					if len(split) > 1 {
 						value = strings.TrimSpace(regexp.MustCompile(split[0]).ReplaceAllString(n, split[1]))
@@ -125,11 +122,11 @@ func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface
 						value = strings.TrimSpace(n)
 					}
 
-					if val := reflect.ValueOf(value); base.Kind() != val.Kind() || condition(value) {
-						base.Set(reflect.ValueOf(value))
+					if condition(value) {
+						*dest = value
 					}
 
-					if base.String() != "" {
+					if *dest != "" {
 						return
 					}
 				}
@@ -138,50 +135,22 @@ func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface
 	}
 }
 
-func scrapeList(regex []*regexp.Regexp, replacer string, selector interface{}, subSelector []interface{}, attr string, e *colly.HTMLElement, dest interface{}, condition func(string) bool) {
-	v := reflect.ValueOf(dest)
-	if v.Kind() != reflect.Ptr {
-		helpers.LogError("Destination not a ptr", component)
-		return
-	}
-
-	base := v.Elem()
-	if base.Kind() != reflect.Slice {
-		helpers.LogError("Destination not a slice", component)
-		return
-	}
-
+func scrapeList(selector interface{}, data map[string]interface{}, headers []string, destinations *[][]string, e *colly.HTMLElement, condition func(string, int) bool) {
 	e.ForEach(selector.(string), func(i int, element *colly.HTMLElement) {
-		fmt.Println(subSelector)
-		for _, s := range subSelector {
-			var name []string
-			if attr == "" {
-				name = element.ChildTexts(s.(string))
-			} else {
-				name = element.ChildAttrs(s.(string), attr)
+		tmp := make([]string, 0)
+		for i := range headers {
+			var str string
+			getDataAndScrape(data, headers[i], element, &str, func(s string) bool {
+				return condition(s, i)
+			})
+			if str == "" {
+				return
 			}
-
-			for _, n := range name {
-				for _, r := range regex {
-					if r.MatchString(n) {
-						split := strings.Split(replacer, ";")
-						base := v.Elem()
-						var value string
-						if len(split) > 1 {
-							value = strings.TrimSpace(regexp.MustCompile(split[0]).ReplaceAllString(n, split[1]))
-						} else {
-							value = strings.TrimSpace(n)
-						}
-
-						if condition(value) {
-							base.Set(reflect.Append(base, reflect.ValueOf(value)))
-							return
-						}
-					}
-				}
-			}
-			if base.String() != "" {
-				break
+			tmp = append(tmp, str)
+		}
+		if len(tmp) == len(headers) {
+			for i := range tmp {
+				(*destinations)[i] = append((*destinations)[i], tmp[i])
 			}
 		}
 	})
@@ -219,23 +188,17 @@ func parseUrl(base string, query string) string {
 	return strings.ReplaceAll(base, "%QUERY", strings.ReplaceAll(query, " ", "%20"))
 }
 
-func getData(data map[string]interface{}, header string) (selector interface{}, subSelector []interface{}, r []*regexp.Regexp, replacer string, attr string) {
+func getData(data map[string]interface{}, header string) (subSelector []interface{}, r []*regexp.Regexp, replacer string, attr string) {
 	attr = safeCastString(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlForEachAttr))
-	selector = safeCastString(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlForEach))
-	subSelector = safeCastSliceInterface(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlSelector))
+	subSelector = safeCastSliceString(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlSelector))
 	r = compileRegex(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlStringRegex))
 	replacer = safeCastString(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlStringReplace))
 	return
 }
 
-func getDataAndScrape(data map[string]interface{}, header string, e *colly.HTMLElement, dest interface{}, multiple bool, condition func(string) bool) {
-	selector, subSelector, r, replacer, attr := getData(data, header)
-
-	if multiple {
-		scrapeList(r, replacer, selector, subSelector, attr, e, dest, condition)
-	} else {
-		scrapeItem(r, replacer, subSelector, attr, e, dest, condition)
-	}
+func getDataAndScrape(data map[string]interface{}, header string, e *colly.HTMLElement, dest *string, condition func(string) bool) {
+	subSelector, r, replacer, attr := getData(data, header)
+	scrapeItem(r, replacer, subSelector, attr, e, dest, condition)
 }
 
 func appendIfNotExists(slice []actor.Actor, actor2 actor.Actor) []actor.Actor {
@@ -264,7 +227,7 @@ func safeSelectFromMap(item map[string]interface{}, key string) interface{} {
 	return nil
 }
 
-func safeCastSliceInterface(item interface{}) []interface{} {
+func safeCastSliceString(item interface{}) []interface{} {
 	if item != nil {
 		if casted, ok := item.([]interface{}); ok {
 			return casted

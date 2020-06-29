@@ -5,11 +5,11 @@ actor:
   url:
     "https://www.pornhub.com%QUERY"
   name:
-    subselector:
+    selector:
       - "h1[itemprop=name]"
       - ".name"
   birthdate:
-    subselector:
+    selector:
       - ".infoPiece"
     regex:
       - "(?i)birthday"
@@ -17,7 +17,7 @@ actor:
     replace:
       "(?i)birthday:|(?i)born:; "
   birthplace:
-    subselector:
+    selector:
       - ".infoPiece"
     regex:
       - "(?i)birth place"
@@ -25,14 +25,14 @@ actor:
     replace:
       "(?i)birth place:|(?i)birthplace:; "
   height:
-    subselector:
+    selector:
       - ".infoPiece"
     regex:
       - "(?i)height"
     replace:
       "(?i)height:; "
   weight:
-    subselector:
+    selector:
       - ".infoPiece"
     regex:
       - "(?i)weight"
@@ -44,15 +44,13 @@ actor_list:
     "1742"
   url:
     "https://www.pornhub.com/pornstars?o=t&page=%QUERY"
+  foreach:
+    ".wrap"
   name:
     selector:
-      ".wrap"
-    subselector:
-      - "a[data-mxptype=Pornstar]"
+      - ".thumbnail-info-wrapper a[data-mxptype=Pornstar]"
   url_id:
     selector:
-      ".wrap"
-    subselector:
       - "a[data-mxptype=Pornstar]"
     attr:
       "href"
@@ -62,40 +60,38 @@ studio_list:
     "87"
   url:
     "https://www.pornhub.com/channels?o=rk&page=%QUERY"
+  foreach:
+    "#filterChannelsSection .wrap"
   name:
     selector:
-      ".channelGridWrapper"
-    subselector:
       - ".usernameLink"
 
 single_video:
   url_regex:
     "pornhub"
   title:
-    subselector:
+    selector:
       - ".title-container .title .inlineFree"
   actors:
-    selector:
+    foreach:
       ".pornstarsWrapper"
-    subselector:
+    selector:
       - "a[data-mxptype=Pornstar]"
   tags:
+    foreach:
+      ".categoriesWrapper a[href]"
     selector:
-      ".categoriesWrapper"
-    subselector:
-      - "a[href]"
+      - "*"
 videos:
   url:
     "https://www.pornhub.com/video/search?search=%QUERY"
+  selector:
+    "#videoSearchResult .pcVideoListItem"
   name:
     selector:
-      "#videoSearchResult .pcVideoListItem"
-    subselector:
       - "span[class=title]"
   link:
     selector:
-      "#videoSearchResult .pcVideoListItem"
-    subselector:
       - "span[class=title] > a[title]"
     attr:
       "href"
@@ -104,7 +100,7 @@ image:
   url:
     "https://www.pornhub.com/pornstar/%QUERY"
   link:
-    subselector:
+    selector:
       - ".jcrop-preview"
       - "body > div.wrapper > div > div.noBio > div > section > div.thumbImage > img"
     attr:

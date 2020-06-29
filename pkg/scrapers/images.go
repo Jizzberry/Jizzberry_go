@@ -17,7 +17,7 @@ func getScrapeImage(i int, actor actor.Actor) (actorDetails actor_details.ActorD
 		if url != "" {
 			var link string
 			c := getColly(func(e *colly.HTMLElement) {
-				getDataAndScrape(data, helpers.ImageLink, e, &link, false, func(string) bool { return true })
+				getDataAndScrape(data, helpers.ImageLink, e, &link, func(string) bool { return true })
 				downloadImage(link, helpers.GetThumbnailPath(actor.GeneratedID, true))
 			})
 
