@@ -93,5 +93,15 @@ videos:
     attr:
       "href"
 
+image:
+  url:
+    "https://www.pornhub.com/pornstar/%QUERY"
+  link:
+    subselector:
+      - ".jcrop-preview"
+      - "body > div.wrapper > div > div.noBio > div > section > div.thumbImage > img"
+    attr:
+      "src"
+
 
 

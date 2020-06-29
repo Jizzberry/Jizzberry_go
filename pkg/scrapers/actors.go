@@ -54,7 +54,7 @@ func getScrapeActorsList(i int) {
 	}
 }
 
-func getScrapeActor(i int, actor string) (actorDetails actor_details.ActorDetails) {
+func getScrapeActor(i int, actor actor.Actor) (actorDetails actor_details.ActorDetails) {
 	data := safeMapCast(safeSelectFromMap(ParseYaml(scrapers[i].path), helpers.ScraperActor))
 	if data != nil {
 		url := safeCastString(data[helpers.YamlURL])
@@ -68,7 +68,7 @@ func getScrapeActor(i int, actor string) (actorDetails actor_details.ActorDetail
 				}
 			})
 
-			err := c.Visit(parseUrl(url, actor))
+			err := c.Visit(parseUrl(url, actor.Name))
 			if err != nil {
 				helpers.LogError(err.Error(), component)
 			}

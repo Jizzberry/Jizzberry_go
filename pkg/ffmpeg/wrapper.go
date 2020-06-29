@@ -6,7 +6,6 @@ import (
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -15,7 +14,7 @@ import (
 const component = "FFMPEG"
 
 func GenerateThumbnail(generatedId int64, path string, interval int64) {
-	outFile := filepath.FromSlash(helpers.ThumbnailPath + "/" + strconv.FormatInt(generatedId, 10) + ".png")
+	outFile := helpers.GetThumbnailPath(generatedId, false)
 	cmd := exec.Command(helpers.GetConfig().FFMEPG, "-i", path, "-ss", strconv.FormatInt(interval, 10), "-y", "-vframes", "1", "-vf",
 		"scale=373:210", outFile)
 
