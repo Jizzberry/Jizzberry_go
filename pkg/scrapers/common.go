@@ -152,6 +152,7 @@ func scrapeList(regex []*regexp.Regexp, replacer string, selector interface{}, s
 	}
 
 	e.ForEach(selector.(string), func(i int, element *colly.HTMLElement) {
+		fmt.Println(subSelector)
 		for _, s := range subSelector {
 			var name []string
 			if attr == "" {
@@ -159,6 +160,7 @@ func scrapeList(regex []*regexp.Regexp, replacer string, selector interface{}, s
 			} else {
 				name = element.ChildAttrs(s.(string), attr)
 			}
+
 			for _, n := range name {
 				for _, r := range regex {
 					if r.MatchString(n) {
@@ -173,6 +175,7 @@ func scrapeList(regex []*regexp.Regexp, replacer string, selector interface{}, s
 
 						if condition(value) {
 							base.Set(reflect.Append(base, reflect.ValueOf(value)))
+							return
 						}
 					}
 				}

@@ -11,13 +11,13 @@ import (
 )
 
 func getScrapeImage(i int, actor actor.Actor) (actorDetails actor_details.ActorDetails) {
-	data := safeMapCast(safeSelectFromMap(ParseYaml(scrapers[i].path), "image"))
+	data := safeMapCast(safeSelectFromMap(ParseYaml(scrapers[i].path), helpers.ScraperImage))
 	if data != nil {
 		url := safeCastString(data[helpers.YamlURL])
 		if url != "" {
 			var link string
 			c := getColly(func(e *colly.HTMLElement) {
-				getDataAndScrape(data, "link", e, &link, false, func(string) bool { return true })
+				getDataAndScrape(data, helpers.ImageLink, e, &link, false, func(string) bool { return true })
 				downloadImage(link, helpers.GetThumbnailPath(actor.GeneratedID, true))
 			})
 

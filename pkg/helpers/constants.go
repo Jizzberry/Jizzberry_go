@@ -30,6 +30,7 @@ const (
 	ScraperStudioList  = "studio_list"
 	ScraperSingleVideo = "single_video"
 	ScraperVideos      = "videos"
+	ScraperImage       = "image"
 
 	ActorName   = "name"
 	ActorBday   = "birthdate"
@@ -37,7 +38,8 @@ const (
 	ActorHeight = "height"
 	ActorWeight = "weight"
 
-	ActorListName = "name"
+	ActorListName  = "name"
+	ActorListURLID = "url_id"
 
 	StudioListName = "name"
 
@@ -47,6 +49,8 @@ const (
 	VideoTitle  = "title"
 	VideoActors = "actors"
 	VideoTags   = "tags"
+
+	ImageLink = "link"
 
 	YamlForEach       = "selector"
 	YamlSelector      = "subselector"

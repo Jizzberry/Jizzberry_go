@@ -3,7 +3,7 @@ website:
 
 actor:
   url:
-    "https://www.pornhub.com/pornstar/%QUERY"
+    "https://www.pornhub.com%QUERY"
   name:
     subselector:
       - "h1[itemprop=name]"
@@ -46,9 +46,16 @@ actor_list:
     "https://www.pornhub.com/pornstars?o=t&page=%QUERY"
   name:
     selector:
-      "a[data-mxptype=Pornstar]"
+      ".wrap"
     subselector:
-      - "span[class=pornStarName]"
+      - "a[data-mxptype=Pornstar]"
+  url_id:
+    selector:
+      ".wrap"
+    subselector:
+      - "a[data-mxptype=Pornstar]"
+    attr:
+      "href"
 
 studio_list:
   last_page:

@@ -27,11 +27,16 @@ func getScrapeActorsList(i int) {
 
 		c := getColly(func(e *colly.HTMLElement) {
 			dest := make([]string, 0)
+			links := make([]string, 0)
 			getDataAndScrape(data, helpers.ActorListName, e, &dest, true, func(s string) bool {
 				split := len(strings.FieldsFunc(s, splitter))
 				return split <= 3 && split > 1
 			})
-			addActors(model, dest, website)
+			getDataAndScrape(data, helpers.ActorListURLID, e, &links, true, func(s string) bool {
+				split := len(strings.FieldsFunc(s, splitter))
+				return split <= 3 && split > 1
+			})
+			addActors(model, dest, links, website)
 		},
 		)
 
@@ -68,7 +73,7 @@ func getScrapeActor(i int, actor actor.Actor) (actorDetails actor_details.ActorD
 				}
 			})
 
-			err := c.Visit(parseUrl(url, actor.Name))
+			err := c.Visit(parseUrl(url, actor.UrlID))
 			if err != nil {
 				helpers.LogError(err.Error(), component)
 			}
@@ -82,15 +87,20 @@ func getScrapeActor(i int, actor actor.Actor) (actorDetails actor_details.ActorD
 	return
 }
 
-func addActors(model *actor.Model, strs []string, website string) {
-	actorSlice := make([]actor.Actor, 0)
-	for _, s := range strs {
-		actorSlice = appendIfNotExists(actorSlice, actor.Actor{
-			Name:    s,
-			Website: website,
-		})
+func addActors(model *actor.Model, strs []string, links []string, website string) {
+	if len(strs) == len(links) {
+		actorSlice := make([]actor.Actor, 0)
+		for i := range strs {
+			actorSlice = appendIfNotExists(actorSlice, actor.Actor{
+				Name:    strs[i],
+				Website: website,
+				UrlID:   links[i],
+			})
+		}
+		model.Create(actorSlice)
+	} else {
+		helpers.LogError("Length of name and links is different", component)
 	}
-	model.Create(actorSlice)
 }
 
 func splitter(r rune) bool {
