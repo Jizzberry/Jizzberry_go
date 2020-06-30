@@ -85,7 +85,7 @@ single_video:
 videos:
   url:
     "https://www.pornhub.com/video/search?search=%QUERY"
-  selector:
+  foreach:
     "#videoSearchResult .pcVideoListItem"
   name:
     selector:
@@ -95,6 +95,8 @@ videos:
       - "span[class=title] > a[title]"
     attr:
       "href"
+    absolute:
+      true
 
 image:
   url:

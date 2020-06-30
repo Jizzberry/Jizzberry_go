@@ -99,7 +99,7 @@ func makeVideoStruct(name string, link string, website string) (videos Videos) {
 	return
 }
 
-func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface{}, attr string, e *colly.HTMLElement, dest *string, condition func(string) bool) {
+func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface{}, attr string, absolute bool, e *colly.HTMLElement, dest *string, condition func(string) bool) {
 	for _, i := range subselector {
 		var name []string
 		if attr == "" {
@@ -123,9 +123,13 @@ func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface
 					}
 
 					if condition(value) {
-						*dest = value
+						if absolute {
+							fmt.Println(e.Request.AbsoluteURL(value))
+							*dest = e.Request.AbsoluteURL(value)
+						} else {
+							*dest = value
+						}
 					}
-
 					if *dest != "" {
 						return
 					}
@@ -188,17 +192,18 @@ func parseUrl(base string, query string) string {
 	return strings.ReplaceAll(base, "%QUERY", strings.ReplaceAll(query, " ", "%20"))
 }
 
-func getData(data map[string]interface{}, header string) (subSelector []interface{}, r []*regexp.Regexp, replacer string, attr string) {
+func getData(data map[string]interface{}, header string) (subSelector []interface{}, r []*regexp.Regexp, replacer string, attr string, absolute bool) {
 	attr = safeCastString(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlForEachAttr))
 	subSelector = safeCastSliceString(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlSelector))
 	r = compileRegex(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlStringRegex))
 	replacer = safeCastString(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlStringReplace))
+	absolute = safeCastBool(safeSelectFromMap(safeMapCast(data[header]), "absolute"))
 	return
 }
 
 func getDataAndScrape(data map[string]interface{}, header string, e *colly.HTMLElement, dest *string, condition func(string) bool) {
-	subSelector, r, replacer, attr := getData(data, header)
-	scrapeItem(r, replacer, subSelector, attr, e, dest, condition)
+	subSelector, r, replacer, attr, absolute := getData(data, header)
+	scrapeItem(r, replacer, subSelector, attr, absolute, e, dest, condition)
 }
 
 func appendIfNotExists(slice []actor.Actor, actor2 actor.Actor) []actor.Actor {
@@ -256,6 +261,13 @@ func safeConvertInt(item interface{}) int {
 	return -1
 }
 
+func safeCastBool(item interface{}) bool {
+	if casted, ok := item.(bool); ok {
+		return casted
+	}
+	return false
+}
+
 func getColly(onHtml func(e *colly.HTMLElement)) (c *colly.Collector) {
 	c = colly.NewCollector()
 
@@ -271,7 +283,7 @@ func getColly(onHtml func(e *colly.HTMLElement)) (c *colly.Collector) {
 	}
 
 	c.OnError(func(response *colly.Response, e error) {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(e.Error(), component)
 	})
 
 	c.OnHTML("body", onHtml)
