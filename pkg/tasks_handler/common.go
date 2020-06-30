@@ -198,9 +198,7 @@ type bestMatch struct {
 }
 
 func calcTaglen(query string, results []scrapers.Videos) (taglenMatch []bestMatch) {
-
 	for _, videos := range results {
-		videoSlice := make([]bestMatch, 0)
 		splitVideo := strings.FieldsFunc(videos.Name, Splitter)
 		splitTitle := strings.FieldsFunc(query, Splitter)
 
@@ -212,7 +210,7 @@ func calcTaglen(query string, results []scrapers.Videos) (taglenMatch []bestMatc
 			}
 		}
 
-		taglenMatch = append(videoSlice, bestMatch{
+		taglenMatch = append(taglenMatch, bestMatch{
 			tagLen: len(splitVideo),
 			video:  videos,
 		})
@@ -220,13 +218,25 @@ func calcTaglen(query string, results []scrapers.Videos) (taglenMatch []bestMatc
 	return taglenMatch
 }
 
+func splitByWebsite(taglenResults []bestMatch) map[string][]bestMatch {
+	byWebsite := make(map[string][]bestMatch)
+	for _, t := range taglenResults {
+		byWebsite[t.video.Website] = append(byWebsite[t.video.Website], t)
+	}
+	return byWebsite
+}
+
 func getBestResult(taglenResults []bestMatch) []scrapers.Videos {
 	topResults := make([]scrapers.Videos, 0)
 
-	min := taglenResults[0]
-	for _, value := range taglenResults {
-		if value.tagLen < min.tagLen {
-			min = value
+	websiteMap := splitByWebsite(taglenResults)
+
+	for _, value := range websiteMap {
+		min := value[0]
+		for _, v := range value {
+			if v.tagLen < min.tagLen {
+				min = v
+			}
 		}
 		topResults = append(topResults, min.video)
 	}

@@ -7,7 +7,9 @@ import (
 )
 
 func getScrapedVideo(i int, url string) (details VideoDetails) {
-	data := safeMapCast(safeSelectFromMap(ParseYaml(scrapers[i].path), helpers.ScraperSingleVideo))
+	yamlData := ParseYaml(scrapers[i].path)
+	data := safeMapCast(safeSelectFromMap(yamlData, helpers.ScraperSingleVideo))
+	website := safeCastString(safeSelectFromMap(yamlData, helpers.ScraperWebsite))
 
 	if data != nil {
 		if url != "" {
@@ -20,6 +22,8 @@ func getScrapedVideo(i int, url string) (details VideoDetails) {
 
 				details.Actors = actors[0]
 				details.Tags = tags[0]
+				details.Website = website
+				details.Url = url
 			})
 
 			err := c.Visit(url)
