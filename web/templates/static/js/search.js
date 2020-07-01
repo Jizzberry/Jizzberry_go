@@ -43,7 +43,7 @@ $("#bloodhound .typeahead").typeahead(
 				'<p><a href="/Jizzberry/scene/{{generated_id}}" style="display: block;">{{file_name}}</a></p>'
 			),
 		},
-		limit: 20,
+		limit: 5,
 	},
 	{
 		name: "actors",
@@ -55,6 +55,6 @@ $("#bloodhound .typeahead").typeahead(
 				'<p><a href="/Jizzberry/actors/{{actor_id}}" style="display: block;">{{name}}</a></p>'
 			),
 		},
-		limit: 20,
+		limit: 5,
 	}
 );

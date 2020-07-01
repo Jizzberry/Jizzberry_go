@@ -11,9 +11,10 @@
 									border-radius: 30px 0px 0px 30px;
 									outline: none;
 									border: none;
-								" placeholder="Enter Path Manually" type="search" class="form-control py-0 pl-4 ml-3" />
+								" placeholder="Search..." type="search" class="form-control py-0 pl-4 ml-3"
+                           id="multiselector-search"/>
                     <div class="input-group-append py-0 mr-3">
-                        <button style="
+                        <button id="multiselector-add" style="
                         
 										padding-left: 1.5rem;
 										background-color: aquamarine;
@@ -25,29 +26,12 @@
                                         font-weight: 900;
                                         cursor: pointer;
                                         box-sizing: border-box;
-									" class="input-group-text pr-4 ">+</button>
+									" class="input-group-text pr-4 ">+
+                        </button>
                     </div>
                 </div>
-                <ul class="list-group p-0 mx-3">
-                    <li style="font-size: 15px;" class="list-group-item d-flex justify-content-between p-2 px-2">
-                        <span style="padding-top: .15rem;">ALIAS</span>
-                        <button style="vertical-align: middle;" type="button" class="close" data-dismiss="modal"
-                            aria-label="Close">
-                            <span class=" align-text-top" aria-hidden="true">&times;</span>
-                        </button>
-                    </li>
+                <ul class="list-group p-0 mx-3" id="multiselector-container">
                 </ul>
-            </div>
-            <div class="modal-footer">
-                <button style="
-								border-radius: 20px;
-								border: none;
-								outline: none;
-								box-shadow: none;
-								padding: 4px 20px;
-							" type="button" class="btn btn-primary">
-                    SAVE
-                </button>
             </div>
         </div>
     </div>

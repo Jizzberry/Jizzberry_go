@@ -1,82 +1,72 @@
 {{ define "query_modal" }}
-	<!DOCTYPE html>
-	<html lang="en">
-
-	<head>
-		<!-- Required meta tags -->
-		<meta charset="utf-8"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-
-		<!-- Bootstrap CSS -->
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-			  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
-
-		<title>Modals</title>
-</head>
-
-	<body>
-	<!-- ############################### -->
-
-	<button style="border: none; box-shadow: none; outline: none;" type="button" class="btn btn-danger"
-			data-toggle="modal" data-target="#Modal">
-		Modal
-	</button>
-
-	<div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog" role="document">
+	<div class="modal fade" id="queryModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content px-3">
 				<div class="row modal-header p-0 m-0 mt-3">
 					<div class="col-5 mb-2 pl-1">
-						<h4 class="modal-title text-muted" id="exampleModalLabel">
+						<h4 class="modal-title">
 							Edit Title
 						</h4>
 					</div>
 					<div class="offset-4"></div>
 					<div class="col-3">
 						<button style="
-									font-size: 30px;
-									outline: none;
-									border: none;
-									box-shadow: none;
-								" type="button" class="close" data-dismiss="modal" aria-label="Close">
+							font-size: 30px;
+							outline: none;
+							border: none;
+							box-shadow: none;
+						" type="button" class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
 				</div>
 				<div class="input-group mt-3 p-0">
 					<input style="box-shadow: none; outline: none;" type="search" class="form-control"
-						   placeholder="Enter a custom title or url to search" />
+						   placeholder="Enter a custom title or url to search">
 					<div class="input-group-append">
-						<button style="box-shadow: none; outline: none;" class="input-group-text btn">
+						<button class="p-0">
+						<span
+								style="box-shadow: none; outline: none; padding-top: 10px;padding-bottom: 10px;border-radius: 0%;"
+								class="input-group-text btn">
 							<i class="fa fa-search"></i>
+						</span>
 						</button>
-						<button style="box-shadow: none; outline: none;" class="input-group-text btn">
+						<button style="border-radius: 0px 4px 4px 0px;" class="p-0 ">
+						<span
+								style="box-shadow: none; outline: none; padding-top: 10px;padding-bottom: 10px;border-radius: 0px 4px 4px 0px;"
+								class="input-group-text btn">
 							<i class="fa fa-plus"></i>
+						</span>
 						</button>
+
 					</div>
 				</div>
-				<div class="modal-body px-0 mx-2">
-					<div>
-						<p class="m-0">
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Necessitatibus quia consectetur error ipsam eius voluptas hic
-							nesciunt porro non sit.
-							<button style="box-shadow: none; outline: none;"
-									class="badge badge-success p-1 ml-3 btn text-white">
-								Daftsex
-							</button>
-						</p>
-					</div>
-					<div class="d-flex justify-content-end">
-						<button style="box-shadow: none; outline: none;" class="badge badge-success p-1 btn text-white">
-							<i style="font-size: 18px; width: 2rem;" class="fa fa-check" aria-hidden="true"></i>
-						</button>
-					</div>
 
-					<p style="font-size: 14px;" class="h6 font-weight-normal m-0">
-						Path:
-					</p>
-					<a style="
+				<div class="modal-body px-0 mx-2">
+					<ul id="query-body">
+						<div>
+							<div>
+								<p class="m-0 text-muted">
+									Lorem ipsum dolor sit amet consectetur adipisicing elit.
+									Necessitatibus quia consectetur error ipsam eius voluptas hic
+									nesciunt porro non sit.
+									<button style="box-shadow: none; outline: none;"
+											class="badge badge-success p-1 ml-3 btn text-white">
+										Daftsex
+									</button>
+								</p>
+							</div>
+							<div class="d-flex justify-content-end">
+								<button style="box-shadow: none; outline: none;"
+										class="badge badge-success p-1 btn text-white">
+									<i style="font-size: 18px; width: 2rem;" class="fa fa-check" aria-hidden="true"></i>
+								</button>
+							</div>
+
+							<p style="font-size: 14px;" class="h6 m-0 text-muted">
+								Path:
+							</p>
+							<a class="text-muted" style="
 								outline: none;
 								color: black;
 								text-decoration: none;
@@ -85,56 +75,47 @@
 								font-size: 14px;
 							" href="#">https://blahblah.com</a>
 
-					<!-- ########## -->
-					<ul class="list-group p-0">
-						<div class="input-group mt-3 p-0 mb-1">
-							<input style="box-shadow: none; outline: none;" type="search" class="form-control"
-								   placeholder="Enter..." />
-							<div class="input-group-append">
-								<button style="box-shadow: none; outline: none;" class="input-group-text btn">
-									<i class="fa fa-plus"></i>
-								</button>
-							</div>
+							<ul class="list-group p-0">
+								<li class="list-group-item d-flex justify-content-between p-0 border-0">
+									<div class="input-group mt-3 p-0">
+										<input style="box-shadow: none; outline: none;" type="search"
+											   class="form-control no-border"
+											   placeholder="Enter..."/>
+										<div class="input-group-append" style="width: 2.5rem;">
+											<button style="border-radius: 0px 3px 3px 0px;" class="p-0 "
+													class="input-group-text btn">
+											<span
+													style="box-shadow: none; outline: none; padding-top: 10px;padding-bottom: 10px; border-radius: 0px 3px 3px 0px;"
+													class="input-group-text btn">
+												<i class="fas fa-plus fa-fw"></i>
+											</span>
+											</button>
+										</div>
+									</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between p-0 border-0">
+									<div class="input-group p-0">
+										<input type="text" class="form-control bg-white no-border" value="Mila Azul"
+											   disabled
+											   readonly/>
+										<div class="input-group-append" style="width: 2.5rem;">
+											<button style="border-radius: 0px 3px 3px 0px;"
+													class="p-0 input-group-text btn">
+											<span
+													style="box-shadow: none; outline: none; padding-top: 10px;padding-bottom: 10px; border-radius: 0px 3px 3px 0px;"
+													class="input-group-text btn">
+												<i class="fas fa-times fa-fw"></i>
+											</span>
+											</button>
+										</div>
+									</div>
+								</li>
+							</ul>
 						</div>
-						<li class="list-group-item d-flex justify-content-between p-0 border-0">
-							<input style="
-										box-shadow: none;
-										outline: none;
-										border-radius: 4px 0 0 4px;
-									" type="text" class="form-control bg-white" value="Mila Azul" disabled readonly />
-							<div class="input-group-append">
-								<button style="
-											width: 2.5rem;
-											box-shadow: none;
-											outline: none;
-											border-radius: 0 4px 4px 0;
-										" class="input-group-text btn">
-									<i class="fa fa-times"></i>
-								</button>
-							</div>
-						</li>
 					</ul>
 				</div>
 				<div class="modal-footer m-0 p-0 pb-2"></div>
 			</div>
 		</div>
 	</div>
-
-	<!-- ############################ -->
-	<!-- Optional JavaScript -->
-	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-			integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-			crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-			integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-			crossorigin="anonymous"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-			integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-			crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
-			integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
-</body>
-
-	</html>
 {{ end }}

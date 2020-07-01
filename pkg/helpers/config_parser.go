@@ -116,7 +116,7 @@ func RemovePath(path string) error {
 			}
 		}
 	}
-	return fmt.Errorf("path not found")
+	return nil
 }
 
 func GetSessionsKey() []byte {

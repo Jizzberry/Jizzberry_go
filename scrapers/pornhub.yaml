@@ -39,6 +39,16 @@ actor:
     replace:
       "(?i)weight:; "
 
+image:
+  url:
+    "https://www.pornhub.com%QUERY"
+  link:
+    selector:
+      - ".jcrop-preview"
+      - "body > div.wrapper > div > div.noBio > div > section > div.thumbImage > img"
+    attr:
+      "src"
+
 actor_list:
   last_page:
     "1742"
@@ -97,16 +107,6 @@ videos:
       "href"
     absolute:
       true
-
-image:
-  url:
-    "https://www.pornhub.com/pornstar/%QUERY"
-  link:
-    selector:
-      - ".jcrop-preview"
-      - "body > div.wrapper > div > div.noBio > div > section > div.thumbImage > img"
-    attr:
-      "src"
 
 
 

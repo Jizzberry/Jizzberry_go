@@ -20,37 +20,7 @@ function parseQueryResults(resultSet) {
 	ul.className = "list-group";
 
 	for (let i = 0; i < resultSet.length; i++) {
-		let li = document.createElement("li");
-		li.className = "list-group-item";
 
-		let heading = document.createElement("h6");
-		heading.textContent = resultSet[i]["Name"];
-
-		let url = document.createElement("span");
-		url.style.fontSize = "12px";
-		url.innerText = resultSet[i]["Url"];
-
-		let tableContainer = document.createElement("div");
-		tableContainer.className = "table-responsive";
-
-		let actorTable = document.createElement("table");
-		actorTable.className = "table";
-
-		let tableBody = document.createElement("tbody");
-
-		for (let j = 0; j < resultSet[i]["Actors"].length; j++) {
-			let tr = document.createElement("tr");
-			tr.innerText = resultSet[i]["Actors"][j];
-			tableBody.appendChild(tr);
-		}
-
-		actorTable.appendChild(tableBody);
-		tableContainer.appendChild(tableBody);
-
-		li.appendChild(heading);
-		li.appendChild(tableContainer);
-
-		ul.appendChild(li);
 	}
 	container.appendChild(ul);
 }

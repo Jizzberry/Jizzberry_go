@@ -27,12 +27,12 @@
 						<video controls="" crossorigin=""
 							data-poster="/thumbnails/p{{ (index .Files 0).GeneratedID }}.png" id="videoPlayer"
 							playsinline="">
-							<source src="/Jizzberry/stream/{{(index .Files 0).GeneratedID}}" type="video/mp4" />
+							<source src="/Jizzberry/stream/{{(index .Files 0).GeneratedID}}" type="video/mp4"/>
 							Your browser does not support HTML5 video.
 						</video>
 
 						<div class="d-flex flex-row justify-content-between mb-4 mt-3 ml-2 video-title-container">
-							<p class="h5 text-dark text-truncate">
+							<p class="h5 text-dark text-truncate" id="video-title">
 								{{ (index .Files 0).FileName }}
 							</p>
 							<button class="btn ml-5" id="parser-toggle">
@@ -96,9 +96,9 @@
 							<div class="form-group d-flex pt-4 px-3">
 								<label style="font-size: 16px; font-weight: 600;" for="metadata-title">Title</label>
 								<input style="width: 42rem;" class="form-control" data-target="#queryModal"
-									data-toggle="modal" id="metadata-title" name="title"
-									onclick="fetchQueryResults('Mila Azul')" placeholder="Title" type="text"
-									value="{{ (index .Files 0).FileName }}" />
+									   data-toggle="modal" id="metadata-title" name="title"
+									   onclick="getQueryResults()" placeholder="Title" type="text"
+									   value="{{ (index .Files 0).FileName }}" />
 							</div>
 
 							<div class="form-group d-flex px-3">

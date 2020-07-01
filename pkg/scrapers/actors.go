@@ -33,7 +33,7 @@ func getScrapeActorsList(i int) {
 			scrapeList(selector, data, headers, &dest, e, func(s string, i int) bool {
 				if i == 0 {
 					split := len(strings.FieldsFunc(s, splitter))
-					return split <= 3 && split > 1
+					return split <= 3
 				}
 				return true
 			})

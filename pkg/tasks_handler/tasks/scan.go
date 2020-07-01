@@ -25,59 +25,61 @@ type Scan struct {
 }
 
 func worker(paths []string, ctx context.Context, progress *int) {
-	wg := sync.WaitGroup{}
+	if paths != nil {
+		wg := sync.WaitGroup{}
 
-	maxGoroutines := runtime.NumCPU() / 2
-	maxController := make(chan struct{}, maxGoroutines)
+		maxGoroutines := runtime.NumCPU() / 2
+		maxController := make(chan struct{}, maxGoroutines)
 
-	files := make([]string, 0)
+		files := make([]string, 0)
 
-	for _, item := range paths {
-		tmp, err := tasks_handler.GetAllFiles(item)
-		if err != nil {
-			helpers.LogError(err.Error(), component)
-		}
-		files = append(files, tmp...)
-	}
-	progressMutex := sync.Mutex{}
-	tmp := make(chan int, len(files))
-	updateProgress(progress, tmp, len(files), &progressMutex)
-
-	filesModel := files2.Initialize()
-	defer filesModel.Close()
-
-	for _, f := range files {
-		maxController <- struct{}{}
-		wg.Add(1)
-
-		go func(f string) {
-			select {
-			case <-ctx.Done():
-				updateProgress(progress, tmp, len(files), &progressMutex)
-				wg.Done()
-				<-maxController
-				return
-			default:
-				if exists := filesModel.IsExists(f); !exists {
-					info, err := os.Stat(f)
-					if err != nil {
-						helpers.LogError(err.Error(), component)
-					}
-					file := createFile(f, info, filepath.Ext(f))
-					genId := filesModel.Create(file)
-					ffmpeg.GenerateThumbnail(genId, f, lenInSec(file.Length)/2)
-					helpers.LogInfo(fmt.Sprintf("scanned %s successfully", f), component)
-				} else {
-					helpers.LogInfo(fmt.Sprintf("skipped %s", f), component)
-				}
-				updateProgress(progress, tmp, len(files), &progressMutex)
-				wg.Done()
-				<-maxController
+		for _, item := range paths {
+			tmp, err := tasks_handler.GetAllFiles(item)
+			if err != nil {
+				helpers.LogError(err.Error(), component)
 			}
-		}(f)
+			files = append(files, tmp...)
+		}
+		progressMutex := sync.Mutex{}
+		tmp := make(chan int, len(files))
+		updateProgress(progress, tmp, len(files), &progressMutex)
+
+		filesModel := files2.Initialize()
+		defer filesModel.Close()
+
+		for _, f := range files {
+			maxController <- struct{}{}
+			wg.Add(1)
+
+			go func(f string) {
+				select {
+				case <-ctx.Done():
+					updateProgress(progress, tmp, len(files), &progressMutex)
+					wg.Done()
+					<-maxController
+					return
+				default:
+					if exists := filesModel.IsExists(f); !exists {
+						info, err := os.Stat(f)
+						if err != nil {
+							helpers.LogError(err.Error(), component)
+						}
+						file := createFile(f, info, filepath.Ext(f))
+						genId := filesModel.Create(file)
+						ffmpeg.GenerateThumbnail(genId, f, lenInSec(file.Length)/2)
+						helpers.LogInfo(fmt.Sprintf("scanned %s successfully", f), component)
+					} else {
+						helpers.LogInfo(fmt.Sprintf("skipped %s", f), component)
+					}
+					updateProgress(progress, tmp, len(files), &progressMutex)
+					wg.Done()
+					<-maxController
+				}
+			}(f)
+		}
+		wg.Wait()
+		close(tmp)
 	}
-	wg.Wait()
-	close(tmp)
 }
 
 func (s Scan) Start(paths []string) (*context.CancelFunc, *int) {

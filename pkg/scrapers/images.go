@@ -21,7 +21,7 @@ func getScrapeImage(i int, actor actor.Actor) (actorDetails actor_details.ActorD
 				downloadImage(link, helpers.GetThumbnailPath(actor.GeneratedID, true))
 			})
 
-			err := c.Visit(parseUrl(url, actor.Name))
+			err := c.Visit(parseUrl(url, actor.UrlID))
 			if err != nil {
 				helpers.LogError(err.Error(), component)
 			}
