@@ -15,8 +15,8 @@ const (
 type Actor struct {
 	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
 	Name        string `row:"name" type:"like" json:"name"`
-	UrlID       string `row:"urlid" type:"exact" json:"urlid"`
-	Website     string `row:"website" type:"exact" json:"website"`
+	UrlID       string `row:"urlid" type:"like" json:"urlid"`
+	Website     string `row:"website" type:"like" json:"website"`
 }
 
 type Model struct {

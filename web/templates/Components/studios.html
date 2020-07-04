@@ -1,25 +1,19 @@
 {{ define "studios" }}
-<!DOCTYPE html>
+    <!DOCTYPE html>
 
-<html>
+    <html>
+    <head>
+        <title>Studios</title>
+    </head>
 
-<head>
+    <body>
     {{template "meta"}}
-
     <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/jizzberry.css" rel="stylesheet">
-    <link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
-
-    <title>Studios</title>
-</head>
-
-<body>
-    {{template "topbar"}}
-
+    <link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">{{template "topbar"}}
 
     <main>
         {{template "sidenav" .IsAdmin}}
-
 
         <div class="main-content" id="content">
             <div class="pt-5 pl-5">
@@ -30,22 +24,23 @@
                     <div class="row">
                         {{range $val := .Studios}}
 
-                        <div class="col-xl-3 col-sm-6 mb-3 text-truncate">
-                            <div class="channels-card text-truncate">
-                                <div class="channels-card-image">
-                                    <a href="/Jizzberry/studios/{{$val.GeneratedID}}/"><img alt="" class="img-fluid"
-                                            onerror="this.src='/static/img/txt-logo.svg'"
-                                            src="/thumbnails/t{{$val.GeneratedID}}"></a>
-                                </div>
+                            <div class="col-xl-3 col-sm-6 mb-3 text-truncate">
+                                <div class="channels-card text-truncate">
+                                    <div class="channels-card-image">
+                                        <a href="/Jizzberry/studios/{{$val.GeneratedID}}/"><img alt="" class="img-fluid"
+                                                                                                onerror="this.src='/static/img/txt-logo.svg'"
+                                                                                                src="/thumbnails/t{{$val.GeneratedID}}"></a>
+                                    </div>
 
-                                <div class="channels-card-body text-truncate">
-                                    <div class="channels-title text-truncate">
-                                        <a class="text-truncate"
-                                            href="/Jizzberry/studios/{{$val.Name}}/">{{$val.Name}}</a>
+
+                                    <div class="channels-card-body text-truncate">
+                                        <div class="channels-title text-truncate">
+                                            <a class="text-truncate"
+                                               href="/Jizzberry/studios/{{$val.Name}}/">{{$val.Name}}</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         {{end}}
                     </div>
                 </div>
@@ -53,7 +48,6 @@
         </div>
     </main>
     {{template "vendors"}}
-</body>
-
-</html>
+    </body>
+    </html>
 {{ end }}

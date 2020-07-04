@@ -1,12 +1,13 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/apps/authentication"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/gorilla/mux"
 	"net/http"
 )
+
+const component = "Middleware"
 
 func AuthMiddleware() mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
@@ -18,7 +19,7 @@ func AuthMiddleware() mux.MiddlewareFunc {
 				session.Values[helpers.PrevURLKey] = r.URL.Path
 				err := session.Save(r, w)
 				if err != nil {
-					fmt.Println(err)
+					helpers.LogError(err.Error(), component)
 				}
 				http.Redirect(w, r, "/auth/login/", http.StatusFound)
 			}

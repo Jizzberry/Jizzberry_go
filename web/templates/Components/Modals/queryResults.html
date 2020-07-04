@@ -21,10 +21,10 @@
 					</div>
 				</div>
 				<div class="input-group mt-3 p-0">
-					<input style="box-shadow: none; outline: none;" type="search" class="form-control"
+					<input id="query-search" style="box-shadow: none; outline: none;" type="search" class="form-control"
 						   placeholder="Enter a custom title or url to search">
 					<div class="input-group-append">
-						<button class="p-0">
+						<button id="query-search-button" class="p-0">
 						<span
 								style="box-shadow: none; outline: none; padding-top: 10px;padding-bottom: 10px;border-radius: 0%;"
 								class="input-group-text btn">
@@ -43,77 +43,9 @@
 				</div>
 
 				<div class="modal-body px-0 mx-2">
-					<ul id="query-body">
-						<div>
-							<div>
-								<p class="m-0 text-muted">
-									Lorem ipsum dolor sit amet consectetur adipisicing elit.
-									Necessitatibus quia consectetur error ipsam eius voluptas hic
-									nesciunt porro non sit.
-									<button style="box-shadow: none; outline: none;"
-											class="badge badge-success p-1 ml-3 btn text-white">
-										Daftsex
-									</button>
-								</p>
-							</div>
-							<div class="d-flex justify-content-end">
-								<button style="box-shadow: none; outline: none;"
-										class="badge badge-success p-1 btn text-white">
-									<i style="font-size: 18px; width: 2rem;" class="fa fa-check" aria-hidden="true"></i>
-								</button>
-							</div>
-
-							<p style="font-size: 14px;" class="h6 m-0 text-muted">
-								Path:
-							</p>
-							<a class="text-muted" style="
-								outline: none;
-								color: black;
-								text-decoration: none;
-								border: none;
-								box-shadow: none;
-								font-size: 14px;
-							" href="#">https://blahblah.com</a>
-
-							<ul class="list-group p-0">
-								<li class="list-group-item d-flex justify-content-between p-0 border-0">
-									<div class="input-group mt-3 p-0">
-										<input style="box-shadow: none; outline: none;" type="search"
-											   class="form-control no-border"
-											   placeholder="Enter..."/>
-										<div class="input-group-append" style="width: 2.5rem;">
-											<button style="border-radius: 0px 3px 3px 0px;" class="p-0 "
-													class="input-group-text btn">
-											<span
-													style="box-shadow: none; outline: none; padding-top: 10px;padding-bottom: 10px; border-radius: 0px 3px 3px 0px;"
-													class="input-group-text btn">
-												<i class="fas fa-plus fa-fw"></i>
-											</span>
-											</button>
-										</div>
-									</div>
-								</li>
-								<li class="list-group-item d-flex justify-content-between p-0 border-0">
-									<div class="input-group p-0">
-										<input type="text" class="form-control bg-white no-border" value="Mila Azul"
-											   disabled
-											   readonly/>
-										<div class="input-group-append" style="width: 2.5rem;">
-											<button style="border-radius: 0px 3px 3px 0px;"
-													class="p-0 input-group-text btn">
-											<span
-													style="box-shadow: none; outline: none; padding-top: 10px;padding-bottom: 10px; border-radius: 0px 3px 3px 0px;"
-													class="input-group-text btn">
-												<i class="fas fa-times fa-fw"></i>
-											</span>
-											</button>
-										</div>
-									</div>
-								</li>
-							</ul>
-						</div>
-					</ul>
+					<ul id="query-body"></ul>
 				</div>
+
 				<div class="modal-footer m-0 p-0 pb-2"></div>
 			</div>
 		</div>

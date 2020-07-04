@@ -5,14 +5,14 @@ import (
 	shortcut "github.com/zetamatta/go-windows-shortcut"
 )
 
-func makeLink(src string, target string) error {
+func makeLink(src string, target string) (error, string) {
 	err := ole.CoInitialize(0)
 	if err != nil {
-		return err
+		return err, ""
 	}
 	defer ole.CoUninitialize()
 	if err := shortcut.Make(src, target+".lnk", ""); err != nil {
-		return err
+		return err, ""
 	}
-	return nil
+	return nil, target + ".lnk"
 }

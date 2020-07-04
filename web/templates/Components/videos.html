@@ -15,27 +15,27 @@
 </head>
 
 <body>
-	{{template "topbar"}}
+{{template "topbar"}}
 
-	<main>
-		{{template "sidenav" .IsAdmin}}
+<main>
+	{{template "sidenav" .IsAdmin}}
 
-		<div class="main-content" id="content">
-			<div class="pt-5 pl-5">
-				<div class="row">
-					<div class="col-md-8">
-						<video controls="" crossorigin=""
-							data-poster="/thumbnails/p{{ (index .Files 0).GeneratedID }}.png" id="videoPlayer"
-							playsinline="">
-							<source src="/Jizzberry/stream/{{(index .Files 0).GeneratedID}}" type="video/mp4"/>
-							Your browser does not support HTML5 video.
-						</video>
+	<div class="main-content" id="content">
+		<div class="pt-5 pl-5">
+			<div class="row">
+				<div class="col-md-8">
+					<video controls="" crossorigin=""
+						   data-poster="/thumbnails/{{ (index .Files 0).ThumbnailPath }}" id="videoPlayer"
+						   playsinline="">
+						<source src="/Jizzberry/stream/{{(index .Files 0).GeneratedID}}" type="video/mp4"/>
+						Your browser does not support HTML5 video.
+					</video>
 
-						<div class="d-flex flex-row justify-content-between mb-4 mt-3 ml-2 video-title-container">
-							<p class="h5 text-dark text-truncate" id="video-title">
-								{{ (index .Files 0).FileName }}
-							</p>
-							<button class="btn ml-5" id="parser-toggle">
+					<div class="d-flex flex-row justify-content-between mb-4 mt-3 ml-2 video-title-container">
+						<p class="h5 text-dark text-truncate" id="video-title">
+							{{ (index .Files 0).FileName }}
+						</p>
+						<button class="btn ml-5" id="parser-toggle">
 								<span><i class="fas fa-edit"></i></span>
 							</button>
 						</div>
@@ -147,17 +147,19 @@
 
 					<div class="video-list col-md-4 d-flex flex-column">
 						{{range $val := .UpNext}}
-						<a href="/Jizzberry/scene/{{$val.GeneratedID}}">
-							<div class="card mb-3">
-								<div class="row no-gutters">
-									<div class="col-md-5 py-1 pl-1 pr-2">
-										<img class="card-img img-fluid" onerror="this.src='/static/img/txt-logo.svg'"
-											src="/thumbnails/{{$val.GeneratedID}}.png" />
-									</div>
+							<a href="/Jizzberry/scene/{{$val.GeneratedID}}">
+								<div class="card mb-3">
+									<div class="row no-gutters">
+										<div class="col-md-5 py-1 pl-1 pr-2">
+											<img class="card-img img-fluid"
+												 onerror="this.src='/static/img/txt-logo.svg'"
+												 src="/thumbnails/{{$val.ThumbnailPath}}"/>
+										</div>
 
-									<div class="col-md-7">
-										<div class="card-body p-0 text-truncate pr-2">
-											<span style="font-size: 16px; font-weight: 500;" class="card-title pb-1 text-truncate">
+										<div class="col-md-7">
+											<div class="card-body p-0 text-truncate pr-2">
+											<span style="font-size: 16px; font-weight: 500;"
+												  class="card-title pb-1 text-truncate">
 												{{ $val.FileName }} 
 											<p style="font-size: 14px;" class="text-muted mt-0">
 												<i class="fa fa-calendar mr-2" aria-hidden="true"></i>

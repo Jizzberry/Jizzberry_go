@@ -1,40 +1,39 @@
 {{ define "multiselector_modal"}}
-<div class="modal fade" id="multiselectorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body" id="multiselector-modal-body">
-                <div class="input-group mb-3 py-0 ">
-                    <input style="
-									background-color: rgb(230, 230, 230);
-									box-shadow: none;
-									border-radius: 30px 0px 0px 30px;
-									outline: none;
-									border: none;
-								" placeholder="Search..." type="search" class="form-control py-0 pl-4 ml-3"
-                           id="multiselector-search"/>
-                    <div class="input-group-append py-0 mr-3">
-                        <button id="multiselector-add" style="
-                        
-										padding-left: 1.5rem;
-										background-color: aquamarine;
-										box-shadow: none;
-										border-radius: 0px 30px 30px 0px;
-										outline: none;
-                                        border: none;
-                                        font-size: 24px;
-                                        font-weight: 900;
-                                        cursor: pointer;
-                                        box-sizing: border-box;
-									" class="input-group-text pr-4 ">+
-                        </button>
+    <div class="modal fade" id="multiselectorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body" id="multiselector-modal-body">
+                    <div class="input-group mb-3 py-0 ml-2">
+                        <input id="multiselector-search" style="
+							background-color: rgb(230, 230, 230);
+							box-shadow: none;
+							border-radius: 30px 0px 0px 30px;
+							outline: none;
+							border: none;
+						" placeholder="Enter Path Manually" type="search" class="form-control pb-3 pt-3 pl-4"/>
+                        <div class="input-group-append mr-3">
+                            <button id="multiselector-add" style="
+								padding-left: 1.5rem;
+								background-color: aquamarine;
+								box-shadow: none;
+								border-radius: 0px 30px 30px 0px;
+								outline: none;
+								border: none;
+								font-size: 24px;
+								font-weight: 900;
+								cursor: pointer;
+								box-sizing: border-box;
+							" class="input-group-text pr-4">
+                                <span style="padding-right: 5px; padding-bottom: 2px;">&plus;</span>
+                            </button>
+                        </div>
                     </div>
+                    <ul class="list-group p-0 mx-3" id="multiselector-container">
+                    </ul>
                 </div>
-                <ul class="list-group p-0 mx-3" id="multiselector-container">
-                </ul>
             </div>
         </div>
     </div>
-</div>
 
 {{ end }}

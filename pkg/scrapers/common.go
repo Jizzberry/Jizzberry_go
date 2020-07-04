@@ -21,11 +21,11 @@ const component = "ScraperParser"
 var scrapers = make([]scraper, 0)
 
 type VideoDetails struct {
-	Name    string
-	Actors  []string
-	Tags    []string
-	Url     string
-	Website string
+	Name    string   `json:"name"`
+	Actors  []string `json:"actors"`
+	Tags    []string `json:"tags"`
+	Url     string   `json:"url"`
+	Website string   `json:"website"`
 }
 
 type Videos struct {
@@ -124,7 +124,6 @@ func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface
 
 					if condition(value) {
 						if absolute {
-							fmt.Println(e.Request.AbsoluteURL(value))
 							*dest = e.Request.AbsoluteURL(value)
 						} else {
 							*dest = value

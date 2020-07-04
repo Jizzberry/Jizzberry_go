@@ -12,13 +12,14 @@ const (
 )
 
 type ActorDetails struct {
-	GeneratedId int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
-	ActorId     int64  `row:"actor_id" type:"exact" json:"actor_id"`
-	Name        string `row:"name" type:"like" json:"name"`
-	Birthday    string `row:"born" type:"like" json:"birthday"`
-	Birthplace  string `row:"birthplace" type:"like" json:"birthplace"`
-	Height      string `row:"height" type:"exact" json:"height"`
-	Weight      string `row:"weight" type:"exact" json:"weight"`
+	GeneratedId   int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
+	ActorId       int64  `row:"actor_id" type:"exact" json:"actor_id"`
+	Name          string `row:"name" type:"like" json:"name"`
+	Birthday      string `row:"born" type:"like" json:"birthday"`
+	Birthplace    string `row:"birthplace" type:"like" json:"birthplace"`
+	Height        string `row:"height" type:"like" json:"height"`
+	Weight        string `row:"weight" type:"like" json:"weight"`
+	ThumbnailPath string `row:"thumbnail" type:"exact" json:"thumbnail"`
 }
 
 type Model struct {

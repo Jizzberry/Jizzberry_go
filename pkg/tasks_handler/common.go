@@ -6,6 +6,7 @@ import (
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/files"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/studios"
+	tags2 "github.com/Jizzberry/Jizzberry_go/pkg/models/tags"
 	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers"
 	"os"
 	"path/filepath"
@@ -108,23 +109,39 @@ func UpdateDetails(sceneId int64, title string, date string, actors []string, ta
 	modelFiles := files.Initialize()
 	defer modelFiles.Close()
 
-	modelFiles.Update(files.Files{
-		GeneratedID: sceneId,
-		FileName:    title,
-		DateCreated: date,
-		Actors:      strings.Join(actors, ", "),
-		Tags:        strings.Join(tags, ", "),
-		Studios:     strings.Join(studios, ", "),
-	})
+	modelTags := tags2.Initialize()
+	defer modelTags.Close()
 
-	modelActorD := actor_details.Initialize()
-	defer modelActorD.Close()
+	for _, t := range tags {
+		if len(modelTags.Get(tags2.Tag{Name: t})) < 1 {
+			modelTags.Create(tags2.Tag{Name: t})
+		}
+	}
 
-	for _, a := range actors {
-		data := MatchActorExact(a)
-		for _, a := range *data {
-			scraped := scrapers.ScrapeActor(a)
-			modelActorD.Create(scraped)
+	file := modelFiles.Get(files.Files{GeneratedID: sceneId})
+	if len(file) > 0 {
+		if title != "" {
+			file[0].FileName = title
+		}
+
+		if date != "" {
+			file[0].DateCreated = date
+		}
+
+		file[0].Actors = strings.Join(actors, ", ")
+		file[0].Tags = strings.Join(tags, ", ")
+		file[0].Studios = strings.Join(studios, ", ")
+		modelFiles.Update(file[0])
+
+		modelActorD := actor_details.Initialize()
+		defer modelActorD.Close()
+
+		for _, a := range actors {
+			data := MatchActorExact(a)
+			for _, a := range *data {
+				scraped := scrapers.ScrapeActor(a)
+				modelActorD.Create(scraped)
+			}
 		}
 	}
 }

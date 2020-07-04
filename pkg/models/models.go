@@ -162,18 +162,17 @@ func QueryBuilderUpdate(i interface{}, tableName string) (string, []interface{})
 			continue
 		}
 
-		if !checkEmpty(v.Field(i)) {
-			row := t.Field(i).Tag.Get(helpers.RowStructTag)
-			if row != "" {
-				if argsCount < 1 {
-					query += row + " = ?"
-				} else {
-					query += " ," + row + " = ?"
-				}
-				args = append(args, v.Field(i).Interface())
-				argsCount++
+		row := t.Field(i).Tag.Get(helpers.RowStructTag)
+		if row != "" {
+			if argsCount < 1 {
+				query += row + " = ?"
+			} else {
+				query += " ," + row + " = ?"
 			}
+			args = append(args, v.Field(i).Interface())
+			argsCount++
 		}
+
 	}
 
 	if len(args) < 0 {
@@ -220,7 +219,7 @@ func scanSingleStruct(dest reflect.Value, row *sql.Rows) reflect.Value {
 
 	err := row.Scan(ptrs...)
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 	return ind
 }

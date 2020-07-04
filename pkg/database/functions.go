@@ -4,17 +4,20 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/database/router"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/markbates/pkger"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rubenv/sql-migrate"
 )
+
+const component = "database"
 
 func GetConn(databasePath string) *sql.DB {
 
 	conn, err := sql.Open("sqlite3", databasePath)
 
 	if err != nil {
-		fmt.Print("getConn():", err)
+		helpers.LogError(err.Error(), component)
 	}
 
 	return conn
@@ -74,6 +77,7 @@ func doMigrate(migrations *migrate.HttpFileSystemMigrationSource, databasePath s
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Applied %d migrations!\n", n)
+
+	helpers.LogInfo(fmt.Sprintf("Applied %d migrations in %s", n, databasePath), component)
 	return nil
 }

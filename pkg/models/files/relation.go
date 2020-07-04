@@ -56,6 +56,19 @@ func GetActorRelations(ActorID string) []string {
 	return nil
 }
 
+func GetUsedActors() []string {
+	jsonFile := readJson(router.GetJson("actorsRelation"))
+	defer jsonFile.Close()
+
+	relation := parseJson(jsonFile)
+
+	keys := make([]string, 0, len(relation))
+	for k := range relation {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 func setStudioRelation(genId int64, studio string) {
 	split := strings.Split(studio, ", ")
 
@@ -70,8 +83,10 @@ func setStudioRelation(genId int64, studio string) {
 			studiosModel := studios.Initialize()
 			defer studiosModel.Close()
 			for _, s := range split {
-				tmp := studiosModel.Get(studios.Studio{Name: s})[0]
-				relation[strconv.FormatInt(tmp.GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp.GeneratedID, 10)], strconv.FormatInt(genId, 10))
+				tmp := studiosModel.Get(studios.Studio{Name: s})
+				if len(tmp) > 0 {
+					relation[strconv.FormatInt(tmp[0].GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp[0].GeneratedID, 10)], strconv.FormatInt(genId, 10))
+				}
 			}
 		}
 		writeJson(jsonFile, relation)
@@ -117,8 +132,10 @@ func setTagRelation(genId int64, tag string) {
 			defer tagsModel.Close()
 
 			for _, t := range split {
-				tmp := tagsModel.Get(tags.Tag{Name: t})[0]
-				relation[strconv.FormatInt(tmp.GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp.GeneratedID, 10)], strconv.FormatInt(genId, 10))
+				tmp := tagsModel.Get(tags.Tag{Name: t})
+				if len(tmp) > 0 {
+					relation[strconv.FormatInt(tmp[0].GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp[0].GeneratedID, 10)], strconv.FormatInt(genId, 10))
+				}
 			}
 		}
 

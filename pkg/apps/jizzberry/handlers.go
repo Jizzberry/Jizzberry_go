@@ -135,7 +135,15 @@ func allActorsHandler(w http.ResponseWriter, r *http.Request) {
 	model := actor_details.Initialize()
 	defer model.Close()
 
-	allActors := model.Get(actor_details.ActorDetails{})
+	allActors := make([]actor_details.ActorDetails, 0)
+
+	for _, k := range files.GetUsedActors() {
+		key, err := strconv.ParseInt(k, 10, 64)
+		if err != nil {
+			helpers.LogError(err.Error(), component)
+		}
+		allActors = append(allActors, model.Get(actor_details.ActorDetails{ActorId: key})...)
+	}
 
 	ctx := Context{Actors: allActors}
 	sidebarContext(&ctx, r)
@@ -239,6 +247,9 @@ func singleSceneHandler(w http.ResponseWriter, r *http.Request) {
 	defer model.Close()
 
 	file := model.Get(files.Files{GeneratedID: sceneId})
+	if len(file) < 0 {
+		return
+	}
 
 	randomNext := model.Get(files.Files{})
 	rand.Seed(time.Now().UnixNano())

@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"context"
-	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/files"
 	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler"
@@ -66,6 +65,17 @@ func makeFolders(folders []string) error {
 	return nil
 }
 
+func removeSymlinks(sym []string) {
+	for _, i := range sym {
+		if helpers.IsFileExists(i) {
+			err := os.Remove(i)
+			if err != nil {
+				helpers.LogError(err.Error(), component)
+			}
+		}
+	}
+}
+
 func organize(sceneId int64, progress *int) {
 	*progress = 1
 
@@ -76,6 +86,8 @@ func organize(sceneId int64, progress *int) {
 	if len(file) < 1 {
 		return
 	}
+
+	removeSymlinks(strings.Split(file[0].Symlinks, ", "))
 
 	title := tasks_handler.FormatTitle(file[0].FileName, sceneId)
 
@@ -101,29 +113,35 @@ func organize(sceneId int64, progress *int) {
 				*progress = 100
 				return
 			}
+		}
 
-			if helpers.IsFileExists(folders[i]) {
-				helpers.LogError(fmt.Sprintf("file already exists: %s", folders[i]), component)
+		if !helpers.IsFileExists(folders[0]) {
+			err = moveFile(originalPath, folders[0])
+			if err != nil {
+				helpers.LogError(err.Error(), component)
 				*progress = 100
 				return
 			}
+			file[0].FilePath = folders[0]
 		}
 
-		err = moveFile(originalPath, folders[0])
-		if err != nil {
-			helpers.LogError(err.Error(), component)
-			*progress = 100
-			return
-		}
-
-		for i := 1; i < len(folders); i++ {
-			err := makeLink(folders[0], folders[i])
-			if err != nil {
-				helpers.LogError(err.Error(), component)
+		if len(folders) > 1 {
+			syms := make([]string, len(folders)-1)
+			for i := 1; i < len(folders); i++ {
+				err, location := makeLink(folders[0], folders[i])
+				if err != nil {
+					helpers.LogError(err.Error(), component)
+					continue
+				}
+				syms[i-1] = location
 			}
+			file[0].Symlinks = strings.Join(syms, ", ")
+		} else {
+			file[0].Symlinks = ""
 		}
-		*progress = 100
 	}
+	fileModel.Update(file[0])
+	*progress = 100
 }
 
 func (r Rename) Start(sceneId int64) (*context.CancelFunc, *int) {

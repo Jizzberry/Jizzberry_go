@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS 'files' (
     'date_created' varchar,
     'file_size' varchar,
     'length' varchar,
+    'thumbnail' varchar,
+    'symlinks' varchar,
     'tags' varchar,
     'studios' varchar,
     'actors' varchar,

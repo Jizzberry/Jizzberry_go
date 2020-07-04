@@ -3,14 +3,14 @@ package scrapers
 import (
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
-	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
 	"github.com/gocolly/colly/v2"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
-func getScrapeImage(i int, actor actor.Actor) (actorDetails actor_details.ActorDetails) {
+func getScrapeImage(i int, actor actor.Actor) (path string) {
 	data := safeMapCast(safeSelectFromMap(ParseYaml(scrapers[i].path), helpers.ScraperImage))
 	if data != nil {
 		url := safeCastString(data[helpers.YamlURL])
@@ -18,7 +18,8 @@ func getScrapeImage(i int, actor actor.Actor) (actorDetails actor_details.ActorD
 			var link string
 			c := getColly(func(e *colly.HTMLElement) {
 				getDataAndScrape(data, helpers.ImageLink, e, &link, func(string) bool { return true })
-				downloadImage(link, helpers.GetThumbnailPath(actor.GeneratedID, true))
+				path = helpers.GetThumbnailPath()
+				downloadImage(link, filepath.Join(helpers.ThumbnailPath, path))
 			})
 
 			err := c.Visit(parseUrl(url, actor.UrlID))

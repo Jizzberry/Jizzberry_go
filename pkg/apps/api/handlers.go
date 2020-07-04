@@ -175,6 +175,13 @@ func scrapeActorHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
+
+	actorDetailsModel := actor_details.Initialize()
+	defer actorDetailsModel.Close()
+
+	for _, a := range actors {
+		actorDetailsModel.Create(a)
+	}
 }
 
 func scanHandler(w http.ResponseWriter, _ *http.Request) {
@@ -226,7 +233,7 @@ func studiosHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&studios)
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 }
 
@@ -241,7 +248,7 @@ func tagsHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
 		if err != nil {
-			fmt.Println(err)
+			helpers.LogError(err.Error(), component)
 		}
 		tags = model.Get(tags2.Tag{GeneratedID: int64(genId)})
 	} else if len(queryParams["name"]) > 0 {
@@ -380,10 +387,12 @@ func parseMetadata(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tasks_handler.UpdateDetails(details.SceneId, details.Title, details.Date, details.Actors, details.Tags, details.Studios)
+	manager.StartRename(details.SceneId)
 	_, err = fmt.Fprintf(w, "Success")
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}
+
 }
 
 func fileBrowser(w http.ResponseWriter, r *http.Request) {

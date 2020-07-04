@@ -52,13 +52,8 @@ func GetConfig() Config {
 }
 
 func WriteConfig(config Config) error {
-	if config.FolderRenameFormatter != "" {
-		viper.Set("fileRenameFormatter", config.FolderRenameFormatter)
-	}
-
-	if config.FileRenameFormatter != "" {
-		viper.Set("fileRenameFormatter", config.FolderRenameFormatter)
-	}
+	viper.Set("folderRenameFormatter", config.FolderRenameFormatter)
+	viper.Set("fileRenameFormatter", config.FileRenameFormatter)
 
 	if config.FFPROBE != "" {
 		viper.Set("ffprobePath", config.FFPROBE)

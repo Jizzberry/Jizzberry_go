@@ -185,7 +185,7 @@ func DownloadAndExtract() error {
 
 	err = os.Remove(downloadPath)
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 
 	return nil

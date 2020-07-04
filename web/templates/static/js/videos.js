@@ -67,7 +67,6 @@ studiosData.initialize();
 tagsData.initialize();
 actorsData.initialize();
 
-
 function getArrays() {
     let xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
@@ -187,10 +186,14 @@ function openStudiosModal() {
 }
 
 function saveMetadata() {
-    var title = document.getElementById("metadata-title");
-    var url = document.getElementById("metadata-url");
-    var date = document.getElementById("metadata-date");
+    let title = document.getElementById("metadata-title");
+    let url = document.getElementById("metadata-url");
+    let date = document.getElementById("metadata-date");
 
+    postMetadata(title.value, url.value, date.value, actors, tags, studios)
+}
+
+function postMetadata(title, url, date, actors, tags, studios) {
     let xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
 
@@ -203,9 +206,9 @@ function saveMetadata() {
     xhr.open("POST", '/api/metadata', true);
     xhr.send(JSON.stringify({
         generated_id: sceneId,
-        title: title.value,
-        url: url.value,
-        date: date.value,
+        title: title,
+        url: url,
+        date: date,
         actors: actors,
         tags: tags,
         studios: studios,
@@ -215,10 +218,9 @@ function saveMetadata() {
 function getQueryResults(term) {
     let container = document.getElementById("query-body")
     container.innerHTML = ""
-    if (term === undefined) {
+    if (term === undefined || term === "") {
         let title = document.getElementById("video-title");
         term = title.textContent;
-        console.log(term)
     }
     let xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
@@ -239,66 +241,252 @@ function refreshQueryModal(result) {
     let container = document.getElementById("query-body")
     container.innerHTML = ""
     for (let i = 0; i < result.length; i++) {
+
+        function submitResult(r) {
+            postMetadata(r["name"], r["url"], "", r["actors"], r["tags"], [])
+        }
+
         let li = document.createElement("li")
-        li.innerHTML = '<div><p class="m-0 text-muted">' + result[i]["Name"] + '<button style="box-shadow: none; outline: none;"class="badge badge-success p-1 ml-3 btn text-white">' + result[i]["Website"] + '</button></p></div><div class="d-flex justify-content-end"><button style="box-shadow: none; outline: none;" class="badge badge-success p-1 btn text-white"><i style="font-size: 18px; width: 2rem;" class="fa fa-check" aria-hidden="true"></i></button></div><p style="font-size: 14px;" class="h6 m-0 text-muted">Path:</p><a class="text-muted" style="outline: none;color: black;text-decoration: none;border: none;box-shadow: none;font-size: 14px;" href="#">' + result[i]["Url"] + '</a>';
         container.appendChild(li)
+
+        {
+            let div = document.createElement("div")
+            li.appendChild(div)
+
+            let title = document.createElement("p")
+            title.className = "m-0 text-muted"
+            title.innerText = result[i]["name"]
+            div.appendChild(title)
+
+            let websiteButton = document.createElement("button")
+            websiteButton.className = "badge badge-success p-1 ml-3 btn text-white"
+            websiteButton.style.boxShadow = "none"
+            websiteButton.style.outline = "none"
+            websiteButton.innerText = result[i]["website"]
+            title.appendChild(websiteButton)
+        }
+
+        {
+            let submitDiv = document.createElement("div")
+            submitDiv.className = "d-flex justify-content-end"
+            li.appendChild(submitDiv)
+
+            let submitBtton = document.createElement("button")
+            submitBtton.className = "badge badge-success p-1 btn text-white"
+            submitBtton.style.boxShadow = "none"
+            submitBtton.style.outline = "none"
+            submitBtton.onclick = function () {
+                submitResult(result[i])
+            }
+            submitDiv.appendChild(submitBtton)
+
+            let submitIcon = document.createElement("i")
+            submitIcon.className = "fa fa-check"
+            submitIcon.style.fontSize = "18px"
+            submitIcon.style.width = "2rem"
+            submitBtton.appendChild(submitIcon)
+        }
+
+        {
+            let linkText = document.createElement("p")
+            linkText.style.fontSize = "14px"
+            linkText.className = "h6 m-0 text-muted"
+            linkText.innerText = "Path:"
+            li.appendChild(linkText)
+
+            let link = document.createElement("a")
+            link.className = "text-muted query-link"
+            link.href = result[i]["url"]
+            link.innerText = result[i]["url"]
+            li.appendChild(link)
+
+        }
 
         let ul = document.createElement("ul")
         ul.className = "list-group p-0"
-
-        let searchLi = document.createElement("li")
-        let searchDiv = document.createElement("div")
-        searchDiv.innerHTML = '<div class="input-group mt-3 p-0"><input style="box-shadow: none; outline: none;" type="search" class="form-control no-border" placeholder="Enter..." /><div class="input-group-append" style="width: 2.5rem;"><button style="border-radius: 0 3px 3px 0;" class="p-0 input-group-text btn"><span style="box-shadow: none; outline: none; padding-top: 10px;padding-bottom: 10px; border-radius: 0 3px 3px 0;" class="input-group-text btn"><i class="fas fa-plus fa-fw"></i></span></button></div></div>';
-
-        searchLi.appendChild(searchDiv)
-
-        ul.appendChild(searchLi)
         container.appendChild(ul)
 
-        for (let j = 0; j < result[i]["Actors"].length; j++) {
-            let actors = document.createElement("li")
-            actors.className = "list-group-item d-flex justify-content-between p-0 border-0"
+        let actorsDiv = document.createElement("div")
+        ul.appendChild(actorsDiv)
 
-            let div = document.createElement("div")
-            div.className = "input-group p-0"
+        let tagsDiv = document.createElement("div")
+        ul.appendChild(tagsDiv)
 
-            actors.appendChild(div)
+        function addSearch(className, container, addFunc, placeholder) {
+            let searchLi = document.createElement("li")
+            searchLi.className = "list-group-item d-flex justify-content-between p-0 border-0"
+            let searchDiv = document.createElement("div")
+            searchDiv.className = "input-group mt-3 p-0"
+            searchLi.appendChild(searchDiv)
 
-            let field = document.createElement("input")
-            field.className = "form-control bg-white no-border"
-            field.type = "text"
-            field.disabled = true
-            field.value = result[i]["Actors"][j]
+            let searchInput = document.createElement("input")
+            searchInput.type = "search"
+            searchInput.className = className + " form-control no-border"
+            searchInput.placeholder = placeholder
+            searchDiv.appendChild(searchInput)
 
-            div.appendChild(field)
+            let addButtonDiv = document.createElement("div")
+            addButtonDiv.className = "input-group-append"
+            addButtonDiv.style.width = "2.5rem"
+            searchDiv.appendChild(addButtonDiv)
 
-            let buttonDiv = document.createElement("div")
-            buttonDiv.className = "input-group-append"
-            buttonDiv.style.width = "2.5rem"
+            let addButton = document.createElement("button")
+            addButton.style.borderRadius = "0 3px 3px 0"
+            addButton.className = "p-0 input-group-text btn"
+            addButton.onclick = function () {
+                addFunc(searchInput.value.toString());
+                searchInput.value = "";
+                $('.typeaheadActors').typeahead('val', '');
+            }
+            addButtonDiv.appendChild(addButton)
 
-            let button = document.createElement("button")
-            button.className = "p-0 input-group-text btn";
-            button.style.borderRadius = "0px 3px 3px 0px"
+            let addButtonSpan = document.createElement("span")
+            addButtonSpan.style.boxShadow = "none"
+            addButtonSpan.style.outline = "none"
+            addButtonSpan.style.paddingTop = "10px"
+            addButtonSpan.style.paddingBottom = "10px"
+            addButtonSpan.style.borderRadius = "0 3px 3px 0"
+            addButtonSpan.className = "input-group-text btn"
+            addButton.appendChild(addButtonSpan)
 
-            let span = document.createElement("span")
-            span.className = "input-group-text btn"
-            span.style.paddingTop = "10px"
-            span.style.paddingBottom = "10px"
-            span.style.borderRadius = "0px 3px 3px 0px"
+            let addButtonIcon = document.createElement("i")
+            addButtonIcon.className = "fas fa-plus fa-fw"
+            addButtonSpan.appendChild(addButtonIcon)
 
-            let icon = document.createElement("i")
-            icon.className = "fas fa-times fa-fw"
-
-            span.appendChild(icon)
-
-            buttonDiv.appendChild(button)
-            buttonDiv.appendChild(span)
-            div.appendChild(buttonDiv)
-
-            ul.appendChild(actors)
+            container.appendChild(searchLi)
         }
+
+        function addData(className, array, removeFunc, addFunc, placeholder, container) {
+            container.innerHTML = ""
+            addSearch(className, container, addFunc, placeholder)
+            if (array !== undefined && array != null) {
+                for (let j = 0; j < array.length; j++) {
+                    let actors = document.createElement("li")
+                    actors.className = "list-group-item d-flex justify-content-between p-0 border-0"
+
+                    let div = document.createElement("div")
+                    div.className = "input-group p-0"
+
+                    actors.appendChild(div)
+
+                    let field = document.createElement("input")
+                    field.className = "form-control bg-white no-border"
+                    field.type = "text"
+                    field.disabled = true
+                    field.value = array[j]
+
+                    div.appendChild(field)
+
+                    let buttonDiv = document.createElement("div")
+                    buttonDiv.className = "input-group-append"
+                    buttonDiv.style.width = "2.5rem"
+
+                    let button = document.createElement("button")
+                    button.className = "p-0 input-group-text btn";
+                    button.style.borderRadius = "0px 3px 3px 0px"
+                    button.onclick = function () {
+                        removeFunc(j)
+                    }
+
+                    let span = document.createElement("span")
+                    span.className = "input-group-text btn"
+                    span.style.paddingTop = "10px"
+                    span.style.paddingBottom = "10px"
+                    span.style.borderRadius = "0px 3px 3px 0px"
+
+                    let icon = document.createElement("i")
+                    icon.className = "fas fa-times fa-fw"
+
+                    span.appendChild(icon)
+
+                    buttonDiv.appendChild(button)
+                    button.appendChild(span)
+                    div.appendChild(buttonDiv)
+
+                    container.appendChild(actors)
+                }
+            }
+        }
+
+        function refreashAll() {
+            function refreshActors() {
+                function remove(j) {
+                    result[i]["actors"].splice(j, 1)
+                    refreashAll()
+                }
+
+                function add(value) {
+                    if (result[i]["actors"] == null) {
+                        result[i]["actors"] = [value]
+                    } else {
+                        result[i]["actors"].push(value)
+                    }
+                    refreashAll()
+                }
+
+                addData("typeaheadActors", result[i]["actors"], remove, add, "Search Actors...", actorsDiv)
+            }
+
+            function refreshTags() {
+                function remove(j) {
+                    result[i]["tags"].splice(j, 1)
+                    refreashAll()
+                }
+
+                function add(value) {
+                    if (result[i]["tags"] == null) {
+                        result[i]["tags"] = value
+                    } else {
+                        result[i]["tags"].push(value)
+                    }
+                    refreashAll()
+                }
+
+                addData("typeaheadTags", result[i]["tags"], remove, add, "Search Tags...", tagsDiv)
+            }
+
+            refreshActors()
+            refreshTags()
+
+            $('.typeaheadActors').typeahead(
+                {
+                    hint: true,
+                    minLength: 0,
+                    highlight: true,
+                },
+                {
+                    name: 'items',
+                    displayKey: 'name',
+                    source: actorsData.ttAdapter(),
+                    templates: {
+                        suggestion: Handlebars.compile("<p><button style='display: block;'>{{name}}</button></p>")
+                    },
+                    limit: 5
+                },
+            );
+
+            $('.typeaheadTags').typeahead(
+                {
+                    hint: true,
+                    minLength: 0,
+                    highlight: true,
+                },
+                {
+                    name: 'items',
+                    displayKey: 'name',
+                    source: tagsData.ttAdapter(),
+                    templates: {
+                        suggestion: Handlebars.compile("<p><button style='display: block;'>{{name}}</button></p>")
+                    },
+                    limit: 5
+                },
+            );
+        }
+
+        refreashAll()
     }
 }
+
 
 function reinitializeTypeahead(type) {
     let source
@@ -334,4 +522,8 @@ function reinitializeTypeahead(type) {
         },
     );
 }
+
+$('#query-search-button').on('click', function () {
+    getQueryResults($('#query-search').val())
+})
 

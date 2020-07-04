@@ -94,7 +94,7 @@ body {
 	border: 1px solid rgba(0, 0, 0, 0.2);
 	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 	margin-top: 12px;
-	width: 620px !important;
+	width: 100%;
 }
 .tt-suggestion {
 	font-size: 18px;
@@ -740,14 +740,28 @@ input:checked + .slider:before {
 #multiselector-form button {
     box-shadow: none;
     outline: none;
-    box-sizing: border-box;
-    color: red;
-    font-size: 20px;
-    border-radius: 0 7px 7px 0;
+	box-sizing: border-box;
+	color: red;
+	font-size: 20px;
+	border-radius: 0 7px 7px 0;
 }
 
 .no-border {
-    border-radius: 0;
+	border-radius: 0;
+}
+
+.input-group > .twitter-typeahead {
+	flex: 1 1 auto;
+	width: auto;
+}
+
+.query-link {
+	outline: none;
+	color: black;
+	text-decoration: none;
+	border: none;
+	box-shadow: none;
+	font-size: 14px;
 }
 
 /* ############## LATEST ############### */

@@ -15,7 +15,7 @@ func ScrapeActor(actors actor.Actor) actor_details.ActorDetails {
 		if exists, index := MatchWebsite(actors.Website); exists {
 			if scrapers[index].Actor {
 				scraped := getScrapeActor(index, actors)
-				getScrapeImage(index, actors)
+				scraped.ThumbnailPath = getScrapeImage(index, actors)
 				scraped.Name = actors.Name
 				scraped.ActorId = actors.GeneratedID
 

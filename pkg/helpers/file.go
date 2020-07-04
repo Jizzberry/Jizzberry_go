@@ -2,8 +2,8 @@ package helpers
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"os"
-	"path/filepath"
 )
 
 func IsFileExists(filePath string) bool {
@@ -14,11 +14,8 @@ func IsFileExists(filePath string) bool {
 	return !info.IsDir()
 }
 
-func GetThumbnailPath(id int64, actor bool) (path string) {
-	if actor {
-		path = filepath.Join(ThumbnailPath, fmt.Sprintf("p%d.png", id))
-	} else {
-		path = filepath.Join(ThumbnailPath, fmt.Sprintf("%d.png", id))
-	}
+func GetThumbnailPath() (path string) {
+	id := uuid.New()
+	path = fmt.Sprintf("%s.png", id.String())
 	return
 }

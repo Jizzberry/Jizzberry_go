@@ -2,7 +2,6 @@ package files
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models"
 )
@@ -13,16 +12,18 @@ const (
 )
 
 type Files struct {
-	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id,string"`
-	FileName    string `row:"file_name" type:"like" json:"file_name"`
-	FilePath    string `row:"file_path" type:"like" json:"file_path"`
-	DateCreated string `row:"date_created" type:"exact" json:"date_created"`
-	FileSize    string `row:"file_size" type:"exact" json:"file_size"`
-	Length      string `row:"length" type:"exact" json:"length"`
-	Tags        string `row:"tags" type:"like" json:"tags"`
-	Studios     string `row:"studios" type:"like" json:"studios"`
-	Actors      string `row:"actors" type:"like" json:"actors"`
-	URL         string `row:"url" type:"exact" json:"url"`
+	GeneratedID   int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id,string"`
+	FileName      string `row:"file_name" type:"like" json:"file_name"`
+	FilePath      string `row:"file_path" type:"like" json:"file_path"`
+	DateCreated   string `row:"date_created" type:"exact" json:"date_created"`
+	FileSize      string `row:"file_size" type:"exact" json:"file_size"`
+	Length        string `row:"length" type:"exact" json:"length"`
+	ThumbnailPath string `row:"thumbnail" type:"exact" json:"thumbnail"`
+	Symlinks      string `row:"symlinks" type:"exact" json:"symlinks"`
+	Tags          string `row:"tags" type:"like" json:"tags"`
+	Studios       string `row:"studios" type:"like" json:"studios"`
+	Actors        string `row:"actors" type:"like" json:"actors"`
+	URL           string `row:"url" type:"exact" json:"url"`
 }
 
 type Model struct {
@@ -56,7 +57,7 @@ func (m Model) Create(files Files) int64 {
 
 	genID, err := row.LastInsertId()
 	if err != nil {
-		fmt.Println(err)
+		helpers.LogError(err.Error(), component)
 	}
 
 	setAllRelations(genID, files.Actors, files.Studios, files.Tags)
