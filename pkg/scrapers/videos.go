@@ -13,7 +13,7 @@ func getScrapedVideo(i int, url string) (details VideoDetails) {
 
 	if data != nil {
 		if url != "" {
-			c := getColly(func(e *colly.HTMLElement) {
+			c := getColly(nil, func(e *colly.HTMLElement) {
 				getDataAndScrape(data, helpers.VideoTitle, e, &details.Name, func(string) bool { return true })
 				actors := make([][]string, 1)
 				scrapeList(safeSelectFromMap(safeMapCast(safeSelectFromMap(data, helpers.VideoActors)), helpers.YamlForEach), data, []string{helpers.VideoActors}, &actors, e, func(s string, i int) bool { return true })
@@ -44,7 +44,7 @@ func getQueryVideo(i int, query string) (videos []Videos) {
 	selector := safeSelectFromMap(data, helpers.YamlForEach)
 	if data != nil {
 		if url != "" {
-			c := getColly(func(e *colly.HTMLElement) {
+			c := getColly(nil, func(e *colly.HTMLElement) {
 				headers := []string{helpers.VideosName, helpers.VideosLink}
 				dest := make([][]string, len(headers))
 				scrapeList(selector, data, headers, &dest, e, func(s string, i int) bool { return true })
@@ -86,5 +86,12 @@ func compileResults(names []string, links []string, website string) (videos []Vi
 	} else {
 		helpers.LogError("Length of title and links is different", component)
 	}
+	return
+}
+
+func makeVideoStruct(name string, link string, website string) (videos Videos) {
+	videos.Name = name
+	videos.Url = link
+	videos.Website = website
 	return
 }

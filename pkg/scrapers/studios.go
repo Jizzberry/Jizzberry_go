@@ -1,13 +1,14 @@
 package scrapers
 
 import (
+	"context"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/studios"
 	"github.com/gocolly/colly/v2"
 	"strconv"
 )
 
-func getScrapeStudiosList(i int) {
+func getScrapeStudiosList(i int, ctx context.Context) {
 	yamlData := ParseYaml(scrapers[i].path)
 	data := safeMapCast(safeSelectFromMap(yamlData, helpers.ScraperStudioList))
 	if data != nil {
@@ -23,7 +24,7 @@ func getScrapeStudiosList(i int) {
 		model := studios.Initialize()
 		defer model.Close()
 
-		c := getColly(func(e *colly.HTMLElement) {
+		c := getColly(ctx, func(e *colly.HTMLElement) {
 			headers := []string{helpers.StudioListName}
 			dest := make([][]string, len(headers))
 			scrapeList(selector, data, headers, &dest, e, func(s string, i int) bool { return true })

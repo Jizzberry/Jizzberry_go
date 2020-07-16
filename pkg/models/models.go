@@ -8,6 +8,7 @@ import (
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"reflect"
 	"regexp"
+	"strings"
 )
 
 const component = "QueryBuilder"
@@ -17,34 +18,39 @@ func QueryBuilderGet(i interface{}, tableName string) (string, []interface{}) {
 	v := reflect.ValueOf(i)
 	query := `SELECT `
 
-	var searchByRow string
-	var searchByIndex int
-	for i := 0; i < v.NumField(); i++ {
-		row := t.Field(i).Tag.Get(helpers.RowStructTag)
+	// Name of column to search by
+	var searchByColumn string
 
+	// Index of value of search-by column in interface provided
+	var searchByIndex int
+
+	queryTags := make([]string, 0)
+	for i := 0; i < v.NumField(); i++ {
+		column := t.Field(i).Tag.Get(helpers.RowStructTag)
+
+		// Last non-empty Field is search-by
+		// Normally only one Field should be non-empty
 		if !checkEmpty(v.Field(i)) {
-			searchByRow = row
+			searchByColumn = column
 			searchByIndex = i
 		}
 
-		if row != "" {
-			if i < t.NumField()-1 {
-				query += row + ", "
-			} else {
-				query += row
-			}
+		// Add to query only if row is not empty
+		// Useful when an extra - non column field is present in struct
+		if column != "" {
+			queryTags = append(queryTags, column)
 		}
 	}
 
-	query += " FROM " + tableName
-	if searchByRow == "" {
+	query += strings.Join(queryTags, ", ") + " FROM " + tableName
+	if searchByColumn == "" {
 		return query, nil
 	}
 
 	if t.Field(searchByIndex).Tag.Get("type") == "exact" {
-		query += " WHERE " + searchByRow + " = ?"
+		query += " WHERE " + searchByColumn + " = ?"
 	} else if t.Field(searchByIndex).Tag.Get("type") == "like" {
-		query += " WHERE " + searchByRow + " LIKE ? COLLATE NOCASE"
+		query += " WHERE " + searchByColumn + " LIKE ? COLLATE NOCASE"
 	}
 	args := []interface{}{v.Field(searchByIndex).Interface()}
 
@@ -56,30 +62,31 @@ func QueryBuilderMatch(i interface{}, tableName string) (string, []interface{}) 
 	v := reflect.ValueOf(i)
 	query := `SELECT `
 
-	var searchByRow string
+	// Name of column to search by
+	var searchByColumn string
+
+	// Index of value of search-by column in interface provided
 	var searchByIndex int
+
+	queryTags := make([]string, 0)
 	for i := 0; i < v.NumField(); i++ {
-		row := t.Field(i).Tag.Get(helpers.RowStructTag)
+		column := t.Field(i).Tag.Get(helpers.RowStructTag)
 
 		if !checkEmpty(v.Field(i)) {
-			searchByRow = row
+			searchByColumn = column
 			searchByIndex = i
 		}
 
-		if row != "" {
-			if i < t.NumField()-1 {
-				query += row + ", "
-			} else {
-				query += row
-			}
+		if column != "" {
+			queryTags = append(queryTags, column)
 		}
 	}
 
-	query += " FROM " + tableName
-	if searchByRow == "" {
+	query += strings.Join(queryTags, ", ") + " FROM " + tableName
+	if searchByColumn == "" {
 		return query, nil
 	}
-	query += " WHERE (" + searchByRow + " LIKE ? COLLATE NOCASE) OR (replace(" + searchByRow + ", ' ', '') LIKE ? COLLATE NOCASE)"
+	query += " WHERE (" + searchByColumn + " LIKE ? COLLATE NOCASE) OR (replace(" + searchByColumn + ", ' ', '') LIKE ? COLLATE NOCASE)"
 	args := []interface{}{"%" + v.Field(searchByIndex).String() + "%", v.Field(searchByIndex).Interface()}
 
 	return query, args
@@ -90,7 +97,9 @@ func QueryBuilderCreate(i interface{}, tableName string) (string, []interface{})
 	v := reflect.ValueOf(i)
 	query := `INSERT INTO ` + tableName + "("
 
+	// Number of values to enter into DB
 	var valuesCount = 0
+
 	args := make([]interface{}, 0)
 
 	for i := 0; i < v.NumField(); i++ {
@@ -150,7 +159,9 @@ func QueryBuilderUpdate(i interface{}, tableName string) (string, []interface{})
 	t := reflect.TypeOf(i)
 	v := reflect.ValueOf(i)
 
+	// Key at which data should be updated
 	var searchBy int
+
 	query := `UPDATE ` + tableName + " SET "
 	args := make([]interface{}, 0)
 
@@ -185,6 +196,8 @@ func QueryBuilderUpdate(i interface{}, tableName string) (string, []interface{})
 	return query, args
 }
 
+// Creates an array of provided interface,
+// Scans values from row into that array
 func GetIntoStruct(rows *sql.Rows, dest interface{}) {
 	v := reflect.ValueOf(dest)
 	direct := reflect.Indirect(v)
@@ -207,14 +220,15 @@ func GetIntoStruct(rows *sql.Rows, dest interface{}) {
 	}
 }
 
+// Scans values from row into struct
 func scanSingleStruct(dest reflect.Value, row *sql.Rows) reflect.Value {
 	numfields := reflect.Indirect(dest).NumField()
 	ind := reflect.Indirect(dest)
 
-	ptrs := make([]interface{}, numfields)
+	ptrs := make([]interface{}, 0)
 
 	for i := 0; i < numfields; i++ {
-		ptrs[i] = ind.Field(i).Addr().Interface()
+		ptrs = append(ptrs, ind.Field(i).Addr().Interface())
 	}
 
 	err := row.Scan(ptrs...)
@@ -313,6 +327,7 @@ func isPK(field reflect.StructField) bool {
 	return field.Tag.Get(helpers.PKStructTag) == "auto"
 }
 
+// Runs migrations if needed before returning conn
 func GetConn(table string) *sql.DB {
 	conn := database.GetConn(router.GetDatabase(table))
 	IsTableEmpty(table, conn)

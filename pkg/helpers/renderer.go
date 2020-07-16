@@ -20,10 +20,7 @@ func RndInit() {
 	Rnd.template = parseTemplates()
 }
 
-func parseTemplates() *template.Template {
-	t := template.New("")
-	tmp := ""
-
+func parseHtml() (str string) {
 	err := filepath.Walk(TemplatePath, func(path string, info os.FileInfo, err error) error {
 		if filepath.Ext(path) == ".html" {
 			open, err := os.Open(path)
@@ -35,7 +32,7 @@ func parseTemplates() *template.Template {
 			if _, err := io.Copy(buf, open); err != nil {
 				return err
 			}
-			tmp += buf.String()
+			str += buf.String()
 			err = open.Close()
 			if err != nil {
 				return err
@@ -47,12 +44,17 @@ func parseTemplates() *template.Template {
 	if err != nil {
 		LogError(err.Error(), component)
 	}
+	return
+}
 
-	_, err = t.Parse(tmp)
+func parseTemplates() (t *template.Template) {
+	t = template.New("")
+	str := parseHtml()
+	_, err := t.Parse(str)
 	if err != nil {
 		LogError(err.Error(), component)
 	}
-	return t
+	return
 }
 
 func Render(w http.ResponseWriter, status int, name string, v interface{}) error {

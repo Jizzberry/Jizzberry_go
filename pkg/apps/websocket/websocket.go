@@ -40,11 +40,10 @@ func (Websocket) Register(r *mux.Router) {
 
 func updateProgress() {
 	for {
-		for key, value := range manager.GetAllProgress() {
+		for _, task := range manager.GetAllTaskStatus() {
 			hub.broadcastAdmin <- broadcast{
 				Type:  "progress",
-				Key:   key,
-				Value: value,
+				Value: task,
 			}
 		}
 		time.Sleep(1 * time.Second)

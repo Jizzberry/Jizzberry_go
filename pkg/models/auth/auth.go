@@ -2,6 +2,7 @@ package auth
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models"
 	"golang.org/x/crypto/bcrypt"
@@ -37,8 +38,9 @@ func (a Model) Close() {
 
 func (a Model) Create(auth Auth) {
 	auth.Password = hashPassword(auth.Password)
-
 	query, args := models.QueryBuilderCreate(auth, tableName)
+
+	fmt.Println(args)
 
 	_, err := a.conn.Exec(query, args...)
 	if err != nil {
@@ -59,8 +61,9 @@ func (a Model) Get(auth Auth) (allAuth []Auth) {
 	return
 }
 
+// Hashes password string for storage
 func hashPassword(password string) string {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost) // Cost: 10
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 	}

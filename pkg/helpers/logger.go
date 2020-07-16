@@ -6,6 +6,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"os"
+	"path/filepath"
 )
 
 var logger *logrus.Logger
@@ -15,13 +16,13 @@ func LoggerInit() {
 		Out:   os.Stderr,
 		Level: logrus.DebugLevel,
 		Formatter: &easy.Formatter{
-			TimestampFormat: "02-01-2006 15:04:05",
-			LogFormat:       "[%lvl%] [%component%] %time% - %msg% \n",
+			TimestampFormat: TimestampLayout,
+			LogFormat:       "[%lvl%] [%component%] %time% - %msg%\n",
 		},
 	}
 
 	l := &lumberjack.Logger{
-		Filename:   LogsPath + "/latest.log",
+		Filename:   filepath.Join(LogsPath, "latest.log"),
 		MaxSize:    1, // MegaBytes
 		MaxBackups: 8, // Max Files
 		MaxAge:     7, // Days

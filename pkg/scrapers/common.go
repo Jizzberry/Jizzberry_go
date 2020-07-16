@@ -1,9 +1,9 @@
 package scrapers
 
 import (
+	"context"
 	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
 	"github.com/ghodss/yaml"
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/queue"
@@ -48,6 +48,7 @@ func RegisterScrapers() {
 		if filepath.Ext(path) == ".yaml" {
 			data := ParseYaml(path)
 			if data != nil {
+				// Determines available functionalities of scraper
 				scrapers = append(scrapers, scraper{
 					path:        path,
 					StudioList:  func() bool { _, ok := data[helpers.ScraperStudioList]; return ok }(),
@@ -67,6 +68,8 @@ func RegisterScrapers() {
 	}
 }
 
+// Returns index of scraper if query website string matches
+// Returns false, -1 if scraper does not exist or can not be parsed
 func MatchWebsite(website string) (bool, int) {
 	for i := range scrapers {
 		data := ParseYaml(scrapers[i].path)
@@ -92,13 +95,7 @@ func ParseYaml(path string) (yamlMap map[string]interface{}) {
 	return yamlMap
 }
 
-func makeVideoStruct(name string, link string, website string) (videos Videos) {
-	videos.Name = name
-	videos.Url = link
-	videos.Website = website
-	return
-}
-
+// Scrapes a single value into destination if conditions match
 func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface{}, attr string, absolute bool, e *colly.HTMLElement, dest *string, condition func(string) bool) {
 	for _, i := range subselector {
 		var name []string
@@ -112,8 +109,10 @@ func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface
 			name = []string{e.Text}
 		}
 		for _, n := range name {
+			// Match all available regex since a single web page can have variations
 			for _, r := range regex {
 				if r.MatchString(n) {
+					// Replace certain keywords to avoid extra text in scraped data
 					split := strings.Split(replacer, ";")
 					var value string
 					if len(split) > 1 {
@@ -123,12 +122,14 @@ func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface
 					}
 
 					if condition(value) {
+						// If scraped data is a url and is relative, convert it to absolute
 						if absolute {
 							*dest = e.Request.AbsoluteURL(value)
 						} else {
 							*dest = value
 						}
 					}
+					// If data is found, no need to continue to next iteration
 					if *dest != "" {
 						return
 					}
@@ -138,15 +139,20 @@ func scrapeItem(regex []*regexp.Regexp, replacer string, subselector []interface
 	}
 }
 
+// Scrapes array of strings in cases where a single web page contains multiple scrapable elements
 func scrapeList(selector interface{}, data map[string]interface{}, headers []string, destinations *[][]string, e *colly.HTMLElement, condition func(string, int) bool) {
 	e.ForEach(selector.(string), func(i int, element *colly.HTMLElement) {
 		tmp := make([]string, 0)
 		for i := range headers {
 			var str string
+
+			// Condition avoids scraping of certain text for specific headers
 			getDataAndScrape(data, headers[i], element, &str, func(s string) bool {
 				return condition(s, i)
 			})
+
 			if str == "" {
+				// If any of headers is empty, leave destination as it is
 				return
 			}
 			tmp = append(tmp, str)
@@ -161,6 +167,7 @@ func scrapeList(selector interface{}, data map[string]interface{}, headers []str
 
 func compileRegex(regex interface{}) (r []*regexp.Regexp) {
 	if regex == nil {
+		// If regex isn't provided, match everything
 		reg, err := regexp.Compile(".*")
 		if err != nil {
 			helpers.LogError(err.Error(), component)
@@ -172,6 +179,7 @@ func compileRegex(regex interface{}) (r []*regexp.Regexp) {
 		for _, re := range regex.([]interface{}) {
 			reg, err := regexp.Compile(re.(string))
 			if err != nil {
+				// Match everything if can not parse regex
 				helpers.LogError(err.Error(), component)
 				reg, err := regexp.Compile(".*")
 				if err != nil {
@@ -205,14 +213,7 @@ func getDataAndScrape(data map[string]interface{}, header string, e *colly.HTMLE
 	scrapeItem(r, replacer, subSelector, attr, absolute, e, dest, condition)
 }
 
-func appendIfNotExists(slice []actor.Actor, actor2 actor.Actor) []actor.Actor {
-	for _, a := range slice {
-		if a.Name == actor2.Name {
-			return slice
-		}
-	}
-	return append(slice, actor2)
-}
+// #### Cast types without panicking ####
 
 func safeMapCast(item interface{}) map[string]interface{} {
 	if item != nil {
@@ -267,7 +268,8 @@ func safeCastBool(item interface{}) bool {
 	return false
 }
 
-func getColly(onHtml func(e *colly.HTMLElement)) (c *colly.Collector) {
+// Returns instance of colly after setting default callbacks
+func getColly(ctx context.Context, onHtml func(e *colly.HTMLElement)) (c *colly.Collector) {
 	c = colly.NewCollector()
 
 	err := c.Limit(&colly.LimitRule{
@@ -280,6 +282,18 @@ func getColly(onHtml func(e *colly.HTMLElement)) (c *colly.Collector) {
 		helpers.LogError(err.Error(), component)
 		return nil
 	}
+
+	c.OnRequest(func(request *colly.Request) {
+		if ctx != nil {
+			select {
+			case <-ctx.Done():
+				request.Abort()
+				return
+			default:
+				return
+			}
+		}
+	})
 
 	c.OnError(func(response *colly.Response, e error) {
 		helpers.LogError(e.Error(), component)

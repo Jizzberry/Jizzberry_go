@@ -14,16 +14,25 @@ var (
 )
 
 const (
+
+	// Keys for session maps
 	UsernameKey = "username"
 	PasswordKey = "password"
 	SessionsKey = "sessions"
-	LoginURL    = "/auth/login/"
 	PrevURLKey  = "prevurl"
 
+	// Default URLs
+	LoginURL = "/auth/login/"
+
+	// Struct tags
 	RowStructTag = "row"
 	PKStructTag  = "pk"
-	DateLayout   = "01-02-06"
 
+	// Common Date format
+	DateLayout      = "01-02-06"
+	TimestampLayout = "02-01-2006 15:04:05"
+
+	// Yaml Scraper header tags
 	ScraperWebsite     = "website"
 	ScraperActor       = "actor"
 	ScraperActorList   = "actor_list"
@@ -32,6 +41,7 @@ const (
 	ScraperVideos      = "videos"
 	ScraperImage       = "image"
 
+	// Yaml Scraper subheaders
 	ActorName   = "name"
 	ActorBday   = "birthdate"
 	ActorBplace = "birthplace"
@@ -52,6 +62,7 @@ const (
 
 	ImageLink = "link"
 
+	// Yaml Scrapers common
 	YamlForEach       = "foreach"
 	YamlSelector      = "selector"
 	YamlURL           = "url"
@@ -77,11 +88,11 @@ $$ |  $$ |$$ | $$  _/    $$  _/   $$ |  $$ |$$   ____|$$ |      $$ |      $$ |  
 
 func initPaths() {
 	configPath = GetWorkingDirectory()
-	ThumbnailPath = filepath.Join(GetWorkingDirectory(), "assets/thumbnails")
-	DatabasePath = filepath.Join(GetWorkingDirectory(), "assets/database")
-	JsonPath = filepath.Join(GetWorkingDirectory(), "assets/json")
-	FFMPEGPath = filepath.Join(GetWorkingDirectory(), "assets/ffmpeg")
+	ThumbnailPath = filepath.Join(GetWorkingDirectory(), "assets", "thumbnails")
+	DatabasePath = filepath.Join(GetWorkingDirectory(), "assets", "database")
+	JsonPath = filepath.Join(GetWorkingDirectory(), "assets", "json")
+	FFMPEGPath = filepath.Join(GetWorkingDirectory(), "assets", "ffmpeg")
 	LogsPath = filepath.Join(GetWorkingDirectory(), "logs")
-	StaticPath = filepath.Join(GetWorkingDirectory(), "web/templates/static")
-	TemplatePath = filepath.Join(GetWorkingDirectory(), "web/templates/Components")
+	StaticPath = filepath.Join(GetWorkingDirectory(), "web", "templates", "static")
+	TemplatePath = filepath.Join(GetWorkingDirectory(), "web", "templates", "Components")
 }

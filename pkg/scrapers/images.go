@@ -16,7 +16,7 @@ func getScrapeImage(i int, actor actor.Actor) (path string) {
 		url := safeCastString(data[helpers.YamlURL])
 		if url != "" {
 			var link string
-			c := getColly(func(e *colly.HTMLElement) {
+			c := getColly(nil, func(e *colly.HTMLElement) {
 				getDataAndScrape(data, helpers.ImageLink, e, &link, func(string) bool { return true })
 				path = helpers.GetThumbnailPath()
 				downloadImage(link, filepath.Join(helpers.ThumbnailPath, path))
@@ -36,6 +36,7 @@ func getScrapeImage(i int, actor actor.Actor) (path string) {
 	return
 }
 
+// Downloads image from link and returns path of out file
 func downloadImage(link string, outPath string) {
 	if link != "" {
 		file, err := os.Create(outPath)

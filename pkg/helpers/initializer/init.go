@@ -18,6 +18,7 @@ import (
 	"syscall"
 )
 
+// Initialize the whole app
 func Init() error {
 	err := initHelpers()
 	if err != nil {
@@ -48,6 +49,7 @@ func Init() error {
 	return nil
 }
 
+// Initialize helpers package (Logger, Config, Dirs...)
 func initHelpers() error {
 	err := helpers.ConfigInit()
 	if err != nil {
@@ -62,6 +64,7 @@ func initHelpers() error {
 	return nil
 }
 
+// Initialize Web server (default :6969)
 func initWebApp() error {
 	fmt.Println(helpers.Art)
 
@@ -83,6 +86,7 @@ func initWebApp() error {
 	return nil
 }
 
+// Runs user creation if Auth model is empty
 func IsFirstTime() error {
 	model := auth.Initialize()
 	defer model.Close()
@@ -96,6 +100,7 @@ func IsFirstTime() error {
 	return nil
 }
 
+// Creates user
 func CreateFirstUser(model *auth.Model) error {
 	username, password, err := inputCreds()
 	if err != nil {
@@ -110,6 +115,7 @@ func CreateFirstUser(model *auth.Model) error {
 	return nil
 }
 
+// CLI interface to accept credentials
 func inputCreds() (string, string, error) {
 	reader := bufio.NewReader(os.Stdin)
 	for {

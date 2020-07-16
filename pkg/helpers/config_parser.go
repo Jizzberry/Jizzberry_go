@@ -22,6 +22,7 @@ type Config struct {
 	FolderRenameFormatter string   `json:"folder_rename_formatter" mapstructure:"folderRenameFormatter"`
 }
 
+// Initialize Config at provided path
 func ConfigInit() error {
 	initPaths()
 
@@ -38,6 +39,7 @@ func ConfigInit() error {
 	return nil
 }
 
+// Parses Config doc
 func parseConfig() Config {
 	var tmp Config
 	err := viper.Unmarshal(&tmp)
@@ -51,6 +53,9 @@ func GetConfig() Config {
 	return parseConfig()
 }
 
+// Writes Config to Config file
+// ffmpegPath, ffprobePath shouldn't be empty
+// videoPaths can be empty but not nil
 func WriteConfig(config Config) error {
 	viper.Set("folderRenameFormatter", config.FolderRenameFormatter)
 	viper.Set("fileRenameFormatter", config.FileRenameFormatter)
@@ -70,6 +75,7 @@ func WriteConfig(config Config) error {
 	return err
 }
 
+// Writes default values if empty
 func writeInitial() error {
 	if string(GetSessionsKey()) == "" {
 		viper.Set("sessionsKey", GenerateRandomKey(50))
@@ -79,6 +85,7 @@ func writeInitial() error {
 	return nil
 }
 
+// Add string to videoPaths if exists as a directory or valid path
 func AddPath(path string) error {
 	configHolder := GetConfig()
 	for _, p := range configHolder.Paths {
@@ -100,6 +107,7 @@ func AddPath(path string) error {
 	return nil
 }
 
+// Removes string from videoPaths if exists
 func RemovePath(path string) error {
 	configHolder := GetConfig()
 	for i, p := range configHolder.Paths {

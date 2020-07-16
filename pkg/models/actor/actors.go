@@ -37,6 +37,7 @@ func (a Model) Close() {
 }
 
 func (a Model) Create(actors []Actor) {
+	// Start transaction
 	tx, err := a.conn.Begin()
 
 	if err != nil {
@@ -44,14 +45,19 @@ func (a Model) Create(actors []Actor) {
 		return
 	}
 
+	// Commit all actors from transaction
+	added := make([]string, 0)
 	for _, act := range actors {
+
+		// Add only if value is unique
 		if exist, _ := models.IsValueExists(a.conn, act.Name, "name", tableName); !exist {
 			query, args := models.QueryBuilderCreate(act, tableName)
 			_, err := tx.Exec(query, args...)
 			if err != nil {
 				helpers.LogError(err.Error(), component)
-				break
+				continue
 			}
+			added = append(added, act.Name)
 		}
 	}
 
@@ -61,11 +67,11 @@ func (a Model) Create(actors []Actor) {
 		return
 	}
 
-	helpers.LogInfo(fmt.Sprintf("Added actors: %v", actors), component)
+	helpers.LogInfo(fmt.Sprintf("Added actors: %v", added), component)
 }
 
-func (a Model) GetFromTitle(names []string) []Actor {
-	fetched := make([]Actor, 0)
+// Match actors from array of words
+func (a Model) GetFromTitle(names []string) (fetched []Actor) {
 	for _, name := range names {
 		query, args := models.QueryBuilderMatch(Actor{Name: name}, tableName)
 		rows, err := a.conn.Query(query, args...)
@@ -77,7 +83,7 @@ func (a Model) GetFromTitle(names []string) []Actor {
 		models.GetIntoStruct(rows, &fetched)
 		fetched = removeDupl(fetched)
 	}
-	return fetched
+	return
 }
 
 func (a Model) Get(actor Actor) (allActors []Actor) {

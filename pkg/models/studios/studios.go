@@ -35,13 +35,16 @@ func (m Model) Close() {
 }
 
 func (m Model) Create(studios []Studio) {
+	// Begin Transaction
 	tx, err := m.conn.Begin()
 	if err != nil {
 		helpers.LogError(err.Error(), component)
 		return
 	}
 
+	added := make([]string, 0)
 	for _, stud := range studios {
+		// Add only if value is unique
 		if exists, _ := models.IsValueExists(m.conn, stud.Name, "studio", tableName); !exists {
 			query, args := models.QueryBuilderCreate(stud, tableName)
 			_, err := tx.Exec(query, args...)
@@ -49,6 +52,7 @@ func (m Model) Create(studios []Studio) {
 				helpers.LogError(err.Error(), component)
 				continue
 			}
+			added = append(added, stud.Name)
 		}
 	}
 
@@ -57,7 +61,7 @@ func (m Model) Create(studios []Studio) {
 		helpers.LogError(err.Error(), component)
 	}
 
-	helpers.LogInfo(fmt.Sprintf("Added studios: %v", studios), component)
+	helpers.LogInfo(fmt.Sprintf("Added studios: %v", added), component)
 }
 
 func (m Model) Delete(studio string) {

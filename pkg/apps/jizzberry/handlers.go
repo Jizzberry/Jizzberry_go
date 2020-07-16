@@ -247,7 +247,7 @@ func singleSceneHandler(w http.ResponseWriter, r *http.Request) {
 	defer model.Close()
 
 	file := model.Get(files.Files{GeneratedID: sceneId})
-	if len(file) < 0 {
+	if len(file) <= 0 {
 		return
 	}
 

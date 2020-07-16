@@ -27,7 +27,7 @@ func CreateDirs() error {
 }
 
 func makeDir(dir string) error {
-	err := os.MkdirAll(dir, os.ModePerm)
+	err := os.MkdirAll(dir, os.ModePerm) // Create dir even if parent dir doesn't exist
 	if err != nil {
 		return err
 	}

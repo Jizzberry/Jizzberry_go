@@ -49,6 +49,7 @@ func (a Api) Register(r *mux.Router) {
 	apiRouter.HandleFunc("/metadata", parseMetadata).Methods("POST")
 	apiRouter.HandleFunc("/browse", fileBrowser).Methods("GET")
 	apiRouter.HandleFunc("/queryScrapers", queryScrapersHandler).Methods("GET")
+	apiRouter.HandleFunc("/organiseAll", organiseAll).Methods("POST")
 }
 
 func filesHandler(w http.ResponseWriter, r *http.Request) {
@@ -422,4 +423,8 @@ func queryScrapersHandler(w http.ResponseWriter, r *http.Request) {
 			helpers.LogError(err.Error(), component)
 		}
 	}
+}
+
+func organiseAll(w http.ResponseWriter, r *http.Request) {
+	manager.OrganiseAll()
 }

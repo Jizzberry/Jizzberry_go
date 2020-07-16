@@ -1,6 +1,7 @@
 package scrapers
 
 import (
+	"context"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
@@ -9,7 +10,7 @@ import (
 	"strings"
 )
 
-func getScrapeActorsList(i int) {
+func getScrapeActorsList(i int, ctx context.Context) {
 	yamlData := ParseYaml(scrapers[i].path)
 	website := safeCastString(yamlData[helpers.ScraperWebsite])
 	data := safeMapCast(safeSelectFromMap(yamlData, helpers.ScraperActorList))
@@ -26,7 +27,7 @@ func getScrapeActorsList(i int) {
 		model := actor.Initialize()
 		defer model.Close()
 
-		c := getColly(func(e *colly.HTMLElement) {
+		c := getColly(ctx, func(e *colly.HTMLElement) {
 			headers := []string{helpers.ActorListName, helpers.ActorListURLID}
 			dest := make([][]string, len(headers))
 
@@ -69,7 +70,7 @@ func getScrapeActor(i int, actor actor.Actor) (actorDetails actor_details.ActorD
 			headers := []string{helpers.ActorName, helpers.ActorBday, helpers.ActorBplace, helpers.ActorHeight, helpers.ActorWeight}
 			destinations := []*string{&actorDetails.Name, &actorDetails.Birthday, &actorDetails.Birthplace, &actorDetails.Height, &actorDetails.Weight}
 
-			c := getColly(func(e *colly.HTMLElement) {
+			c := getColly(nil, func(e *colly.HTMLElement) {
 				for i := range headers {
 					getDataAndScrape(data, headers[i], e, destinations[i], func(string) bool { return true })
 				}
@@ -89,6 +90,7 @@ func getScrapeActor(i int, actor actor.Actor) (actorDetails actor_details.ActorD
 	return
 }
 
+// Creates array of Actor and adds to db
 func addActors(model *actor.Model, strs []string, links []string, website string) {
 	if len(strs) == len(links) {
 		actorSlice := make([]actor.Actor, 0)
@@ -107,4 +109,13 @@ func addActors(model *actor.Model, strs []string, links []string, website string
 
 func splitter(r rune) bool {
 	return r == ' ' || r == '-' || r == '_'
+}
+
+func appendIfNotExists(slice []actor.Actor, actor2 actor.Actor) []actor.Actor {
+	for _, a := range slice {
+		if a.Name == actor2.Name {
+			return slice
+		}
+	}
+	return append(slice, actor2)
 }

@@ -14,6 +14,7 @@ import (
 	"strings"
 )
 
+// Store relation of actors, studios, tags with files in JSON format
 func setAllRelations(genID int64, actors string, studios string, tags string) {
 	setActorRelation(genID, actors)
 	setStudioRelation(genID, studios)
@@ -104,6 +105,7 @@ func GetStudioRelations(studioId string) []string {
 	return nil
 }
 
+// Returns only studios which have a valid relation
 func GetUsedStudios() []string {
 	jsonFile := readJson(router.GetJson("studiosRelation"))
 	defer jsonFile.Close()
@@ -176,6 +178,7 @@ func readJson(filename string) *os.File {
 	return jsonFile
 }
 
+// Parse JSON to map
 func parseJson(file *os.File) map[string][]string {
 	byteValue, _ := ioutil.ReadAll(file)
 	byteValue = bytes.Trim(byteValue, "\x00")
@@ -190,6 +193,7 @@ func parseJson(file *os.File) map[string][]string {
 	return relation
 }
 
+// Truncate and write JSON
 func writeJson(file *os.File, relation map[string][]string) {
 	marshal, err := json.Marshal(relation)
 	if err != nil {

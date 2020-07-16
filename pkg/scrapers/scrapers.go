@@ -11,6 +11,7 @@ func ScrapeActor(actors actor.Actor) actor_details.ActorDetails {
 	detailsModel := actor_details.Initialize()
 	defer detailsModel.Close()
 
+	// If actor doesn't already exist in actor_details, scrape them
 	if !detailsModel.IsExists(actors.GeneratedID) {
 		if exists, index := MatchWebsite(actors.Website); exists {
 			if scrapers[index].Actor {
@@ -23,16 +24,16 @@ func ScrapeActor(actors actor.Actor) actor_details.ActorDetails {
 			}
 		}
 	}
+
+	// Avoid scraping if actor already exists in actor_details
 	if actors.GeneratedID > 0 {
 		details := detailsModel.Get(actor_details.ActorDetails{ActorId: actors.GeneratedID})
 		if len(details) > 0 {
 			return details[0]
 		}
 	}
-	details := actor_details.ActorDetails{}
-	details.Name = actors.Name
-	details.ActorId = actors.GeneratedID
-	return details
+
+	return actor_details.ActorDetails{}
 }
 
 func ScrapeActorList(ctx context.Context, progress *int) {
@@ -41,7 +42,7 @@ func ScrapeActorList(ctx context.Context, progress *int) {
 	for index, s := range scrapers {
 		if s.ActorList {
 			go func(index int) {
-				getScrapeActorsList(index)
+				getScrapeActorsList(index, ctx)
 				progressMutex.Lock()
 				*progress = int(float32(index) / float32(len(scrapers)) * 100)
 				progressMutex.Unlock()
@@ -55,7 +56,7 @@ func ScrapeStudioList(ctx context.Context, progress *int) {
 	for i, s := range scrapers {
 		if s.StudioList {
 			go func(i int) {
-				getScrapeStudiosList(i)
+				getScrapeStudiosList(i, ctx)
 				progressMutex.Lock()
 				*progress = int(float32(i) / float32(len(scrapers)) * 100)
 				progressMutex.Unlock()
