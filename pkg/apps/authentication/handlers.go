@@ -17,8 +17,7 @@ type Context struct {
 }
 
 const (
-	baseURL   = "/auth"
-	component = "WebAuth"
+	baseURL = "/auth"
 )
 
 var SessionsStore = sessions.NewCookieStore(helpers.GetSessionsKey())
@@ -44,7 +43,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 	username := r.FormValue(helpers.UsernameKey)
@@ -62,7 +61,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 				err := session.Save(r, w)
 
 				if err != nil {
-					helpers.LogError(err.Error(), component)
+					helpers.LogError(err.Error())
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
@@ -73,7 +72,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 			err := session.Save(r, w)
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -83,20 +82,20 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 		err := helpers.Render(w, http.StatusOK, "login", Context{Error: "Couldn't validate"})
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		return
 	}
 	err = helpers.Render(w, http.StatusOK, "login", nil)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := SessionsStore.Get(r, helpers.SessionsKey)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -107,7 +106,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	err = session.Save(r, w)
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -125,7 +124,7 @@ func userIsValid(username string, password string) bool {
 		if hashedPass != "" {
 			err := bcrypt.CompareHashAndPassword([]byte(hashedPass), []byte(password))
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 				return false
 			}
 			return true
@@ -156,7 +155,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 				session.Options.MaxAge = 30 * 60
 				err := session.Save(r, w)
 				if err != nil {
-					helpers.LogError(err.Error(), component)
+					helpers.LogError(err.Error())
 					return false
 				}
 				return true
@@ -173,7 +172,7 @@ func newUser(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 	username := r.FormValue(helpers.UsernameKey)

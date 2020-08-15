@@ -80,7 +80,7 @@ func initWebApp() error {
 	apps.RegisterFileServer(router)
 	apps.RegisterApps(router)
 
-	helpers.LogInfo("Server starting at "+*addr, "Web")
+	helpers.LogInfo("Server starting at " + *addr)
 
 	err := http.ListenAndServe(*addr, router)
 	if err != nil {

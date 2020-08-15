@@ -20,7 +20,7 @@ func getScrapeActorsList(i int, ctx context.Context) {
 		selector := helpers.SafeSelectFromMap(data, helpers.YamlForEach)
 
 		if lastPage < 0 || url == "" {
-			helpers.LogError("last_page or url not specified", component)
+			helpers.LogError("last_page or url not specified")
 			return
 		}
 
@@ -48,17 +48,17 @@ func getScrapeActorsList(i int, ctx context.Context) {
 			url := parseUrl(url, strconv.Itoa(i))
 			err := q.AddURL(url)
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 			}
 		}
 		err := q.Run(c)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 
 		}
 		c.Wait()
 	} else {
-		helpers.LogError("Couldn't parse data", component)
+		helpers.LogError("Couldn't parse data")
 	}
 }
 
@@ -78,14 +78,14 @@ func getScrapeActor(i int, actor actor.Actor) (actorDetails actor_details.ActorD
 
 			err := c.Visit(parseUrl(url, actor.UrlID))
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 			}
 			c.Wait()
 		} else {
-			helpers.LogError("Couldn't find url", component)
+			helpers.LogError("Couldn't find url")
 		}
 	} else {
-		helpers.LogError("Couldn't parse data", component)
+		helpers.LogError("Couldn't parse data")
 	}
 	return
 }
@@ -103,7 +103,7 @@ func addActors(model *actor.Model, strs []string, links []string, website string
 		}
 		model.Create(actorSlice)
 	} else {
-		helpers.LogError("Length of name and links is different", component)
+		helpers.LogError("Length of name and links is different")
 	}
 }
 

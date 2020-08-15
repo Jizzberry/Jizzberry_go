@@ -17,8 +17,6 @@ import (
 	"time"
 )
 
-const component = "Tasks"
-
 type Scan struct {
 }
 
@@ -32,7 +30,7 @@ func worker(paths []string, ctx context.Context, progress *int) {
 		for _, item := range paths {
 			tmp, err := tasks_handler.GetAllFiles(item)
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 			}
 			files = append(files, tmp...)
 		}
@@ -61,15 +59,15 @@ func worker(paths []string, ctx context.Context, progress *int) {
 						if exists := filesModel.IsExists(f); !exists {
 							info, err := os.Stat(f)
 							if err != nil {
-								helpers.LogError(err.Error(), component)
+								helpers.LogError(err.Error())
 							}
 							thumbnailPath := helpers.GetThumbnailPath()
 							file := createFile(f, info, filepath.Ext(f), thumbnailPath)
 							filesModel.Create(file)
 							ffmpeg.GenerateThumbnail(f, int64(file.Length/2), thumbnailPath)
-							helpers.LogInfo(fmt.Sprintf("scanned %s successfully", f), component)
+							helpers.LogInfo(fmt.Sprintf("scanned %s successfully", f))
 						} else {
-							helpers.LogInfo(fmt.Sprintf("skipped %s", f), component)
+							helpers.LogInfo(fmt.Sprintf("skipped %s", f))
 						}
 						updateProgress(progress, tmp, len(files), &progressMutex)
 						wg.Done()

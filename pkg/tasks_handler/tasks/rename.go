@@ -31,21 +31,21 @@ func moveFile(src, target string) error {
 		if err != nil {
 			err := srcFile.Close()
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 			}
 			return err
 		}
 		_, err = io.Copy(targetFile, srcFile)
 		err = srcFile.Close()
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		if err != nil {
 			return err
 		}
 		err = targetFile.Close()
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		err = os.Remove(src)
 		if err != nil {
@@ -70,7 +70,7 @@ func removeSymlinks(sym []string) {
 		if helpers.IsFileExists(i) {
 			err := os.Remove(i)
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 			}
 		}
 	}
@@ -94,7 +94,7 @@ func organize(sceneId int64, progress *int) {
 	folders := getFolder(sceneId, title)
 	err := makeFolders(folders)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		*progress = 100
 		return
 	}
@@ -109,7 +109,7 @@ func organize(sceneId int64, progress *int) {
 			var err error
 			folders[i], err = filepath.Abs(filepath.FromSlash(folders[i] + "/" + title + ext))
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 				*progress = 100
 				return
 			}
@@ -118,7 +118,7 @@ func organize(sceneId int64, progress *int) {
 		if !helpers.IsFileExists(folders[0]) {
 			err = moveFile(originalPath, folders[0])
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 				*progress = 100
 				return
 			}
@@ -130,7 +130,7 @@ func organize(sceneId int64, progress *int) {
 			for i := 1; i < len(folders); i++ {
 				err, location := makeLink(folders[0], folders[i])
 				if err != nil {
-					helpers.LogError(err.Error(), component)
+					helpers.LogError(err.Error())
 					continue
 				}
 				syms[i-1] = location
@@ -176,7 +176,7 @@ func getFolder(sceneId int64, title string) []string {
 	r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
 
 	if err != nil {
-		helpers.LogError(err.Error(), component+" - getFolder")
+		helpers.LogError(err.Error())
 		finalFolders = append(finalFolders, basePath)
 		return finalFolders
 	}

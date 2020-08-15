@@ -10,14 +10,12 @@ import (
 	"github.com/rubenv/sql-migrate"
 )
 
-const component = "database"
-
 func GetConn(databasePath string) *sql.DB {
 
 	conn, err := sql.Open("sqlite3", databasePath)
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 	return conn
@@ -78,6 +76,6 @@ func doMigrate(migrations *migrate.HttpFileSystemMigrationSource, databasePath s
 		return err
 	}
 
-	helpers.LogInfo(fmt.Sprintf("Applied %d migrations in %s", n, databasePath), component)
+	helpers.LogInfo(fmt.Sprintf("Applied %d migrations in %s", n, databasePath))
 	return nil
 }

@@ -14,8 +14,6 @@ import (
 	"strings"
 )
 
-const component = "TasksCommon"
-
 func Splitter(r rune) bool {
 	return r == ' ' || r == '.' || r == '-' || r == '_' || r == '[' || r == ']' || r == '(' || r == ')'
 }
@@ -36,7 +34,7 @@ func MatchStudioToTitle(title string) []studios.Studio {
 		regex := RegexpBuilder(a.Name)
 		r, err := regexp.Compile(regex)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 			return recognisedStudios
 		}
 
@@ -75,7 +73,7 @@ func MatchActorToTitle(title string) []actor.Actor {
 		regex := RegexpBuilder(a.Name)
 		r, err := regexp.Compile(regex)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 			return recognisedActors
 		}
 
@@ -152,7 +150,7 @@ func FormatTitle(title string, sceneId int64) string {
 		r, err := regexp.Compile("\\{\\{([A-Za-z0-9_]+)\\}\\}")
 
 		if err != nil {
-			helpers.LogError(err.Error(), component+" - FormatTitle")
+			helpers.LogError(err.Error())
 			return title
 		}
 

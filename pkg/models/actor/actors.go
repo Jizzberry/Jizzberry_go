@@ -9,7 +9,6 @@ import (
 
 const (
 	tableName = "actors"
-	component = "actorsModel"
 )
 
 type Actor struct {
@@ -32,7 +31,7 @@ func Initialize() *Model {
 func (a Model) Close() {
 	err := a.conn.Close()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -41,7 +40,7 @@ func (a Model) Create(actors []Actor) {
 	tx, err := a.conn.Begin()
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 
@@ -54,7 +53,7 @@ func (a Model) Create(actors []Actor) {
 			query, args := models.QueryBuilderCreate(act, tableName)
 			_, err := tx.Exec(query, args...)
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 				continue
 			}
 			added = append(added, act.Name)
@@ -63,11 +62,11 @@ func (a Model) Create(actors []Actor) {
 
 	err = tx.Commit()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 
-	helpers.LogInfo(fmt.Sprintf("Added actors: %v", added), component)
+	helpers.LogInfo(fmt.Sprintf("Added actors: %v", added))
 }
 
 // Match actors from array of words
@@ -76,7 +75,7 @@ func (a Model) GetFromTitle(names []string) (fetched []Actor) {
 		query, args := models.QueryBuilderMatch(Actor{Name: name}, tableName)
 		rows, err := a.conn.Query(query, args...)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 			return fetched
 		}
 
@@ -91,7 +90,7 @@ func (a Model) Get(actor Actor) (allActors []Actor) {
 
 	row, err := a.conn.Query(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 

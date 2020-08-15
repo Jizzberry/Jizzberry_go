@@ -26,7 +26,7 @@ func (c *Client) writeData() {
 			}
 			err := c.conn.WriteJSON(value)
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 				return
 			}
 		}
@@ -38,14 +38,14 @@ func (c *Client) readData() {
 		hub.unregister <- c
 		err := c.conn.Close()
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 	}()
 	for {
 		_, _, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				helpers.LogInfo(err.Error(), component)
+				helpers.LogInfo(err.Error())
 			}
 			break
 		}

@@ -14,8 +14,6 @@ import (
 	"time"
 )
 
-const component = "FFMPEG"
-
 func GenerateThumbnail(path string, interval int64, outFile string) {
 	outPath := filepath.Join(helpers.ThumbnailPath, outFile)
 	cmd := exec.Command(helpers.GetConfig().FFMEPG, "-i", path, "-ss", strconv.FormatInt(interval, 10), "-y", "-vframes", "1", "-vf",
@@ -40,9 +38,9 @@ func GenerateThumbnail(path string, interval int64, outFile string) {
 	case <-time.After(120 * time.Second):
 		err := cmd.Process.Kill()
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
-		helpers.LogInfo(fmt.Sprintf("Killed ffmpeg process: %d", cmd.Process.Pid), component)
+		helpers.LogInfo(fmt.Sprintf("Killed ffmpeg process: %d", cmd.Process.Pid))
 		return
 	}
 }
@@ -64,7 +62,7 @@ func getFFprobeJson(filepath string) map[string]interface{} {
 	err := cmd.Run()
 
 	if err != nil {
-		helpers.LogError("Couldn't execute ffprobe", component)
+		helpers.LogError("Couldn't execute ffprobe")
 		return nil
 	}
 	return parseJson(out.Bytes())
@@ -101,13 +99,13 @@ func ProbeVideo(path string) (length float64, format string, videoCodec string, 
 
 	file, err := os.Open(path)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 	buffer := make([]byte, 3)
 	_, err = file.ReadAt(buffer, 539)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 	fmt.Println(hex.EncodeToString(buffer))
 	//fmt.Println(fmt.Sprintf("%x ",buffer))
@@ -123,7 +121,7 @@ func parseJson(data []byte) map[string]interface{} {
 	jsonData := make(map[string]interface{})
 	err := json.Unmarshal(data, &jsonData)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return nil
 	}
 	return jsonData
@@ -156,12 +154,12 @@ func Transcode(filepath string, startTime string) io.ReadCloser {
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 	err = cmd.Start()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 	return stdout
@@ -170,7 +168,7 @@ func Transcode(filepath string, startTime string) io.ReadCloser {
 //func ConvertFaststart(filepath string) *os.File {
 //	tmpfile, err := ioutil.TempFile(os.TempDir(), "tmp.*.mp4")
 //	if err != nil {
-//		helpers.LogError(err.Error(), component)
+//		helpers.LogError(err.Error())
 //		return nil
 //	}
 //	var args []string
@@ -191,7 +189,7 @@ func Transcode(filepath string, startTime string) io.ReadCloser {
 //
 //	err = cmd.Run()
 //	if err != nil {
-//		helpers.LogError(err.Error(), component)
+//		helpers.LogError(err.Error())
 //	}
 //
 //	return tmpfile

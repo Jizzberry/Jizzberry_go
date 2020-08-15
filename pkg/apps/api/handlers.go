@@ -18,8 +18,6 @@ import (
 	"strconv"
 )
 
-const component = "API"
-
 type Api struct {
 }
 
@@ -64,7 +62,7 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		file = model.Get(files.Files{GeneratedID: int64(genId)})
 
@@ -82,7 +80,7 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&file)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -97,7 +95,7 @@ func actorDetailHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		actorDetails = model.Get(actor_details.ActorDetails{GeneratedId: int64(genId)})
 
@@ -107,7 +105,7 @@ func actorDetailHandler(w http.ResponseWriter, r *http.Request) {
 	} else if len(queryParams["actor_id"]) > 0 {
 		actorId, err := strconv.Atoi(queryParams["actor_id"][0])
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		actorDetails = model.Get(actor_details.ActorDetails{ActorId: int64(actorId)})
 
@@ -119,7 +117,7 @@ func actorDetailHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&actorDetails)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -134,7 +132,7 @@ func actorsHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["actor_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		actors = model.Get(actor.Actor{GeneratedID: int64(genId)})
 	} else if len(queryParams["name"]) > 0 {
@@ -147,7 +145,7 @@ func actorsHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&actors)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -160,7 +158,7 @@ func scrapeActorHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["actor_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["actor_id"][0])
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		model := actor.Initialize()
 		defer model.Close()
@@ -175,7 +173,7 @@ func scrapeActorHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&actors)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 	actorDetailsModel := actor_details.Initialize()
@@ -194,7 +192,7 @@ func scanHandler(w http.ResponseWriter, _ *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&task{Uid: uid})
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -207,7 +205,7 @@ func scrapeListHandler(w http.ResponseWriter, _ *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&t)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -222,7 +220,7 @@ func studiosHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		studios = model.Get(studios2.Studio{GeneratedID: int64(genId)})
 	} else if len(queryParams["name"]) > 0 {
@@ -235,7 +233,7 @@ func studiosHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&studios)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -250,7 +248,7 @@ func tagsHandler(w http.ResponseWriter, r *http.Request) {
 	if len(queryParams["generated_id"]) > 0 {
 		genId, err := strconv.Atoi(queryParams["generated_id"][0])
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		tags = model.Get(tags2.Tag{GeneratedID: int64(genId)})
 	} else if len(queryParams["name"]) > 0 {
@@ -263,7 +261,7 @@ func tagsHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&tags)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -284,7 +282,7 @@ func getProgress(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&progress)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -296,7 +294,7 @@ func configHandler(w http.ResponseWriter, r *http.Request) {
 		encoder.SetIndent("", "\t")
 		err := encoder.Encode(helpers.GetConfig())
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		return
 	case http.MethodPost:
@@ -308,14 +306,14 @@ func configHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		err = helpers.WriteConfig(config)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 
 		encoder := json.NewEncoder(w)
 		encoder.SetIndent("", "\t")
 		err = encoder.Encode(helpers.GetConfig())
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		return
 	}
@@ -329,15 +327,15 @@ func pathHandler(w http.ResponseWriter, r *http.Request) {
 		if len(queryParams["path"]) > 0 {
 			err := helpers.AddPath(queryParams["path"][0])
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 				_, err := fmt.Fprintf(w, err.Error())
 				if err != nil {
-					helpers.LogError(err.Error(), component)
+					helpers.LogError(err.Error())
 				}
 			} else {
 				_, err := fmt.Fprintf(w, "success")
 				if err != nil {
-					helpers.LogError(err.Error(), component)
+					helpers.LogError(err.Error())
 				}
 			}
 		}
@@ -345,15 +343,15 @@ func pathHandler(w http.ResponseWriter, r *http.Request) {
 		if len(queryParams["path"]) > 0 {
 			err := helpers.RemovePath(queryParams["path"][0])
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 				_, err := fmt.Fprintf(w, err.Error())
 				if err != nil {
-					helpers.LogError(err.Error(), component)
+					helpers.LogError(err.Error())
 				}
 			} else {
 				_, err := fmt.Fprintf(w, "success")
 				if err != nil {
-					helpers.LogError(err.Error(), component)
+					helpers.LogError(err.Error())
 				}
 			}
 		}
@@ -384,7 +382,7 @@ func parseMetadata(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&details)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 
@@ -392,7 +390,7 @@ func parseMetadata(w http.ResponseWriter, r *http.Request) {
 	manager.StartRename(details.SceneId)
 	_, err = fmt.Fprintf(w, "Success")
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 }
@@ -409,7 +407,7 @@ func fileBrowser(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err := encoder.Encode(&dir)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -421,7 +419,7 @@ func queryScrapersHandler(w http.ResponseWriter, r *http.Request) {
 		encoder.SetIndent("", "\t")
 		err := encoder.Encode(tasks_handler.GetQueryResult(queryParams["term"][0]))
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 	}
 }
@@ -440,13 +438,13 @@ func organiseAll(w http.ResponseWriter, r *http.Request) {
 //	if len(queryParams["scene_id"]) > 0 {
 //		sceneId, err := strconv.Atoi(queryParams["scene_id"][0])
 //		if err != nil {
-//			helpers.LogError(err.Error(), component)
+//			helpers.LogError(err.Error())
 //		}
 //		file := model.Get(files.Files{GeneratedID: int64(sceneId)})
 //		if len(file) > 0 {
 //			_, err = fmt.Fprintf(w, jizzberry.MimeTypeFromFormat(file[0]))
 //			if err != nil {
-//				helpers.LogError(err.Error(), component)
+//				helpers.LogError(err.Error())
 //			}
 //		}
 //	}

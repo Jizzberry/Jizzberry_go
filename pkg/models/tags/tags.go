@@ -8,7 +8,6 @@ import (
 
 const (
 	tableName = "tags"
-	component = "tagsModel"
 )
 
 type Tag struct {
@@ -29,7 +28,7 @@ func Initialize() *Model {
 func (t Model) Close() {
 	err := t.conn.Close()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -44,7 +43,7 @@ func (t Model) Create(tags Tag) int64 {
 	row, err := t.conn.Exec(query, args...)
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return 0
 	}
 
@@ -58,7 +57,7 @@ func (t Model) Delete(tag string) {
 	_, err := t.conn.Exec(query, args...)
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -67,7 +66,7 @@ func (t Model) Get(tagsQuery Tag) (allTags []Tag) {
 
 	row, err := t.conn.Query(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return allTags
 	}
 

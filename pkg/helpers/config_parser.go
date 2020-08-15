@@ -9,7 +9,6 @@ import (
 )
 
 const (
-	component      = "Helpers"
 	configFileName = "config"
 	configFormat   = "yaml"
 )
@@ -137,7 +136,7 @@ func GenerateRandomKey(l int) string {
 	b := make([]byte, l)
 	_, err := rand.Read(b)
 	if err != nil {
-		LogError(err.Error(), component)
+		LogError(err.Error())
 	}
 	return string(b)
 }

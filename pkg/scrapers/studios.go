@@ -17,7 +17,7 @@ func getScrapeStudiosList(i int, ctx context.Context) {
 		selector := helpers.SafeSelectFromMap(data, helpers.YamlForEach)
 
 		if lastPage < 0 || url == "" {
-			helpers.LogError("last_page or url not specified", component)
+			helpers.LogError("last_page or url not specified")
 			return
 		}
 
@@ -37,16 +37,16 @@ func getScrapeStudiosList(i int, ctx context.Context) {
 			url := parseUrl(url, strconv.Itoa(i))
 			err := q.AddURL(url)
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 			}
 		}
 		err := q.Run(c)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		c.Wait()
 	} else {
-		helpers.LogError("Couldn't parse data", component)
+		helpers.LogError("Couldn't parse data")
 	}
 }
 

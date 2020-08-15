@@ -172,7 +172,7 @@ func deleteRelation(relations *map[string][]string, genID string) {
 func readJson(filename string) *os.File {
 	jsonFile, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return nil
 	}
 	return jsonFile
@@ -187,7 +187,7 @@ func parseJson(file *os.File) map[string][]string {
 	if len(byteValue) > 0 {
 		err := json.Unmarshal(byteValue, &relation)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 	}
 	return relation
@@ -197,16 +197,16 @@ func parseJson(file *os.File) map[string][]string {
 func writeJson(file *os.File, relation map[string][]string) {
 	marshal, err := json.Marshal(relation)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 	err = file.Truncate(0)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 	_, err = file.WriteAt(marshal, 0)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }

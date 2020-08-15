@@ -42,7 +42,7 @@ func parseHtml() (str string) {
 	})
 
 	if err != nil {
-		LogError(err.Error(), component)
+		LogError(err.Error())
 	}
 	return
 }
@@ -52,7 +52,7 @@ func parseTemplates() (t *template.Template) {
 	str := parseHtml()
 	_, err := t.Parse(str)
 	if err != nil {
-		LogError(err.Error(), component)
+		LogError(err.Error())
 	}
 	return
 }

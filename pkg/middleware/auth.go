@@ -7,8 +7,6 @@ import (
 	"net/http"
 )
 
-const component = "Middleware"
-
 // Validates user from session
 func AuthMiddleware() mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
@@ -23,7 +21,7 @@ func AuthMiddleware() mux.MiddlewareFunc {
 				session.Values[helpers.PrevURLKey] = r.URL.Path
 				err := session.Save(r, w)
 				if err != nil {
-					helpers.LogError(err.Error(), component)
+					helpers.LogError(err.Error())
 				}
 				http.Redirect(w, r, helpers.LoginURL, http.StatusFound)
 			}

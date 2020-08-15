@@ -13,7 +13,7 @@ func getDrives() (drives []string) {
 	getLogicalDrivesHandle, _ := syscall.GetProcAddress(kernel32, "GetLogicalDrives")
 
 	if ret, _, callErr := syscall.Syscall(getLogicalDrivesHandle, 0, 0, 0, 0); callErr != 0 {
-		helpers.LogError(callErr.Error(), component)
+		helpers.LogError(callErr.Error())
 	} else {
 		drives = bitsToDrives(uint32(ret))
 	}

@@ -185,7 +185,7 @@ func DownloadAndExtract() error {
 
 	err = os.Remove(downloadPath)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 	return nil
@@ -211,7 +211,7 @@ func getExecs(path string, file string) string {
 	})
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 	return execPath
 }
@@ -230,13 +230,13 @@ func IsExists() error {
 	execPathProbe := getExecs(filepath.Dir(helpers.GetConfig().FFPROBE), "ffprobe")
 
 	if execPathFFMPEG == "" || execPathProbe == "" {
-		helpers.LogWarning("Couldn't find ffmpeg or ffprobe executables", component)
-		helpers.LogInfo("Downloading ffmpeg...", component)
+		helpers.LogWarning("Couldn't find ffmpeg or ffprobe executables")
+		helpers.LogInfo("Downloading ffmpeg...")
 
 		err := DownloadAndExtract()
 
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 			return err
 		}
 
@@ -262,9 +262,9 @@ func IsExists() error {
 			return err
 		}
 
-		helpers.LogInfo("Downloaded ffmpeg", component)
+		helpers.LogInfo("Downloaded ffmpeg")
 	} else {
-		helpers.LogInfo("Found ffmpeg at: "+execPathFFMPEG, component)
+		helpers.LogInfo("Found ffmpeg at: " + execPathFFMPEG)
 	}
 	return nil
 }

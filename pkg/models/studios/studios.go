@@ -9,7 +9,6 @@ import (
 
 const (
 	tableName = "studios"
-	component = "studiosModel"
 )
 
 type Studio struct {
@@ -30,7 +29,7 @@ func Initialize() *Model {
 func (m Model) Close() {
 	err := m.conn.Close()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -38,7 +37,7 @@ func (m Model) Create(studios []Studio) {
 	// Begin Transaction
 	tx, err := m.conn.Begin()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 
@@ -49,7 +48,7 @@ func (m Model) Create(studios []Studio) {
 			query, args := models.QueryBuilderCreate(stud, tableName)
 			_, err := tx.Exec(query, args...)
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 				continue
 			}
 			added = append(added, stud.Name)
@@ -58,10 +57,10 @@ func (m Model) Create(studios []Studio) {
 
 	err = tx.Commit()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
-	helpers.LogInfo(fmt.Sprintf("Added studios: %v", added), component)
+	helpers.LogInfo(fmt.Sprintf("Added studios: %v", added))
 }
 
 func (m Model) Delete(studio string) {
@@ -69,7 +68,7 @@ func (m Model) Delete(studio string) {
 	_, err := m.conn.Exec(query, args...)
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -78,7 +77,7 @@ func (m Model) Get(studiosQuery Studio) (allStudios []Studio) {
 
 	row, err := m.conn.Query(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return allStudios
 	}
 
@@ -92,7 +91,7 @@ func (m Model) GetFromTitle(names []string) []Studio {
 		query, args := models.QueryBuilderMatch(Studio{Name: name}, tableName)
 		rows, err := m.conn.Query(query, args...)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 			return fetched
 		}
 

@@ -14,8 +14,6 @@ import (
 	"time"
 )
 
-const component = "ScraperParser"
-
 var scrapers = make([]scraper, 0)
 
 type VideoDetails struct {
@@ -61,7 +59,7 @@ func RegisterScrapers() {
 	})
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 }
@@ -83,11 +81,11 @@ func MatchWebsite(website string) (bool, int) {
 func ParseYaml(path string) (yamlMap map[string]interface{}) {
 	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 	err = yaml.Unmarshal(yamlFile, &yamlMap)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 	return yamlMap
@@ -168,7 +166,7 @@ func compileRegex(regex interface{}) (r []*regexp.Regexp) {
 		// If regex isn't provided, match everything
 		reg, err := regexp.Compile(".*")
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 			return
 		}
 		r = append(r, reg)
@@ -178,10 +176,10 @@ func compileRegex(regex interface{}) (r []*regexp.Regexp) {
 			reg, err := regexp.Compile(re.(string))
 			if err != nil {
 				// Match everything if can not parse regex
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 				reg, err := regexp.Compile(".*")
 				if err != nil {
-					helpers.LogError(err.Error(), component)
+					helpers.LogError(err.Error())
 					continue
 				}
 				r = append(r, reg)
@@ -224,7 +222,7 @@ func getColly(ctx context.Context, onHtml func(e *colly.HTMLElement)) (c *colly.
 	})
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return nil
 	}
 
@@ -241,7 +239,7 @@ func getColly(ctx context.Context, onHtml func(e *colly.HTMLElement)) (c *colly.
 	})
 
 	c.OnError(func(response *colly.Response, e error) {
-		helpers.LogError(e.Error(), component)
+		helpers.LogError(e.Error())
 	})
 
 	c.OnHTML("body", onHtml)

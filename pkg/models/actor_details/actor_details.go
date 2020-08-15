@@ -8,7 +8,6 @@ import (
 
 const (
 	tableName = "actor_details"
-	component = "actorDetailsModel"
 )
 
 type ActorDetails struct {
@@ -35,7 +34,7 @@ func Initialize() *Model {
 func (a Model) Close() {
 	err := a.conn.Close()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -49,7 +48,7 @@ func (a Model) Create(details ActorDetails) int64 {
 	row, err := a.conn.Exec(query, args...)
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return 0
 	}
 
@@ -63,7 +62,7 @@ func (a Model) Delete(details ActorDetails) {
 	_, err := a.conn.Exec(query, args...)
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -72,7 +71,7 @@ func (a Model) Get(d ActorDetails) (allDetails []ActorDetails) {
 
 	row, err := a.conn.Query(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 

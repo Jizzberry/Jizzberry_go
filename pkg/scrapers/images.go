@@ -24,14 +24,14 @@ func getScrapeImage(i int, actor actor.Actor) (path string) {
 
 			err := c.Visit(parseUrl(url, actor.UrlID))
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 			}
 			c.Wait()
 		} else {
-			helpers.LogError("Couldn't find url", component)
+			helpers.LogError("Couldn't find url")
 		}
 	} else {
-		helpers.LogError("Couldn't parse data", component)
+		helpers.LogError("Couldn't parse data")
 	}
 	return
 }
@@ -41,7 +41,7 @@ func downloadImage(link string, outPath string) {
 	if link != "" {
 		file, err := os.Create(outPath)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 			return
 		}
 		defer file.Close()
@@ -54,14 +54,14 @@ func downloadImage(link string, outPath string) {
 		}
 		resp, err := client.Get(link)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 			return
 		}
 		defer resp.Body.Close()
 
 		_, err = io.Copy(file, resp.Body)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 	}
 }

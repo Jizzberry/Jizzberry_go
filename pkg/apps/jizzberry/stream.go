@@ -62,14 +62,14 @@ func transcodeAndStream(w http.ResponseWriter, r *http.Request, path string, sta
 	stream := ffmpeg.Transcode(path, startTime)
 	_, err := io.Copy(w, stream)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
 func pseudoStream(w http.ResponseWriter, r *http.Request, path string, model files.Files) {
 	file, err := os.Open(path)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		w.WriteHeader(500)
 		return
 	}
@@ -160,7 +160,7 @@ func pseudoStream(w http.ResponseWriter, r *http.Request, path string, model fil
 
 		_, err := file.Seek(int64(contentStartValue), 0)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 
 		writeBytes := 0

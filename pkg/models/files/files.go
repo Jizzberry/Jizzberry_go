@@ -8,7 +8,6 @@ import (
 
 const (
 	tableName = "files"
-	component = "filesModel"
 )
 
 type Files struct {
@@ -42,7 +41,7 @@ func Initialize() *Model {
 func (m Model) Close() {
 	err := m.conn.Close()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -54,13 +53,13 @@ func (m Model) Create(files Files) int64 {
 	query, args := models.QueryBuilderCreate(files, tableName)
 	row, err := m.conn.Exec(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return 0
 	}
 
 	genID, err := row.LastInsertId()
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 
 	setAllRelations(genID, files.Actors, files.Studios, files.Tags)
@@ -77,7 +76,7 @@ func (m Model) Delete(files Files) {
 
 	_, err := m.conn.Exec(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 	setAllRelations(files.GeneratedID, "", "", "")
@@ -92,7 +91,7 @@ func (m Model) Update(files Files) {
 
 	_, err := m.conn.Exec(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 	setAllRelations(files.GeneratedID, files.Actors, files.Studios, files.Tags)
@@ -103,7 +102,7 @@ func (m Model) Get(filesQuery Files) (allFiles []Files) {
 
 	row, err := m.conn.Query(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 

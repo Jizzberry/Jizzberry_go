@@ -44,7 +44,7 @@ func IsSupportedCodec(codec string) bool {
 //	buffer := make([]byte, 8128)
 //	_, err := tmp.Read(buffer)
 //	if err != nil {
-//		helpers.LogError(err.Error(), component)
+//		helpers.LogError(err.Error())
 //		return ""
 //	}
 //
@@ -57,7 +57,7 @@ func IsSupportedCodec(codec string) bool {
 //	}
 //	//err = os.Remove(tmp.Name())
 //	//if err != nil {
-//	//	helpers.LogError(err.Error(), component)
+//	//	helpers.LogError(err.Error())
 //	//}
 //
 //	return fmt.Sprintf("codecs=\"%b\"", codecFlags)

@@ -28,7 +28,7 @@ func getScrapedVideo(i int, url string) (details VideoDetails) {
 
 			err := c.Visit(url)
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 			}
 			c.Wait()
 		}
@@ -52,14 +52,14 @@ func getQueryVideo(i int, query string) (videos []Videos) {
 			})
 			err := c.Visit(url)
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 			}
 			c.Wait()
 		} else {
-			helpers.LogError("Couldn't find url", component)
+			helpers.LogError("Couldn't find url")
 		}
 	} else {
-		helpers.LogError("Couldn't parse data", component)
+		helpers.LogError("Couldn't parse data")
 	}
 	return
 }
@@ -70,7 +70,7 @@ func matchUrlToScraper(url string) bool {
 		r, err := regexp.Compile(urlRegex)
 		if r != nil {
 			if err != nil {
-				helpers.LogError(err.Error(), component)
+				helpers.LogError(err.Error())
 			}
 			return r.MatchString(url)
 		}
@@ -84,7 +84,7 @@ func compileResults(names []string, links []string, website string) (videos []Vi
 			videos = append(videos, makeVideoStruct(names[i], links[i], website))
 		}
 	} else {
-		helpers.LogError("Length of title and links is different", component)
+		helpers.LogError("Length of title and links is different")
 	}
 	return
 }

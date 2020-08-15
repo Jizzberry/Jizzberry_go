@@ -11,8 +11,7 @@ import (
 )
 
 const (
-	baseURL   = "/ws"
-	component = "websocket"
+	baseURL = "/ws"
 )
 
 var hub *Hub
@@ -53,7 +52,7 @@ func updateProgress() {
 func serveWS(w http.ResponseWriter, r *http.Request, hub *Hub) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return
 	}
 

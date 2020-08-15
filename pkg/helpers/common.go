@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-const subComponent = "TypeCast"
+const sub = "TypeCast"
 
 func SafeMapCast(item interface{}) map[string]interface{} {
 	if item != nil {
@@ -44,12 +44,12 @@ func SafeConvertInt(item interface{}) int {
 	if str := SafeCastString(item); str != "" {
 		num, err := strconv.Atoi(str)
 		if err != nil {
-			LogError(fmt.Sprintf("Failed to convert %v to int", item), subComponent)
+			LogError(fmt.Sprintf("Failed to convert %v to int", item))
 			return -1
 		}
 		return num
 	}
-	LogError(fmt.Sprintf("Failed to convert %v to int", item), subComponent)
+	LogError(fmt.Sprintf("Failed to convert %v to int", item))
 	return -1
 }
 
@@ -57,12 +57,12 @@ func SafeConvertFloat(item interface{}) float64 {
 	if str := SafeCastString(item); str != "" {
 		num, err := strconv.ParseFloat(str, 32)
 		if err != nil {
-			LogError(fmt.Sprintf("Failed to convert %v to int", item), subComponent)
+			LogError(fmt.Sprintf("Failed to convert %v to int", item))
 			return -1
 		}
 		return num
 	}
-	LogError(fmt.Sprintf("Failed to convert %v to int", item), subComponent)
+	LogError(fmt.Sprintf("Failed to convert %v to int", item))
 	return -1
 }
 

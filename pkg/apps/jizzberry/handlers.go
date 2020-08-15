@@ -19,8 +19,6 @@ import (
 type Jizzberry struct {
 }
 
-const component = "Web"
-
 type Context struct {
 	Files     []files.Files
 	Tags      []tags.Tag
@@ -66,7 +64,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := helpers.Render(w, http.StatusOK, "home", ctx)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -83,7 +81,7 @@ func allCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := helpers.Render(w, http.StatusOK, "tags", ctx)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -94,7 +92,7 @@ func parseFilesFromRelation(fileIds []string, ctx *Context) {
 	for _, f := range fileIds {
 		i, err := strconv.ParseInt(f, 10, 64)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		ctx.Files = append(ctx.Files, filesModel.Get(files.Files{GeneratedID: i})...)
 	}
@@ -113,7 +111,7 @@ func singleTagHandler(w http.ResponseWriter, r *http.Request) {
 
 	tagId, err := strconv.ParseInt(tagIdstr, 10, 64)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 	model := tags.Initialize()
 	defer model.Close()
@@ -125,7 +123,7 @@ func singleTagHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = helpers.Render(w, http.StatusOK, "singleTag", ctx)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -140,7 +138,7 @@ func allActorsHandler(w http.ResponseWriter, r *http.Request) {
 	for _, k := range files.GetUsedActors() {
 		key, err := strconv.ParseInt(k, 10, 64)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		allActors = append(allActors, model.Get(actor_details.ActorDetails{ActorId: key})...)
 	}
@@ -150,7 +148,7 @@ func allActorsHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := helpers.Render(w, http.StatusOK, "actors", ctx)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -167,7 +165,7 @@ func singleActorHanlder(w http.ResponseWriter, r *http.Request) {
 
 	actorID, err := strconv.ParseInt(actorIDstr, 10, 64)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 	model := actor_details.Initialize()
 	defer model.Close()
@@ -179,7 +177,7 @@ func singleActorHanlder(w http.ResponseWriter, r *http.Request) {
 
 	err = helpers.Render(w, http.StatusOK, "singleActor", ctx)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -195,7 +193,7 @@ func allStudiosHandler(w http.ResponseWriter, r *http.Request) {
 	for _, k := range keys {
 		key, err := strconv.ParseInt(k, 10, 64)
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 		allStudios = append(allStudios, model.Get(studios.Studio{GeneratedID: key})...)
 	}
@@ -205,7 +203,7 @@ func allStudiosHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := helpers.Render(w, http.StatusOK, "studios", ctx)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -222,7 +220,7 @@ func singleStudiosHanlder(w http.ResponseWriter, r *http.Request) {
 
 	studioID, err := strconv.ParseInt(studioIDstr, 10, 64)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 	model := studios.Initialize()
 	defer model.Close()
@@ -234,7 +232,7 @@ func singleStudiosHanlder(w http.ResponseWriter, r *http.Request) {
 
 	err = helpers.Render(w, http.StatusOK, "singleStudios", ctx)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -271,7 +269,7 @@ func singleSceneHandler(w http.ResponseWriter, r *http.Request) {
 	err := helpers.Render(w, http.StatusOK, "singleScene", ctx)
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 }
 
@@ -292,7 +290,7 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 		err := helpers.Render(w, http.StatusOK, "settings", Context{Config: helpers.GetConfig(), Tags: allTags, Users: users, IsAdmin: true})
 
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 		}
 	}
 }
