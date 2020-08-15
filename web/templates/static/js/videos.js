@@ -527,3 +527,11 @@ $('#query-search-button').on('click', function () {
     getQueryResults($('#query-search').val())
 })
 
+function generatePlyrConfig() {
+    return {}
+}
+
+function float2int(value) {
+    return value | 0;
+}
+

@@ -10,11 +10,11 @@ import (
 
 func getScrapeStudiosList(i int, ctx context.Context) {
 	yamlData := ParseYaml(scrapers[i].path)
-	data := safeMapCast(safeSelectFromMap(yamlData, helpers.ScraperStudioList))
+	data := helpers.SafeMapCast(helpers.SafeSelectFromMap(yamlData, helpers.ScraperStudioList))
 	if data != nil {
-		lastPage := safeConvertInt(data[helpers.YamlLastPage])
-		url := safeCastString(safeSelectFromMap(safeMapCast(data), helpers.YamlURL))
-		selector := safeSelectFromMap(data, helpers.YamlForEach)
+		lastPage := helpers.SafeConvertInt(data[helpers.YamlLastPage])
+		url := helpers.SafeCastString(helpers.SafeSelectFromMap(helpers.SafeMapCast(data), helpers.YamlURL))
+		selector := helpers.SafeSelectFromMap(data, helpers.YamlForEach)
 
 		if lastPage < 0 || url == "" {
 			helpers.LogError("last_page or url not specified", component)

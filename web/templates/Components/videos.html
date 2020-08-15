@@ -27,7 +27,8 @@
 					<video controls="" crossorigin=""
 						   data-poster="/thumbnails/{{ (index .Files 0).ThumbnailPath }}" id="videoPlayer"
 						   playsinline="">
-						<source src="/Jizzberry/stream/{{(index .Files 0).GeneratedID}}" type="video/mp4"/>
+						<source src="/Jizzberry/stream/{{(index .Files 0).GeneratedID}}?playable=false"
+								type="video/mp4"/>
 						Your browser does not support HTML5 video.
 					</video>
 
@@ -36,8 +37,8 @@
 							{{ (index .Files 0).FileName }}
 						</p>
 						<button class="btn ml-5" id="parser-toggle">
-								<span><i class="fas fa-edit"></i></span>
-							</button>
+							<span><i class="fas fa-edit"></i></span>
+						</button>
 						</div>
 
 						<div id="metadata-viewer">
@@ -160,33 +161,62 @@
 											<div class="card-body p-0 text-truncate pr-2">
 											<span style="font-size: 16px; font-weight: 500;"
 												  class="card-title pb-1 text-truncate">
-												{{ $val.FileName }} 
-											<p style="font-size: 14px;" class="text-muted mt-0">
-												<i class="fa fa-calendar mr-2" aria-hidden="true"></i>
-												2/11/2001
-											</p>
+												{{ $val.FileName }}
+											</span>
+												<p style="font-size: 14px;" class="text-muted mt-0">
+													<i class="fa fa-calendar mr-2" aria-hidden="true"></i>
+													2/11/2001
+												</p>
 
-											<p class="card-text">{{ $val.Studios }}</p>
+												<p class="card-text">{{ $val.Studios }}</p>
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
 						</a>
 						{{ end }}
 					</div>
 				</div>
-			</div>
 		</div>
-	</main>
+	</div>
+</main>
 
-	{{ template "multiselector_modal" }} {{ template "query_modal" }} {{template "vendors"}}
+{{ template "multiselector_modal" }} {{ template "query_modal" }} {{template "vendors"}}
 
-	<script src="/static/vendor/plyr/dist/plyr.polyfilled.min.js"></script>
-	<script src="/static/js/videos.js"></script>
-	<script src="/static/js/query.js"></script>
-	<script>
-		const player = new Plyr(document.getElementById("videoPlayer"));
-	</script>
+<script src="/static/vendor/plyr/dist/plyr.polyfilled.min.js"></script>
+<script src="/static/js/videos.js"></script>
+<script src="/static/js/query.js"></script>
+<script>
+	let element = document.getElementById("videoPlayer")
+	const player = new Plyr(element, {duration: {{ (index .Files 0).Length }}});
+	let playable = false
+	player.on("seeking", function (e) {
+		let time = player.currentTime
+		console.log(time)
+		player.source = {
+			type: "video",
+			sources: [
+				{
+					src: "/Jizzberry/stream/{{(index .Files 0).GeneratedID}}?playable=true&start=" + float2int(time),
+				},
+			]
+		}
+	})
+
+	{{/*let xhr = new XMLHttpRequest();*/}}
+	{{/*xhr.withCredentials = true;*/}}
+
+	{{/*xhr.onreadystatechange = function () {*/}}
+	{{/*	if (xhr.readyState === XMLHttpRequest.DONE) {*/}}
+	{{/*		console.log(this.responseText)*/}}
+	{{/*		console.log(element.canPlayType(this.responseText));*/}}
+	{{/*	}*/}}
+	{{/*}*/}}
+
+	{{/*xhr.open("GET", '/api/getMimeType?scene_id={{(index .Files 0).GeneratedID}}', true);*/}}
+	{{/*xhr.send();*/}}
+</script>
+
 </body>
 
 </html>

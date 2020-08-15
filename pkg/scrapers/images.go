@@ -11,9 +11,9 @@ import (
 )
 
 func getScrapeImage(i int, actor actor.Actor) (path string) {
-	data := safeMapCast(safeSelectFromMap(ParseYaml(scrapers[i].path), helpers.ScraperImage))
+	data := helpers.SafeMapCast(helpers.SafeSelectFromMap(ParseYaml(scrapers[i].path), helpers.ScraperImage))
 	if data != nil {
-		url := safeCastString(data[helpers.YamlURL])
+		url := helpers.SafeCastString(data[helpers.YamlURL])
 		if url != "" {
 			var link string
 			c := getColly(nil, func(e *colly.HTMLElement) {

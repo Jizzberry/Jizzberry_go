@@ -291,6 +291,7 @@ func isValidExt(ext string) bool {
 	case
 		".mp4",
 		".avi",
+		".mkv",
 		".webm",
 		".flv":
 		return true

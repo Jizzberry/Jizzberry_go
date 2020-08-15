@@ -2,7 +2,6 @@ package scrapers
 
 import (
 	"context"
-	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/ghodss/yaml"
 	"github.com/gocolly/colly/v2"
@@ -11,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -200,11 +198,11 @@ func parseUrl(base string, query string) string {
 }
 
 func getData(data map[string]interface{}, header string) (subSelector []interface{}, r []*regexp.Regexp, replacer string, attr string, absolute bool) {
-	attr = safeCastString(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlForEachAttr))
-	subSelector = safeCastSliceString(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlSelector))
-	r = compileRegex(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlStringRegex))
-	replacer = safeCastString(safeSelectFromMap(safeMapCast(data[header]), helpers.YamlStringReplace))
-	absolute = safeCastBool(safeSelectFromMap(safeMapCast(data[header]), "absolute"))
+	attr = helpers.SafeCastString(helpers.SafeSelectFromMap(helpers.SafeMapCast(data[header]), helpers.YamlForEachAttr))
+	subSelector = helpers.SafeCastSlice(helpers.SafeSelectFromMap(helpers.SafeMapCast(data[header]), helpers.YamlSelector))
+	r = compileRegex(helpers.SafeSelectFromMap(helpers.SafeMapCast(data[header]), helpers.YamlStringRegex))
+	replacer = helpers.SafeCastString(helpers.SafeSelectFromMap(helpers.SafeMapCast(data[header]), helpers.YamlStringReplace))
+	absolute = helpers.SafeCastBool(helpers.SafeSelectFromMap(helpers.SafeMapCast(data[header]), "absolute"))
 	return
 }
 
@@ -214,59 +212,6 @@ func getDataAndScrape(data map[string]interface{}, header string, e *colly.HTMLE
 }
 
 // #### Cast types without panicking ####
-
-func safeMapCast(item interface{}) map[string]interface{} {
-	if item != nil {
-		if casted, ok := item.(map[string]interface{}); ok {
-			return casted
-		}
-	}
-	return nil
-}
-func safeSelectFromMap(item map[string]interface{}, key string) interface{} {
-	if item != nil {
-		if val, ok := item[key]; ok {
-			return val
-		}
-	}
-	return nil
-}
-
-func safeCastSliceString(item interface{}) []interface{} {
-	if item != nil {
-		if casted, ok := item.([]interface{}); ok {
-			return casted
-		}
-	}
-	return nil
-}
-
-func safeCastString(item interface{}) string {
-	if casted, ok := item.(string); ok {
-		return casted
-	}
-	return ""
-}
-
-func safeConvertInt(item interface{}) int {
-	if str := safeCastString(item); str != "" {
-		num, err := strconv.Atoi(str)
-		if err != nil {
-			helpers.LogError(fmt.Sprintf("Failed to convert %v to int", item), component)
-			return -1
-		}
-		return num
-	}
-	helpers.LogError(fmt.Sprintf("Failed to convert %v to int", item), component)
-	return -1
-}
-
-func safeCastBool(item interface{}) bool {
-	if casted, ok := item.(bool); ok {
-		return casted
-	}
-	return false
-}
 
 // Returns instance of colly after setting default callbacks
 func getColly(ctx context.Context, onHtml func(e *colly.HTMLElement)) (c *colly.Collector) {

@@ -9,11 +9,9 @@ import (
 	files2 "github.com/Jizzberry/Jizzberry_go/pkg/models/files"
 	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler"
-	"math"
 	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -68,7 +66,7 @@ func worker(paths []string, ctx context.Context, progress *int) {
 							thumbnailPath := helpers.GetThumbnailPath()
 							file := createFile(f, info, filepath.Ext(f), thumbnailPath)
 							filesModel.Create(file)
-							ffmpeg.GenerateThumbnail(f, lenInSec(file.Length)/2, thumbnailPath)
+							ffmpeg.GenerateThumbnail(f, int64(file.Length/2), thumbnailPath)
 							helpers.LogInfo(fmt.Sprintf("scanned %s successfully", f), component)
 						} else {
 							helpers.LogInfo(fmt.Sprintf("skipped %s", f), component)
@@ -105,23 +103,6 @@ func ByteCountDecimal(b int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "kMGTPE"[exp])
-}
-
-func lenInSec(length string) (secs int64) {
-	split := strings.Split(length, ":")
-	for i := 0; i < len(split); i++ {
-		val, err := strconv.ParseInt(split[len(split)-i-1], 10, 64)
-		if err != nil {
-			helpers.LogError(err.Error(), component)
-			continue
-		}
-		if i == 3 {
-			secs += 24 * val
-			continue
-		}
-		secs += int64(float64(val) * math.Pow(60, float64(i)))
-	}
-	return
 }
 
 func joinString(full *string, part string, seperator bool) {
@@ -164,7 +145,7 @@ func createFile(filepath string, info os.FileInfo, ext string, thumbnailPath str
 	file := files2.Files{}
 
 	file.FileName = strings.ReplaceAll(info.Name(), ext, "")
-	file.Length = ffmpeg.GetLength(filepath)
+	file.Length, file.Format, file.Video0Codec, file.Audio0Codec = ffmpeg.ProbeVideo(filepath)
 	file.FileSize = ByteCountDecimal(info.Size())
 	file.DateCreated = time.Unix(info.ModTime().Unix(), 0).Format(helpers.DateLayout)
 	file.FilePath = filepath

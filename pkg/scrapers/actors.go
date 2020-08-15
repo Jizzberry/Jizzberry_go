@@ -12,12 +12,12 @@ import (
 
 func getScrapeActorsList(i int, ctx context.Context) {
 	yamlData := ParseYaml(scrapers[i].path)
-	website := safeCastString(yamlData[helpers.ScraperWebsite])
-	data := safeMapCast(safeSelectFromMap(yamlData, helpers.ScraperActorList))
+	website := helpers.SafeCastString(yamlData[helpers.ScraperWebsite])
+	data := helpers.SafeMapCast(helpers.SafeSelectFromMap(yamlData, helpers.ScraperActorList))
 	if data != nil {
-		lastPage := safeConvertInt(data[helpers.YamlLastPage])
-		url := safeCastString(safeSelectFromMap(safeMapCast(data), helpers.YamlURL))
-		selector := safeSelectFromMap(data, helpers.YamlForEach)
+		lastPage := helpers.SafeConvertInt(data[helpers.YamlLastPage])
+		url := helpers.SafeCastString(helpers.SafeSelectFromMap(helpers.SafeMapCast(data), helpers.YamlURL))
+		selector := helpers.SafeSelectFromMap(data, helpers.YamlForEach)
 
 		if lastPage < 0 || url == "" {
 			helpers.LogError("last_page or url not specified", component)
@@ -63,9 +63,9 @@ func getScrapeActorsList(i int, ctx context.Context) {
 }
 
 func getScrapeActor(i int, actor actor.Actor) (actorDetails actor_details.ActorDetails) {
-	data := safeMapCast(safeSelectFromMap(ParseYaml(scrapers[i].path), helpers.ScraperActor))
+	data := helpers.SafeMapCast(helpers.SafeSelectFromMap(ParseYaml(scrapers[i].path), helpers.ScraperActor))
 	if data != nil {
-		url := safeCastString(data[helpers.YamlURL])
+		url := helpers.SafeCastString(data[helpers.YamlURL])
 		if url != "" {
 			headers := []string{helpers.ActorName, helpers.ActorBday, helpers.ActorBplace, helpers.ActorHeight, helpers.ActorWeight}
 			destinations := []*string{&actorDetails.Name, &actorDetails.Birthday, &actorDetails.Birthplace, &actorDetails.Height, &actorDetails.Weight}

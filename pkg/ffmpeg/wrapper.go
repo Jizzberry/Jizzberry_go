@@ -2,13 +2,15 @@ package ffmpeg
 
 import (
 	"bytes"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -45,18 +47,153 @@ func GenerateThumbnail(path string, interval int64, outFile string) {
 	}
 }
 
-func GetLength(path string) string {
-	cmd := exec.Command(helpers.GetConfig().FFPROBE, "-v", "error", "-show_entries", "format=duration", "-sexagesimal", "-of", "default=noprint_wrappers=1:nokey=1", path)
+func getLength(data map[string]interface{}) float64 {
+	if data != nil {
+		duration := helpers.SafeConvertFloat(helpers.SafeSelectFromMap(helpers.SafeMapCast(helpers.SafeSelectFromMap(data, "format")), "duration"))
+		return duration
+	}
+	return -1
+}
+
+func getFFprobeJson(filepath string) map[string]interface{} {
+	cmd := exec.Command(helpers.GetConfig().FFPROBE, "-print_format", "json", "-show_format", "-show_streams", "-v", "quiet", filepath)
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
-
 	err := cmd.Run()
 
 	if err != nil {
-		helpers.LogError(fmt.Sprint(err)+": "+strings.TrimSpace(stderr.String()), component)
+		helpers.LogError("Couldn't execute ffprobe", component)
+		return nil
+	}
+	return parseJson(out.Bytes())
+}
+
+func getAudioCodec(data map[string]interface{}) string {
+	streams := helpers.SafeCastSlice(helpers.SafeSelectFromMap(data, "streams"))
+	if len(streams) >= 2 {
+		return helpers.SafeCastString(helpers.SafeSelectFromMap(helpers.SafeMapCast(streams[1]), "codec_name"))
+	}
+	return ""
+}
+
+func getVideoCodec(data map[string]interface{}) string {
+	streams := helpers.SafeCastSlice(helpers.SafeSelectFromMap(data, "streams"))
+	if len(streams) >= 1 {
+		return helpers.SafeCastString(helpers.SafeSelectFromMap(helpers.SafeMapCast(streams[0]), "codec_name"))
+	}
+	return ""
+}
+
+func getVideoFormat(data map[string]interface{}) string {
+	format := helpers.SafeMapCast(helpers.SafeSelectFromMap(data, "format"))
+	if val, ok := format["format_name"]; ok {
+		return helpers.SafeCastString(val)
+	}
+	return ""
+}
+
+func ProbeVideo(path string) (length float64, format string, videoCodec string, audioCodec string) {
+	data := getFFprobeJson(path)
+
+	fmt.Println(data)
+
+	file, err := os.Open(path)
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+		return
+	}
+	buffer := make([]byte, 3)
+	_, err = file.ReadAt(buffer, 539)
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
+	fmt.Println(hex.EncodeToString(buffer))
+	//fmt.Println(fmt.Sprintf("%x ",buffer))
+
+	format = getVideoFormat(data)
+	length = getLength(data)
+	videoCodec = getVideoCodec(data)
+	audioCodec = getAudioCodec(data)
+	return
+}
+
+func parseJson(data []byte) map[string]interface{} {
+	jsonData := make(map[string]interface{})
+	err := json.Unmarshal(data, &jsonData)
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+		return nil
+	}
+	return jsonData
+}
+
+func Transcode(filepath string, startTime string) io.ReadCloser {
+	var args []string
+
+	if startTime != "" {
+		fmt.Println(startTime)
+		args = append(args, "-ss", startTime)
 	}
 
-	return strings.Split(out.String(), ".")[0]
+	args = append(args,
+		"-i", filepath,
+		"-c:v", "libvpx-vp9",
+		"-vf", "scale=360:-2",
+		"-deadline", "realtime",
+		"-cpu-used", "5",
+		"-row-mt", "1",
+		"-crf", "30",
+		"-b:v", "0",
+		"-f", "webm",
+		"pipe:",
+	)
+
+	fmt.Println(args)
+
+	cmd := exec.Command(helpers.GetConfig().FFMEPG, args...)
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
+
+	err = cmd.Start()
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+	}
+
+	return stdout
 }
+
+//func ConvertFaststart(filepath string) *os.File {
+//	tmpfile, err := ioutil.TempFile(os.TempDir(), "tmp.*.mp4")
+//	if err != nil {
+//		helpers.LogError(err.Error(), component)
+//		return nil
+//	}
+//	var args []string
+//
+//	// Brings moov atom to start of file
+//	args = append(args,
+//		"-i", filepath,
+//		"-c:a", "copy",
+//		"-c:v", "copy",
+//		"-movflags", "faststart",
+//		"-y",
+//		tmpfile.Name(),
+//	)
+//	cmd := exec.Command(helpers.GetConfig().FFMEPG, args...)
+//	var stderr bytes.Buffer
+//	cmd.Stderr = &stderr
+//
+//
+//	err = cmd.Run()
+//	if err != nil {
+//		helpers.LogError(err.Error(), component)
+//	}
+//
+//	return tmpfile
+//
+//}

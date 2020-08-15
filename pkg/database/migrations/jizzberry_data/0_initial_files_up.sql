@@ -5,13 +5,16 @@ CREATE TABLE IF NOT EXISTS 'files' (
     'file_path' varchar,
     'date_created' varchar,
     'file_size' varchar,
-    'length' varchar,
     'thumbnail' varchar,
     'symlinks' varchar,
     'tags' varchar,
     'studios' varchar,
     'actors' varchar,
-    'url' varchar
+    'url' varchar,
+    'length' real,
+    'format' varchar,
+    'video0codec' varchar,
+    'audio0codec' varchar
 );
 
 -- +migrate Down

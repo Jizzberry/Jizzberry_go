@@ -299,6 +299,15 @@ func checkEmpty(value reflect.Value) bool {
 		return value.IsZero()
 	}
 
+	matchedFloat, err := regexp.MatchString("float", value.Type().String())
+	if err != nil {
+		helpers.LogError(err.Error(), component)
+		return false
+	}
+	if matchedFloat {
+		return value.IsZero()
+	}
+
 	//else check string
 	matchedString, err := regexp.MatchString("string", value.Type().String())
 	if err != nil {

@@ -50,6 +50,7 @@ func (a Api) Register(r *mux.Router) {
 	apiRouter.HandleFunc("/browse", fileBrowser).Methods("GET")
 	apiRouter.HandleFunc("/queryScrapers", queryScrapersHandler).Methods("GET")
 	apiRouter.HandleFunc("/organiseAll", organiseAll).Methods("POST")
+	//apiRouter.HandleFunc("/getMimeType", getMimeType).Methods("GET")
 }
 
 func filesHandler(w http.ResponseWriter, r *http.Request) {
@@ -428,3 +429,25 @@ func queryScrapersHandler(w http.ResponseWriter, r *http.Request) {
 func organiseAll(w http.ResponseWriter, r *http.Request) {
 	manager.OrganiseAll()
 }
+
+//func getMimeType(w http.ResponseWriter, r *http.Request) {
+//	w.Header().Set("Content-Type", "application/json")
+//	queryParams := r.URL.Query()
+//
+//	model := files.Initialize()
+//	defer model.Close()
+//
+//	if len(queryParams["scene_id"]) > 0 {
+//		sceneId, err := strconv.Atoi(queryParams["scene_id"][0])
+//		if err != nil {
+//			helpers.LogError(err.Error(), component)
+//		}
+//		file := model.Get(files.Files{GeneratedID: int64(sceneId)})
+//		if len(file) > 0 {
+//			_, err = fmt.Fprintf(w, jizzberry.MimeTypeFromFormat(file[0]))
+//			if err != nil {
+//				helpers.LogError(err.Error(), component)
+//			}
+//		}
+//	}
+//}

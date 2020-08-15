@@ -8,17 +8,17 @@ import (
 
 func getScrapedVideo(i int, url string) (details VideoDetails) {
 	yamlData := ParseYaml(scrapers[i].path)
-	data := safeMapCast(safeSelectFromMap(yamlData, helpers.ScraperSingleVideo))
-	website := safeCastString(safeSelectFromMap(yamlData, helpers.ScraperWebsite))
+	data := helpers.SafeMapCast(helpers.SafeSelectFromMap(yamlData, helpers.ScraperSingleVideo))
+	website := helpers.SafeCastString(helpers.SafeSelectFromMap(yamlData, helpers.ScraperWebsite))
 
 	if data != nil {
 		if url != "" {
 			c := getColly(nil, func(e *colly.HTMLElement) {
 				getDataAndScrape(data, helpers.VideoTitle, e, &details.Name, func(string) bool { return true })
 				actors := make([][]string, 1)
-				scrapeList(safeSelectFromMap(safeMapCast(safeSelectFromMap(data, helpers.VideoActors)), helpers.YamlForEach), data, []string{helpers.VideoActors}, &actors, e, func(s string, i int) bool { return true })
+				scrapeList(helpers.SafeSelectFromMap(helpers.SafeMapCast(helpers.SafeSelectFromMap(data, helpers.VideoActors)), helpers.YamlForEach), data, []string{helpers.VideoActors}, &actors, e, func(s string, i int) bool { return true })
 				tags := make([][]string, 1)
-				scrapeList(safeSelectFromMap(safeMapCast(safeSelectFromMap(data, helpers.VideoTags)), helpers.YamlForEach), data, []string{helpers.VideoTags}, &tags, e, func(s string, i int) bool { return true })
+				scrapeList(helpers.SafeSelectFromMap(helpers.SafeMapCast(helpers.SafeSelectFromMap(data, helpers.VideoTags)), helpers.YamlForEach), data, []string{helpers.VideoTags}, &tags, e, func(s string, i int) bool { return true })
 
 				details.Actors = actors[0]
 				details.Tags = tags[0]
@@ -38,10 +38,10 @@ func getScrapedVideo(i int, url string) (details VideoDetails) {
 
 func getQueryVideo(i int, query string) (videos []Videos) {
 	yamlData := ParseYaml(scrapers[i].path)
-	website := safeCastString(safeSelectFromMap(yamlData, helpers.ScraperWebsite))
-	data := safeMapCast(safeSelectFromMap(yamlData, helpers.ScraperVideos))
-	url := parseUrl(safeCastString(safeSelectFromMap(data, helpers.YamlURL)), query)
-	selector := safeSelectFromMap(data, helpers.YamlForEach)
+	website := helpers.SafeCastString(helpers.SafeSelectFromMap(yamlData, helpers.ScraperWebsite))
+	data := helpers.SafeMapCast(helpers.SafeSelectFromMap(yamlData, helpers.ScraperVideos))
+	url := parseUrl(helpers.SafeCastString(helpers.SafeSelectFromMap(data, helpers.YamlURL)), query)
+	selector := helpers.SafeSelectFromMap(data, helpers.YamlForEach)
 	if data != nil {
 		if url != "" {
 			c := getColly(nil, func(e *colly.HTMLElement) {
@@ -66,7 +66,7 @@ func getQueryVideo(i int, query string) (videos []Videos) {
 
 func matchUrlToScraper(url string) bool {
 	for i := range scrapers {
-		urlRegex := safeCastString(safeSelectFromMap(safeMapCast(safeMapCast(ParseYaml(scrapers[i].path))[helpers.ScraperSingleVideo]), helpers.YamlUrlRegex))
+		urlRegex := helpers.SafeCastString(helpers.SafeSelectFromMap(helpers.SafeMapCast(helpers.SafeMapCast(ParseYaml(scrapers[i].path))[helpers.ScraperSingleVideo]), helpers.YamlUrlRegex))
 		r, err := regexp.Compile(urlRegex)
 		if r != nil {
 			if err != nil {
