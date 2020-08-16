@@ -1,7 +1,6 @@
 package jizzberry
 
 import (
-	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/ffmpeg"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/files"
@@ -44,9 +43,7 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 		playable = strings.ToLower(queryParams["playable"][0]) == "true"
 	}
 
-	fmt.Println(playable)
-
-	startTime := ""
+	startTime := "0"
 	if len(queryParams["start"]) > 0 {
 		startTime = queryParams["start"][0]
 	}
@@ -90,7 +87,6 @@ func pseudoStream(w http.ResponseWriter, r *http.Request, path string, model fil
 		contentLength := strconv.Itoa(fileSize)
 		contentEnd := strconv.Itoa(fileSize - 1)
 
-		fmt.Println(MimeTypeFromFormat(model))
 		w.Header().Set("Content-Type", MimeTypeFromFormat(model))
 		w.Header().Set("Accept-Ranges", "bytes")
 		w.Header().Set("Content-Length", contentLength)

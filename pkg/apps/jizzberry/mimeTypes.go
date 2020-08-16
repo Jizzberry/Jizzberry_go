@@ -28,11 +28,12 @@ func MimeTypeFromFormat(file files.Files) string {
 
 func IsSupportedCodec(codec string) bool {
 	switch codec {
-	case "h264":
-	case "h265":
-	case "vp8":
-	case "vp9":
-	case "av1":
+	case
+		"h264",
+		"h265",
+		"vp8",
+		"vp9",
+		"av1":
 		return true
 	}
 	return false
