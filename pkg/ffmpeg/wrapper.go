@@ -1,48 +1,54 @@
 package ffmpeg
 
 import (
-	"bytes"
-	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"io"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"strconv"
-	"time"
 )
 
 func GenerateThumbnail(path string, interval int64, outFile string) {
-	outPath := filepath.Join(helpers.ThumbnailPath, outFile)
-	cmd := exec.Command(helpers.GetConfig().FFMEPG, "-i", path, "-ss", strconv.FormatInt(interval, 10), "-y", "-vframes", "1", "-vf",
-		"scale=373:210", outPath)
+	var args []string
 
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
+	// Input fast seeking: https://trac.ffmpeg.org/wiki/Seeking
+	args = append(args, "-ss", strconv.FormatInt(interval, 10), "-i", path, "-y", "-vframes:v", "1", "-vf",
+		"scale=373:210", filepath.Join(helpers.ThumbnailPath, outFile))
 
-	err := cmd.Start()
-	if err != nil {
-		_ = os.Remove(outPath)
-		return
+	NewEncoder().Run(args, ThumbnailGen, 10, false)
+}
+
+func getFFprobeJson(filepath string) map[string]interface{} {
+	var args []string
+	args = append(args, "-print_format", "json", "-show_format", "-show_streams", "-v", "quiet", filepath)
+
+	stdout, _ := NewEncoder().Run(args, FFProbe, TimeoutBlock, true)
+	return parseJson(stdout.Bytes())
+}
+
+func Transcode(filepath string, startTime string, encoder *Encoder) io.ReadCloser {
+	var args []string
+
+	if startTime != "" {
+		args = append(args, "-ss", startTime)
 	}
 
-	done := make(chan error)
-	go func() { done <- cmd.Wait() }()
-	select {
-	case err = <-done:
-		return
-	case <-time.After(120 * time.Second):
-		err := cmd.Process.Kill()
-		if err != nil {
-			helpers.LogError(err.Error())
-		}
-		helpers.LogInfo(fmt.Sprintf("Killed ffmpeg process: %d", cmd.Process.Pid))
-		return
-	}
+	args = append(args,
+		"-i", filepath,
+		"-c:v", "libvpx-vp9",
+		"-cpu-used", "6",
+		"-deadline", "realtime",
+		"-preset", "veryfast",
+		"-row-mt", "1",
+		"-crf", "30",
+		"-b:v", "0",
+		"-f", "webm",
+		"pipe:",
+	)
+
+	stdout := encoder.Pipe(args, TranscodeStream, TimeoutForget)
+
+	return stdout
 }
 
 func getLength(data map[string]interface{}) float64 {
@@ -53,19 +59,14 @@ func getLength(data map[string]interface{}) float64 {
 	return -1
 }
 
-func getFFprobeJson(filepath string) map[string]interface{} {
-	cmd := exec.Command(helpers.GetConfig().FFPROBE, "-print_format", "json", "-show_format", "-show_streams", "-v", "quiet", filepath)
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	err := cmd.Run()
+func ProbeVideo(path string) (length float64, format string, videoCodec string, audioCodec string) {
+	data := getFFprobeJson(path)
 
-	if err != nil {
-		helpers.LogError("Couldn't execute ffprobe")
-		return nil
-	}
-	return parseJson(out.Bytes())
+	format = getVideoFormat(data)
+	length = getLength(data)
+	videoCodec = getVideoCodec(data)
+	audioCodec = getAudioCodec(data)
+	return
 }
 
 func getAudioCodec(data map[string]interface{}) string {
@@ -90,79 +91,6 @@ func getVideoFormat(data map[string]interface{}) string {
 		return helpers.SafeCastString(val)
 	}
 	return ""
-}
-
-func ProbeVideo(path string) (length float64, format string, videoCodec string, audioCodec string) {
-	data := getFFprobeJson(path)
-
-	fmt.Println(data)
-
-	file, err := os.Open(path)
-	if err != nil {
-		helpers.LogError(err.Error())
-		return
-	}
-	buffer := make([]byte, 3)
-	_, err = file.ReadAt(buffer, 539)
-	if err != nil {
-		helpers.LogError(err.Error())
-	}
-	fmt.Println(hex.EncodeToString(buffer))
-	//fmt.Println(fmt.Sprintf("%x ",buffer))
-
-	format = getVideoFormat(data)
-	length = getLength(data)
-	videoCodec = getVideoCodec(data)
-	audioCodec = getAudioCodec(data)
-	return
-}
-
-func parseJson(data []byte) map[string]interface{} {
-	jsonData := make(map[string]interface{})
-	err := json.Unmarshal(data, &jsonData)
-	if err != nil {
-		helpers.LogError(err.Error())
-		return nil
-	}
-	return jsonData
-}
-
-func Transcode(filepath string, startTime string) io.ReadCloser {
-	var args []string
-
-	if startTime != "" {
-		fmt.Println(startTime)
-		args = append(args, "-ss", startTime)
-	}
-
-	args = append(args,
-		"-i", filepath,
-		"-c:v", "libvpx-vp9",
-		"-vf", "scale=360:-2",
-		"-deadline", "realtime",
-		"-cpu-used", "5",
-		"-row-mt", "1",
-		"-crf", "30",
-		"-b:v", "0",
-		"-f", "webm",
-		"pipe:",
-	)
-
-	fmt.Println(args)
-
-	cmd := exec.Command(helpers.GetConfig().FFMEPG, args...)
-
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		helpers.LogError(err.Error())
-	}
-
-	err = cmd.Start()
-	if err != nil {
-		helpers.LogError(err.Error())
-	}
-
-	return stdout
 }
 
 //func ConvertFaststart(filepath string) *os.File {
@@ -195,3 +123,38 @@ func Transcode(filepath string, startTime string) io.ReadCloser {
 //	return tmpfile
 //
 //}
+
+//func Avc1ToRfc6381(filepath string) string {
+//	tmp := ffmpeg.ConvertFaststart(filepath)
+//	fmt.Println(tmp.Name())
+//	buffer := make([]byte, 8128)
+//	_, err := tmp.Read(buffer)
+//	if err != nil {
+//		helpers.LogError(err.Error())
+//		return ""
+//	}
+//
+//	var codecFlags []byte
+//	// According to http://xhelmboyx.tripod.com/formats/mp4-layout.txt
+//	r := regexp.MustCompile(string([]byte{97, 118, 99, 67})) // Byte code for "avcC"
+//	match := r.FindStringIndex(string(buffer)) // Find index for avcC box
+//	if len(match) > 1 {
+//		codecFlags = buffer[match[1]+1 : match[1]+4] // Profile, compatibility and level flags
+//	}
+//	//err = os.Remove(tmp.Name())
+//	//if err != nil {
+//	//	helpers.LogError(err.Error())
+//	//}
+//
+//	return fmt.Sprintf("codecs=\"%b\"", codecFlags)
+//}
+
+func parseJson(data []byte) map[string]interface{} {
+	jsonData := make(map[string]interface{})
+	err := json.Unmarshal(data, &jsonData)
+	if err != nil {
+		helpers.LogError(err.Error())
+		return nil
+	}
+	return jsonData
+}

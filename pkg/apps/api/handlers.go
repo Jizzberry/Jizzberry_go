@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Jizzberry/Jizzberry_go/pkg/apps/jizzberry"
+	"github.com/Jizzberry/Jizzberry_go/pkg/apps/jizzberry/stream"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/middleware"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
@@ -433,20 +433,14 @@ func getMimeType(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	queryParams := r.URL.Query()
 
-	model := files.Initialize()
-	defer model.Close()
-
 	if len(queryParams["scene_id"]) > 0 {
-		sceneId, err := strconv.Atoi(queryParams["scene_id"][0])
+		sceneId, err := strconv.ParseInt(queryParams["scene_id"][0], 10, 64)
 		if err != nil {
 			helpers.LogError(err.Error())
 		}
-		file := model.Get(files.Files{GeneratedID: int64(sceneId)})
-		if len(file) > 0 {
-			_, err = fmt.Fprintf(w, jizzberry.MimeTypeFromFormat(file[0]))
-			if err != nil {
-				helpers.LogError(err.Error())
-			}
+		_, err = fmt.Fprintf(w, stream.MimeTypeFromFormat(sceneId))
+		if err != nil {
+			helpers.LogError(err.Error())
 		}
 	}
 }

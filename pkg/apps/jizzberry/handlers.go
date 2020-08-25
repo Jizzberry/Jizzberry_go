@@ -2,6 +2,7 @@ package jizzberry
 
 import (
 	"github.com/Jizzberry/Jizzberry_go/pkg/apps/authentication"
+	"github.com/Jizzberry/Jizzberry_go/pkg/apps/jizzberry/stream"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/middleware"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
@@ -39,6 +40,8 @@ func (a Jizzberry) Register(r *mux.Router) {
 
 	htmlRouter.Use(middleware.AuthMiddleware())
 
+	stream.Streamer{}.Register(htmlRouter)
+
 	htmlRouter.HandleFunc("/home", homeHandler)
 	htmlRouter.HandleFunc("/tags", allCategoriesHandler)
 	htmlRouter.HandleFunc("/tags/{tag_id}", singleTagHandler)
@@ -47,7 +50,6 @@ func (a Jizzberry) Register(r *mux.Router) {
 	htmlRouter.HandleFunc("/studios", allStudiosHandler)
 	htmlRouter.HandleFunc("/studios/{studio_id}", singleStudiosHanlder)
 	htmlRouter.HandleFunc("/scene/{scene_id}", singleSceneHandler)
-	htmlRouter.HandleFunc("/stream/{scene_id}", streamHandler)
 	htmlRouter.HandleFunc("/settings", settingsHandler)
 }
 

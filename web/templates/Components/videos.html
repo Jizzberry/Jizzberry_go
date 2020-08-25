@@ -174,7 +174,7 @@
 						</a>
 						{{ end }}
 					</div>
-				</div>
+			</div>
 		</div>
 	</div>
 </main>
@@ -182,46 +182,37 @@
 {{ template "multiselector_modal" }} {{ template "query_modal" }} {{template "vendors"}}
 
 <script src="/static/vendor/plyr/dist/plyr.polyfilled.js"></script>
-<script src="/static/js/videos.js"></script>
 <script src="/static/js/query.js"></script>
 <script>
-	let element = document.getElementById("videoPlayer")
-	let player;
-	let xhr = new XMLHttpRequest();
-	xhr.withCredentials = true;
+	{{/*let xhr = new XMLHttpRequest();*/}}
+	{{/*xhr.withCredentials = true;*/}}
 
-	xhr.onreadystatechange = function () {
-		if (xhr.readyState === XMLHttpRequest.DONE) {
-			if (element.canPlayType(this.responseText) === "maybe" && element.canPlayType(this.responseText) === "probably") {
-				let source = document.createElement('source');
-				source.setAttribute('src', "/Jizzberry/stream/{{(index .Files 0).GeneratedID}}?playable=true")
-				source.setAttribute('type', this.responseText);
-				element.appendChild(source)
+	{{/*xhr.onreadystatechange = function () {*/}}
+	{{/*	if (xhr.readyState === XMLHttpRequest.DONE) {*/}}
+	{{/*		if (element.canPlayType(this.responseText) === "maybe" && element.canPlayType(this.responseText) === "probably") {*/}}
+	{{/*			console.log("normal")*/}}
+	{{/*			let source = document.createElement('source');*/}}
+	{{/*			source.setAttribute('src', "/Jizzberry/stream/{{(index .Files 0).GeneratedID}}?playable=true")*/}}
+	{{/*			source.setAttribute('type', this.responseText);*/}}
+	{{/*			element.appendChild(source)*/}}
 
-				player = new Plyr(element, {duration: {{ (index .Files 0).Length }}});
-			} else {
-				element.src = "/Jizzberry/stream/{{(index .Files 0).GeneratedID}}?playable=false&start=0"
-				player = new Plyr(element, {duration: {{ (index .Files 0).Length }}});
-				player.on("seeking", function () {
-					player.source = {
-						type: "video",
-						sources: [
-							{
-								src: "/Jizzberry/stream/{{(index .Files 0).GeneratedID}}?playable=false&start=" + player.currentTime,
-								type: "video/mp4"
-							},
-						]
-					}
-					player.offset = player.currentTime;
-					player.play();
-				})
-			}
-		}
-	}
+	{{/*			player = new Plyr(element, {duration: {{ (index .Files 0).Length }}});*/}}
+	{{/*		} else {*/}}
 
-	xhr.open("GET", '/api/getMimeType?scene_id={{(index .Files 0).GeneratedID}}', true);
-	xhr.send();
+	//		}
+	//	}
+	{{/*}*/}}
+
+	{{/*xhr.open("GET", '/api/getMimeType?scene_id={{(index .Files 0).GeneratedID}}', true);*/}}
+	{{/*xhr.send();*/}}
+
+	let initial = true
+	let offset = 0
+	let sceneId = {{(index .Files 0).GeneratedID}}
+			let
+	duration = {{ (index .Files 0).Length }}
 </script>
+<script src="/static/js/videos.js"></script>
 
 </body>
 

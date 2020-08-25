@@ -1,4 +1,72 @@
-$("body").on("click","#parser-toggle", function(){
+let element = document.getElementById("videoPlayer")
+let player;
+
+const sessionsSocket = new WebSocket(
+    "ws://" + window.location.host + "/ws/session" + ""
+);
+
+sessionsSocket.onopen = function () {
+    sessionsSocket.send(JSON.stringify({
+        type: "getStreamURL",
+        data: JSON.stringify({
+            scene_id: sceneId,
+            playable: false,
+            start_time: 0
+        })
+    }))
+}
+
+sessionsSocket.onmessage = function (e) {
+    let parsed = JSON.parse(e.data);
+
+    switch (parsed.type) {
+        case "getStreamURL":
+            let data = JSON.parse(parsed.data)
+            if (initial) {
+                let source = document.createElement('source');
+                source.setAttribute('src', data['URL'])
+                source.setAttribute('type', data['MimeType']);
+                element.appendChild(source)
+
+                player = new Plyr(element, {duration: duration});
+
+                player.on('ready', event => {
+                    player.on("seeking", function () {
+                        console.log("called seek")
+                        sessionsSocket.send(JSON.stringify({
+                            type: "getStreamURL",
+                            data: JSON.stringify({
+                                scene_id: sceneId,
+                                playable: false,
+                                start_time: player.currentTime
+                            })
+                        }))
+                        offset = player.currentTime
+                    })
+                });
+                initial = false
+            } else {
+                player.source = {
+                    type: "video",
+                    sources: [
+                        {
+                            src: data['URL'],
+                            type: data['MimeType']
+                        },
+                    ]
+                }
+                player.offset = offset;
+            }
+    }
+
+    console.log(parsed)
+};
+
+sessionsSocket.onclose = function (e) {
+    console.error(e);
+};
+
+$("body").on("click", "#parser-toggle", function () {
     var toggle = document.getElementById('parser-toggle');
     var form = document.getElementById('metadata-parser')
     var viewer = document.getElementById("metadata-viewer");
@@ -17,9 +85,6 @@ $("body").on("click","#parser-toggle", function(){
 let actors = [];
 let tags = [];
 let studios = [];
-
-let urlSplit = window.location.href.split("/");
-let sceneId = urlSplit[urlSplit.length - 1]
 
 getArrays()
 
@@ -85,6 +150,7 @@ function getArrays() {
                     return (element !== "" && element !== null)
                 })
             }
+
             actors = removeEmpty(actors);
             studios = removeEmpty(studios);
             tags = removeEmpty(tags);

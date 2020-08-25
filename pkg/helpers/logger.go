@@ -33,31 +33,31 @@ func LoggerInit() {
 	logger.SetOutput(mWriter)
 }
 
-func LogError(message string) {
+func LogError(message ...interface{}) {
 	logger.WithFields(logrus.Fields{
 		"component": func() string {
 			pc, _, _, ok := runtime.Caller(2)
 			return getCalledInfo(pc, ok)
 		}(),
-	}).Error(message)
+	}).Error(message...)
 }
 
-func LogInfo(message string) {
+func LogInfo(message ...interface{}) {
 	logger.WithFields(logrus.Fields{
 		"component": func() string {
 			pc, _, _, ok := runtime.Caller(2)
 			return getCalledInfo(pc, ok)
 		}(),
-	}).Info(message)
+	}).Info(message...)
 }
 
-func LogWarning(message string) {
+func LogWarning(message ...interface{}) {
 	logger.WithFields(logrus.Fields{
 		"component": func() string {
 			pc, _, _, ok := runtime.Caller(2)
 			return getCalledInfo(pc, ok)
 		}(),
-	}).Warningln(message)
+	}).Warningln(message...)
 }
 
 func getCalledInfo(pc uintptr, ok bool) string {
