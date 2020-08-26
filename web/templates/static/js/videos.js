@@ -1,19 +1,32 @@
 let element = document.getElementById("videoPlayer")
 let player;
+let playable = false;
 
 const sessionsSocket = new WebSocket(
     "ws://" + window.location.host + "/ws/session" + ""
 );
 
 sessionsSocket.onopen = function () {
-    sessionsSocket.send(JSON.stringify({
-        type: "getStreamURL",
-        data: JSON.stringify({
-            scene_id: sceneId,
-            playable: false,
-            start_time: 0
-        })
-    }))
+    let xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (element.canPlayType(this.responseText) === "maybe" || element.canPlayType(this.responseText) === "probably") {
+                playable = true
+            }
+            sessionsSocket.send(JSON.stringify({
+                type: "getStreamURL",
+                data: JSON.stringify({
+                    scene_id: sceneId,
+                    playable: playable,
+                    start_time: 0
+                })
+            }))
+        }
+    }
+    xhr.open("GET", '/api/getMimeType?scene_id=' + sceneId, true);
+    xhr.send();
 }
 
 sessionsSocket.onmessage = function (e) {
@@ -30,32 +43,34 @@ sessionsSocket.onmessage = function (e) {
 
                 player = new Plyr(element, {duration: duration});
 
-                player.on('ready', event => {
-                    player.on("seeking", function () {
-                        console.log("called seek")
-                        sessionsSocket.send(JSON.stringify({
-                            type: "getStreamURL",
-                            data: JSON.stringify({
-                                scene_id: sceneId,
-                                playable: false,
-                                start_time: player.currentTime
-                            })
-                        }))
-                        offset = player.currentTime
-                    })
-                });
-                initial = false
-            } else {
-                player.source = {
-                    type: "video",
-                    sources: [
-                        {
-                            src: data['URL'],
-                            type: data['MimeType']
-                        },
-                    ]
+                if (!playable) {
+                    player.on('ready', event => {
+                        player.on("seeking", function () {
+                            console.log("called seek")
+                            sessionsSocket.send(JSON.stringify({
+                                type: "getStreamURL",
+                                data: JSON.stringify({
+                                    scene_id: sceneId,
+                                    playable: false,
+                                    start_time: player.currentTime
+                                })
+                            }))
+                            offset = player.currentTime
+                        })
+                    });
+                    initial = false
+                } else {
+                    player.source = {
+                        type: "video",
+                        sources: [
+                            {
+                                src: data['URL'],
+                                type: data['MimeType']
+                            },
+                        ]
+                    }
+                    player.offset = offset;
                 }
-                player.offset = offset;
             }
     }
 

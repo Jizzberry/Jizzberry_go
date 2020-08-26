@@ -89,7 +89,7 @@ func (c *Client) handleMessage(recieved data) {
 				}
 				if playable, ok := details["playable"]; ok {
 					if startTime, ok := details["start_time"]; ok {
-						return sceneId, playable == "true", fmt.Sprintf("%v", startTime)
+						return sceneId, playable.(bool), fmt.Sprintf("%v", startTime)
 					}
 				}
 			}

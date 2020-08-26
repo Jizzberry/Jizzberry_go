@@ -70,8 +70,6 @@ func newURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func URLGenerator(sceneId int64, playable bool, startTime string) StreamResp {
-	helpers.LogInfo(sceneId, playable, startTime)
-
 	streamEncoder := ffmpeg.NewEncoder()
 
 	mapMutex.Lock()
@@ -127,7 +125,7 @@ func transcodeAndStream(w http.ResponseWriter, encoder *ffmpeg.Encoder, path str
 func pseudoStream(w http.ResponseWriter, r *http.Request, model files.Files) {
 	file, err := os.Open(model.FilePath)
 	if err != nil {
-		helpers.LogError(err.Error())
+		helpers.LogWarning(err.Error())
 		w.WriteHeader(500)
 		return
 	}
@@ -173,7 +171,10 @@ func pseudoStream(w http.ResponseWriter, r *http.Request, model files.Files) {
 			}
 
 			data := buffer[:n]
-			_, _ = w.Write(data)
+			_, err = w.Write(data)
+			if err != nil {
+				helpers.LogWarning(err.Error())
+			}
 			w.(http.Flusher).Flush()
 		}
 
@@ -249,7 +250,7 @@ func pseudoStream(w http.ResponseWriter, r *http.Request, model files.Files) {
 			data := buffer[:n]
 			_, err = w.Write(data)
 			if err != nil {
-				helpers.LogError(err.Error())
+				helpers.LogWarning(err.Error())
 			}
 			w.(http.Flusher).Flush()
 		}
