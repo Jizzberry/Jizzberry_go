@@ -1,66 +1,39 @@
 {{ define "login" }}
+    <!DOCTYPE html>
 
-<!DOCTYPE html>
-<html lang="en">
-
+    <html lang="en">
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=1080, initial-scale=1.0, shrink-to-fit=no">
-        <meta name="description" content="Askbootstrap">
-        <meta name="author" content="Askbootstrap">
-        <title>Jizzberry</title>
+        <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
         <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="/static/css/Login-Form-Clean.css" type="text/css">
-        <link rel="stylesheet" href="/static/css/login.css" type="text/css">
+        <link href="/static/css/login.css" rel="stylesheet">
+        <link href="/static/img/Jizzberry_Logo.svg" rel="icon" type="image/svg+xml">
+
+        <title>Login</title>
     </head>
 
-    <body style="height: auto;width: auto;">
-    <!-- Start: bg img -->
-        <svg class="bg-img" width="739" height="788" viewBox="0 0 739 788" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M419 163C363.286 163 112 179 0 0H764V280C653 195 523 163 419 163Z" fill="#FF2D92" fill-opacity="0.62"/>
-            <circle cx="855.5" cy="428.5" r="249.5" fill="#0099BB" fill-opacity="0.56"/>
-            <circle cx="585" cy="444" r="96" fill="#FF9700" fill-opacity="0.64"/>
-            <circle cx="643.5" cy="750.5" r="37.5" fill="#23EAFF"/>
-        </svg>
-        <!-- End: bg img -->
-        <div>
-            <div>
-                <!-- Start: login-container -->
-                <div class="login-container">
-                    <!-- Start: center-logo-container -->
-                    <div class="center-container">
-                        <!-- Start: txt-logo container -->
-                        <div class="d-inline-flex txt-logo-container"><img src="/static/img/txt-logo.svg"></div>
-                        <!-- End: txt-logo container -->
-                    </div>
-                    <!-- End: center-logo-container -->
-                    <div>
-                        <!-- Start: error -->
-                        <div class="center-container relative-login-container">
-                            {{.Error}}
-                        </div>
-                        <!-- End: error -->
-                        <!-- Start: form container -->
-                        <div class="relative-login-container">
-                            <form action="/auth/login/" method="post">
-                                <div class="inputContainer">
-                                    <input class="form-control" type="text" required name="username" placeholder="Username" />
-                                    <input class="form-control" type="password" required name="password" placeholder="Password" />
-                                    <button class="btn btn-primary form-control sign-in-button" type="submit">Sign In</button>
-                                </div>
-                            </form>
-                        </div>
-                        <!-- End: form container -->
-                    </div>
-                    <!-- End: form container -->
-                </div>
-                <!-- End: login-container -->
-            </div>
-        </div>
-        <script src="/static/vendor/jquery/jquery.min.js"></script>
-        <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    </body>
+    <body>
+    <div class="login">
+        <img src="/static/img/txt-logo.svg">
 
-</html>
+        <h5>{{.Error}}</h5>
+
+
+		<form action="/auth/login/" method="post">
+			<div class="inp-border mb-4">
+				<i class="fas fa-user" style="margin: 0 12px 7px 0; font-size: 19px; opacity: 0.85;"></i> <input name="username" placeholder="Username" required="" type="text">
+			</div>
+
+
+			<div class="inp-border mt-2 mb-2">
+				<i class="fas fa-lock" style="margin: 0 12px 7px 0; font-size: 19px; opacity: 0.85;"></i> <input name="password" placeholder="Password" required="" type="password">
+			</div>
+			<button class="btn btn-grad mt-5" type="submit">Sign In</button>
+		</form>
+	</div>
+	<script src="/static/vendor/jquery/jquery.min.js"></script>
+	<script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<script src="/static/vendor/fontawesome/js/all.min.js"></script>
+	</body>
+	</html>
 {{ end }}

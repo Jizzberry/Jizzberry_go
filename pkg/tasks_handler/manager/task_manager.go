@@ -1,23 +1,14 @@
 package manager
 
 import (
-	"context"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/rename"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scan"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scrapeActors"
-	"github.com/Jizzberry/Jizzberry-go/pkg/tasks_handler/tasks/scrapeStudios"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	files2 "github.com/Jizzberry/Jizzberry_go/pkg/models/files"
+	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/tasks"
+	"strconv"
+	"time"
 )
 
-type TasksStorage struct {
-	Cancel   map[string]*context.CancelFunc
-	Progress map[string]*int
-}
-
-var GlobalTasksStorage = TasksStorage{
-	Cancel:   make(map[string]*context.CancelFunc),
-	Progress: make(map[string]*int),
-}
+var GlobalTasksStorage = make(map[string]*Task)
 
 func StartScan() string {
 	uid := "scan"
@@ -26,21 +17,14 @@ func StartScan() string {
 		return uid
 	}
 
-	cancel, progress := scan.Scan{}.Start(helpers.GetVideoPaths())
-	GlobalTasksStorage.Cancel[uid] = cancel
-	GlobalTasksStorage.Progress[uid] = progress
-	return uid
-}
-
-func isTaskActive(uid string) bool {
-	if _, ok := GlobalTasksStorage.Cancel[uid]; ok {
-		if val, ok := GlobalTasksStorage.Progress[uid]; ok {
-			if *val != 100 {
-				return true
-			}
-		}
+	cancel, progress := tasks.Scan{}.Start(helpers.GetConfig().Paths)
+	GlobalTasksStorage[uid] = &Task{
+		Uid:      uid,
+		Name:     "Scan",
+		Cancel:   cancel,
+		Progress: progress,
 	}
-	return false
+	return uid
 }
 
 func StartScrapeActors() string {
@@ -50,9 +34,13 @@ func StartScrapeActors() string {
 		return uid
 	}
 
-	cancel, progress := scrapeActors.ScrapeActors{}.Start()
-	GlobalTasksStorage.Cancel[uid] = cancel
-	GlobalTasksStorage.Progress[uid] = progress
+	cancel, progress := tasks.ScrapeActors{}.Start()
+	GlobalTasksStorage[uid] = &Task{
+		Uid:      uid,
+		Name:     "Scrape Actors List",
+		Cancel:   cancel,
+		Progress: progress,
+	}
 	return uid
 }
 
@@ -63,28 +51,35 @@ func StartScrapeStudios() string {
 		return uid
 	}
 
-	cancel, progress := scrapeStudios.ScrapeStudios{}.Start()
-	GlobalTasksStorage.Cancel[uid] = cancel
-	GlobalTasksStorage.Progress[uid] = progress
+	cancel, progress := tasks.ScrapeStudios{}.Start()
+	GlobalTasksStorage[uid] = &Task{
+		Uid:      uid,
+		Name:     "Scrape Studios List",
+		Cancel:   cancel,
+		Progress: progress,
+	}
 	return uid
 }
 
 //Rename shouldn't be stopped
-func StartRename(sceneId int64, title string, actors []string) {
-	rename.Rename{}.Start(sceneId, title, actors)
-}
-
-func GetProgress(uid string) int {
-	if val, ok := GlobalTasksStorage.Progress[uid]; ok {
-		progress := *val
-		return progress
+func StartRename(sceneId int64) string {
+	uid := strconv.FormatInt(time.Now().Unix(), 10)
+	cancel, progress := tasks.Rename{}.Start(sceneId)
+	GlobalTasksStorage[uid] = &Task{
+		Uid:      uid,
+		Name:     "Rename",
+		Cancel:   cancel,
+		Progress: progress,
 	}
-	return -1
+	return uid
 }
 
-func StopTask(uid string) {
-	if val, ok := GlobalTasksStorage.Cancel[uid]; ok {
-		cancel := *val
-		cancel()
+func OrganiseAll() {
+	model := files2.Initialize()
+	defer model.Close()
+
+	file := model.Get(files2.Files{})
+	for _, f := range file {
+		StartRename(f.GeneratedID)
 	}
 }

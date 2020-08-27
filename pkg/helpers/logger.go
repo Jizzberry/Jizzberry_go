@@ -6,41 +6,65 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"os"
+	"runtime"
+	"strings"
 )
 
 var logger *logrus.Logger
 
-func Init() {
-	var dir = GetWorkingDirectory() + "/logs"
-
+func LoggerInit() {
 	logger = &logrus.Logger{
 		Out:   os.Stderr,
 		Level: logrus.DebugLevel,
 		Formatter: &easy.Formatter{
 			TimestampFormat: "02-01-2006 15:04:05",
-			LogFormat:       "[%lvl%] [%component%] %time% - %msg% \n",
+			LogFormat:       "[%lvl%] [%component%] %time% - %msg%\n",
 		},
 	}
 
 	l := &lumberjack.Logger{
-		Filename:   dir + "/latest.log",
+		Filename:   LogsPath + "/latest.log",
 		MaxSize:    1, // MegaBytes
-		MaxBackups: 5, // Max Files
-		MaxAge:     1, // Days
-		Compress:   false,
+		MaxBackups: 8, // Max Files
+		MaxAge:     7, // Days
+		Compress:   true,
 	}
-	mWriter := io.MultiWriter(os.Stderr, l)
+	mWriter := io.MultiWriter(os.Stdout, l)
 	logger.SetOutput(mWriter)
 }
 
-func LogError(message string, component string) {
-	logger.WithField("component", component).Error(message)
+func LogError(message ...interface{}) {
+	logger.WithFields(logrus.Fields{
+		"component": func() string {
+			pc, _, _, ok := runtime.Caller(2)
+			return getCalledInfo(pc, ok)
+		}(),
+	}).Error(message...)
 }
 
-func LogInfo(message string, component string) {
-	logger.WithField("component", component).Info(message)
+func LogInfo(message ...interface{}) {
+	logger.WithFields(logrus.Fields{
+		"component": func() string {
+			pc, _, _, ok := runtime.Caller(2)
+			return getCalledInfo(pc, ok)
+		}(),
+	}).Info(message...)
 }
 
-func LogWarning(message string, component string) {
-	logger.WithField("component", component).Warningln(message)
+func LogWarning(message ...interface{}) {
+	logger.WithFields(logrus.Fields{
+		"component": func() string {
+			pc, _, _, ok := runtime.Caller(2)
+			return getCalledInfo(pc, ok)
+		}(),
+	}).Warningln(message...)
+}
+
+func getCalledInfo(pc uintptr, ok bool) string {
+	details := runtime.FuncForPC(pc)
+	if ok && details != nil {
+		split := strings.Split(details.Name(), "/")
+		return split[len(split)-1]
+	}
+	return "Unknown"
 }

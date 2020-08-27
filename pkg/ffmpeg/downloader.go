@@ -4,7 +4,7 @@ import (
 	"archive/tar"
 	"archive/zip"
 	"fmt"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/xi2/xz"
 	"io"
 	"net/http"
@@ -32,8 +32,11 @@ func getUrl() (string, string) {
 
 		case "arm64":
 			return "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz", "tar.xz"
+
+		case "amd64":
+			return "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz", "tar.xz"
 		}
-		return "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz", "tar.xz"
+		break
 
 	case "darwin":
 		return "https://ffmpeg.zeranoe.com/builds/macos64/static/ffmpeg-4.1-macos64-static.zip", "zip"
@@ -77,11 +80,14 @@ func untar(path string) error {
 			if err != nil {
 				return err
 			}
-			w.Close()
+			err = w.Close()
+			if err != nil {
+				return err
+			}
 		}
 	}
-	f.Close()
-	return nil
+	err = f.Close()
+	return err
 }
 
 func unzip(path string) error {
@@ -100,7 +106,10 @@ func unzip(path string) error {
 		)
 
 		if file.FileInfo().IsDir() {
-			os.MkdirAll(extractedFilePath, file.Mode())
+			err := os.MkdirAll(extractedFilePath, file.Mode())
+			if err != nil {
+				return err
+			}
 		} else {
 
 			outputFile, err := os.OpenFile(
@@ -116,9 +125,15 @@ func unzip(path string) error {
 			if err != nil {
 				return err
 			}
-			outputFile.Close()
+			err = outputFile.Close()
+			if err != nil {
+				return err
+			}
 		}
-		zippedFile.Close()
+		err = zippedFile.Close()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -130,7 +145,7 @@ func DownloadAndExtract() error {
 		return fmt.Errorf("download ffmpeg manually")
 	}
 
-	downloadPath := filepath.FromSlash(helpers.GetWorkingDirectory() + "/assets/ffmpeg/" + "ffmpeg." + ext)
+	downloadPath := filepath.Join(helpers.FFMPEGPath, "ffmpeg."+ext)
 
 	_ = os.Remove(downloadPath)
 
@@ -168,13 +183,18 @@ func DownloadAndExtract() error {
 		}
 	}
 
+	err = os.Remove(downloadPath)
+	if err != nil {
+		helpers.LogError(err.Error())
+	}
+
 	return nil
 }
 
 func getExecs(path string, file string) string {
 	var execPath = ""
 	if path == "" {
-		path = helpers.GetWorkingDirectory() + "/assets/ffmpeg/"
+		path = helpers.FFMPEGPath
 	}
 
 	if _, err := os.Stat(filepath.FromSlash(path)); err != nil {
@@ -191,7 +211,7 @@ func getExecs(path string, file string) string {
 	})
 
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 	}
 	return execPath
 }
@@ -206,24 +226,45 @@ func isValidExt(ext string) bool {
 }
 
 func IsExists() error {
-	execPathFFMPEG := getExecs(filepath.Dir(helpers.GetFFMPEGPath()), "ffmpeg")
-	execPathProbe := getExecs(filepath.Dir(helpers.GetFFPROBEPath()), "ffprobe")
+	execPathFFMPEG := getExecs(filepath.Dir(helpers.GetConfig().FFMEPG), "ffmpeg")
+	execPathProbe := getExecs(filepath.Dir(helpers.GetConfig().FFPROBE), "ffprobe")
 
 	if execPathFFMPEG == "" || execPathProbe == "" {
-		helpers.LogWarning("couldn't find ffmpeg or ffprobe executables", component)
+		helpers.LogWarning("Couldn't find ffmpeg or ffprobe executables")
+		helpers.LogInfo("Downloading ffmpeg...")
 
 		err := DownloadAndExtract()
 
 		if err != nil {
-			helpers.LogError(err.Error(), component)
+			helpers.LogError(err.Error())
 			return err
 		}
 
 		// Should no longer be empty if download succeeds
 		execPathProbe = getExecs("", "ffprobe")
 		execPathFFMPEG = getExecs("", "ffmpeg")
+
+		err = setExecutablePerms(execPathFFMPEG)
+		if err != nil {
+			return err
+		}
+		err = setExecutablePerms(execPathProbe)
+		if err != nil {
+			return err
+		}
+
+		config := helpers.Config{
+			FFMEPG:  execPathFFMPEG,
+			FFPROBE: execPathProbe,
+		}
+		err = helpers.WriteConfig(config)
+		if err != nil {
+			return err
+		}
+
+		helpers.LogInfo("Downloaded ffmpeg")
+	} else {
+		helpers.LogInfo("Found ffmpeg at: " + execPathFFMPEG)
 	}
-	helpers.WriteFFMPEGPath(execPathFFMPEG)
-	helpers.WriteFFPROBEPath(execPathProbe)
 	return nil
 }

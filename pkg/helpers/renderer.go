@@ -2,8 +2,6 @@ package helpers
 
 import (
 	"bytes"
-	"fmt"
-	"github.com/markbates/pkger"
 	"html/template"
 	"io"
 	"net/http"
@@ -18,41 +16,49 @@ type TemplateHolder struct {
 
 var Rnd = TemplateHolder{}
 
-func init() {
+func RndInit() {
 	Rnd.template = parseTemplates()
 }
 
-func parseTemplates() *template.Template {
-	t := template.New("")
-	tmp := ""
-
-	err := pkger.Walk("/web/templates/Components", func(path string, info os.FileInfo, err error) error {
+func parseHtml() (str string) {
+	err := filepath.Walk(TemplatePath, func(path string, info os.FileInfo, err error) error {
 		if filepath.Ext(path) == ".html" {
-			open, err := pkger.Open(path)
+			open, err := os.Open(path)
 			if err != nil {
 				return err
 			}
+
 			buf := new(strings.Builder)
 			if _, err := io.Copy(buf, open); err != nil {
 				return err
 			}
-			tmp += buf.String()
+			str += buf.String()
+			err = open.Close()
+			if err != nil {
+				return err
+			}
 		}
-		return err
+		return nil
 	})
 
 	if err != nil {
-		fmt.Println(err)
+		LogError(err.Error())
 	}
+	return
+}
 
-	_, err = t.Parse(tmp)
+func parseTemplates() (t *template.Template) {
+	t = template.New("")
+	str := parseHtml()
+	_, err := t.Parse(str)
 	if err != nil {
-		fmt.Println(err)
+		LogError(err.Error())
 	}
-	return t
+	return
 }
 
 func Render(w http.ResponseWriter, status int, name string, v interface{}) error {
+	RndInit()
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(status)
 

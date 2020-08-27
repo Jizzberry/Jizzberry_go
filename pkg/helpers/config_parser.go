@@ -5,101 +5,138 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
+	"path/filepath"
 )
 
 const (
-	Usernamekey    = "username"
-	PasswordKey    = "password"
-	SessionsKey    = "sessions"
-	LoginURL       = "/auth/login/"
-	PrevURLKey     = "prevurl"
 	configFileName = "config"
-
-	ThumbnailPath = "./assets/thumbnails"
-
-	component = "Helpers"
+	configFormat   = "yaml"
 )
 
-var configFilePath = GetWorkingDirectory() + "/" + configFileName
-
-func init() {
-	viper.SetConfigName(configFileName)
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-
-	writeInitial()
-
-	err := viper.ReadInConfig() // Find and read the helpers file
-	if err != nil {             // Handle errors reading the helpers file
-		fmt.Print(err.Error())
-	}
+type Config struct {
+	Paths                 []string `json:"paths" mapstructure:"videoPaths"`
+	FFMEPG                string   `json:"ffmepg" mapstructure:"ffmpegpath"`
+	FFPROBE               string   `json:"ffprobe" mapstructure:"ffprobepath"`
+	FileRenameFormatter   string   `json:"file_rename_formatter" mapstructure:"fileRenameFormatter"`
+	FolderRenameFormatter string   `json:"folder_rename_formatter" mapstructure:"folderRenameFormatter"`
 }
 
-func writeInitial() {
-	if string(GetSessionsKey()) == "" {
-		viper.Set("sessionsKey", GenerateRandomKey(50))
+// Initialize Config at provided path
+func ConfigInit() error {
+	initPaths()
+
+	viper.SetConfigName(configFileName)
+	viper.SetConfigType(configFormat)
+	viper.AddConfigPath(configPath)
+
+	_ = viper.ReadInConfig()
+
+	err := writeInitial()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Parses Config doc
+func parseConfig() Config {
+	var tmp Config
+	err := viper.Unmarshal(&tmp)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return tmp
+}
+
+func GetConfig() Config {
+	return parseConfig()
+}
+
+// Writes Config to Config file
+// ffmpegPath, ffprobePath shouldn't be empty
+// videoPaths can be empty but not nil
+func WriteConfig(config Config) error {
+	viper.Set("folderRenameFormatter", config.FolderRenameFormatter)
+	viper.Set("fileRenameFormatter", config.FileRenameFormatter)
+
+	if config.FFPROBE != "" {
+		viper.Set("ffprobePath", config.FFPROBE)
 	}
 
-	write()
+	if config.FFMEPG != "" {
+		viper.Set("ffmpegPath", config.FFMEPG)
+	}
+
+	if config.Paths != nil {
+		viper.Set("videoPaths", config.Paths)
+	}
+	err := write()
+	return err
+}
+
+// Writes default values if empty
+func writeInitial() error {
+	if string(GetSessionsKey()) == "" {
+		viper.Set("sessionsKey", GenerateRandomKey(50))
+		err := write()
+		return err
+	}
+	return nil
+}
+
+// Add string to videoPaths if exists as a directory or valid path
+func AddPath(path string) error {
+	configHolder := GetConfig()
+	for _, p := range configHolder.Paths {
+		if filepath.FromSlash(p) == filepath.FromSlash(path) {
+			return fmt.Errorf("path already exists")
+		}
+	}
+
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("invalid path")
+		}
+	}
+	viper.Set("videoPaths", append(configHolder.Paths, path))
+	err := write()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Removes string from videoPaths if exists
+func RemovePath(path string) error {
+	configHolder := GetConfig()
+	for i, p := range configHolder.Paths {
+		if p == path {
+			viper.Set("videoPaths", append(configHolder.Paths[:i], configHolder.Paths[i+1:]...))
+			err := write()
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func GetSessionsKey() []byte {
 	return []byte(viper.GetString("sessionsKey"))
 }
 
-func GetVideoPaths() []string {
-	return viper.GetStringSlice("videoPaths")
-}
-
-func GetFFMPEGPath() string {
-	return viper.GetString("ffmpegPath")
-}
-
-func WriteFFMPEGPath(path string) {
-	viper.Set("ffmpegPath", path)
-	write()
-}
-
-func GetFFPROBEPath() string {
-	return viper.GetString("ffprobePath")
-}
-
-func WriteFFPROBEPath(path string) {
-	viper.Set("ffprobePath", path)
-	write()
-}
-
-func GetFileRenameFormatter() string {
-	return viper.GetString("fileRenameFormatter")
-}
-
-func WriteFileRenameFormatter(path string) {
-	viper.Set("fileRenameFormatter", path)
-	write()
-}
-
-func GetFolderRenameFormatter() string {
-	return viper.GetString("folderRenameFormatter")
-}
-
-func WriteFolderRenameFormatter(path string) {
-	viper.Set("folderRenameFormatter", path)
-	write()
-}
-
-func write() {
-	if err := viper.SafeWriteConfigAs(configFilePath); err != nil {
-		if os.IsNotExist(err) {
-			err = viper.WriteConfigAs(configFilePath)
-		}
+func write() error {
+	if err := viper.WriteConfigAs(filepath.Join(configPath, configFileName+"."+configFormat)); err != nil {
+		return err
 	}
+	return nil
 }
 
 func GenerateRandomKey(l int) string {
 	b := make([]byte, l)
 	_, err := rand.Read(b)
 	if err != nil {
-		LogError(err.Error(), component)
+		LogError(err.Error())
 	}
 	return string(b)
 }

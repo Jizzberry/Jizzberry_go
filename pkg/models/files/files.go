@@ -2,78 +2,72 @@ package files
 
 import (
 	"database/sql"
-	"github.com/Jizzberry/Jizzberry-go/pkg/database"
-	"github.com/Jizzberry/Jizzberry-go/pkg/database/router"
-	"github.com/Jizzberry/Jizzberry-go/pkg/helpers"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models"
-	"sync"
+	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models"
 )
-
-var mutexFiles = &sync.Mutex{}
 
 const (
 	tableName = "files"
-	component = "filesModel"
 )
 
 type Files struct {
-	GeneratedID int64  `row:"generated_id" type:"exact" pk:"true" json:"generated_id"`
-	FileName    string `row:"file_name" type:"like" json:"file_name"`
-	FilePath    string `row:"file_path" type:"like" json:"file_path"`
-	DateCreated string `row:"date_created" type:"exact" json:"date_created"`
-	FileSize    string `row:"file_size" type:"exact" json:"file_size"`
-	Length      string `row:"length" type:"exact" json:"length"`
-	Tags        string `row:"tags" type:"like" json:"tags"`
-	Studios     string `row:"studios" type:"like" json:"studios"`
+	GeneratedID   int64   `row:"generated_id" type:"exact" pk:"auto" json:"generated_id,string"`
+	FileName      string  `row:"file_name" type:"like" json:"file_name"`
+	FilePath      string  `row:"file_path" type:"like" json:"file_path"`
+	DateCreated   string  `row:"date_created" type:"exact" json:"date_created"`
+	FileSize      string  `row:"file_size" type:"exact" json:"file_size"`
+	ThumbnailPath string  `row:"thumbnail" type:"exact" json:"thumbnail"`
+	Symlinks      string  `row:"symlinks" type:"exact" json:"symlinks"`
+	Tags          string  `row:"tags" type:"like" json:"tags"`
+	Studios       string  `row:"studios" type:"like" json:"studios"`
+	Actors        string  `row:"actors" type:"like" json:"actors"`
+	URL           string  `row:"url" type:"exact" json:"url"`
+	Length        float64 `row:"length" type:"exact" json:"length"`
+	Format        string  `row:"format" type:"like" json:"format"`
+	Video0Codec   string  `row:"video0codec" type:"like" json:"video0_codec"`
+	Audio0Codec   string  `row:"audio0codec" type:"like" json:"audio0_codec"`
+	ExtraCodec    string  `row:"extra_codec" type:"exact" json:"extra_codec"`
 }
 
-type FilesModel struct {
+type Model struct {
 	conn *sql.DB
 }
 
-func Initialize() *FilesModel {
-	return &FilesModel{
-		conn: database.GetConn(router.GetDatabase(tableName)),
+func Initialize() *Model {
+	return &Model{
+		conn: models.GetConn(tableName),
 	}
 }
 
-func (f FilesModel) Close() {
-	f.conn.Close()
+func (m Model) Close() {
+	err := m.conn.Close()
+	if err != nil {
+		helpers.LogError(err.Error())
+	}
 }
 
-func (f FilesModel) Create(files Files) int64 {
-	mutexFiles.Lock()
-	genId, exists := f.IsExists(files.FilePath)
-
-	if exists {
-		mutexFiles.Unlock()
+func (m Model) Create(files Files) int64 {
+	if exists, genId := models.IsValueExists(m.conn, files.FilePath, "file_path", tableName); exists {
 		return genId
 	}
 
 	query, args := models.QueryBuilderCreate(files, tableName)
-
-	row, err := f.conn.Exec(query, args...)
-
-	mutexFiles.Unlock()
-
+	row, err := m.conn.Exec(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
 		return 0
 	}
 
-	genID, _ := row.LastInsertId()
+	genID, err := row.LastInsertId()
+	if err != nil {
+		helpers.LogError(err.Error())
+	}
 
-	defer f.Close()
+	setAllRelations(genID, files.Actors, files.Studios, files.Tags)
 	return genID
 }
 
-func (f FilesModel) Delete(files Files) {
-	mutexFiles.Lock()
-
-	if f.isEmpty() {
-		mutexFiles.Unlock()
-		return
-	}
+func (m Model) Delete(files Files) {
 
 	query, args := models.QueryBuilderDelete(files, tableName)
 
@@ -81,98 +75,43 @@ func (f FilesModel) Delete(files Files) {
 		return
 	}
 
-	_, err := f.conn.Exec(query, args...)
+	_, err := m.conn.Exec(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
-	}
-}
-
-func (f FilesModel) Update(files Files) {
-	mutexFiles.Lock()
-
-	if f.isEmpty() {
-		mutexFiles.Unlock()
+		helpers.LogError(err.Error())
 		return
 	}
+	setAllRelations(files.GeneratedID, "", "", "")
+}
 
+func (m Model) Update(files Files) {
 	query, args := models.QueryBuilderUpdate(files, tableName)
 
 	if query == "" {
 		return
 	}
 
-	_, err := f.conn.Exec(query, args...)
+	_, err := m.conn.Exec(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
+		helpers.LogError(err.Error())
+		return
 	}
+	setAllRelations(files.GeneratedID, files.Actors, files.Studios, files.Tags)
 }
 
-func (f FilesModel) Get(filesQuery Files) []Files {
+func (m Model) Get(filesQuery Files) (allFiles []Files) {
 	query, args := models.QueryBuilderGet(filesQuery, tableName)
-	allFiles := make([]Files, 0)
 
-	row, err := f.conn.Query(query, args...)
+	row, err := m.conn.Query(query, args...)
 	if err != nil {
-		helpers.LogError(err.Error(), component)
-		return allFiles
+		helpers.LogError(err.Error())
+		return
 	}
 
-	for row.Next() {
-		files := Files{}
-		err := row.Scan(&files.GeneratedID, &files.FileName, &files.FilePath, &files.DateCreated, &files.FileSize, &files.Length, &files.Tags, &files.Studios)
-		if err != nil {
-			helpers.LogError(err.Error(), component)
-		}
-		allFiles = append(allFiles, files)
-	}
-
-	return allFiles
+	models.GetIntoStruct(row, &allFiles)
+	return
 }
 
-func (f FilesModel) isEmpty() bool {
-	rows, err := f.conn.Query(`SELECT count(name) FROM sqlite_master WHERE type='table' and name=?`, tableName)
-
-	if err != nil {
-		helpers.LogError(err.Error(), component)
-		return true
-	}
-	var count int
-
-	for rows.Next() {
-		err := rows.Scan(&count)
-		if err != nil {
-			helpers.LogError(err.Error(), component)
-		}
-	}
-
-	if count < 0 {
-		return true
-	}
-	return false
-}
-
-func (f FilesModel) IsExists(filePath string) (int64, bool) {
-	if f.isEmpty() {
-		database.RunMigrations()
-		return -1, false
-	}
-
-	fetch, err := f.conn.Query(`SELECT generated_id FROM files WHERE file_path = ?`, filePath)
-	if err != nil {
-		helpers.LogError(err.Error(), component)
-		return -1, false
-	}
-	var genId int64 = -1
-	for fetch.Next() {
-		err := fetch.Scan(&genId)
-		if err != nil {
-			helpers.LogError(err.Error(), component)
-		}
-	}
-
-	if genId > -1 {
-		return genId, true
-	}
-
-	return -1, false
+func (m Model) IsExists(filepath string) bool {
+	exists, _ := models.IsValueExists(m.conn, filepath, "file_path", tableName)
+	return exists
 }

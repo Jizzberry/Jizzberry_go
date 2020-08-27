@@ -1,23 +1,35 @@
 package helpers
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 )
 
-func CreateDirs() {
-	basePath := GetWorkingDirectory()
-
-	makeDir(basePath + filepath.FromSlash("./assets/database"))
-	makeDir(basePath + filepath.FromSlash("./assets/ffmpeg"))
-	makeDir(basePath + filepath.FromSlash(ThumbnailPath))
-	makeDir(basePath + filepath.FromSlash("./logs"))
+func CreateDirs() error {
+	err := makeDir(filepath.FromSlash(DatabasePath))
+	if err != nil {
+		return err
+	}
+	err = makeDir(filepath.FromSlash(JsonPath))
+	if err != nil {
+		return err
+	}
+	err = makeDir(filepath.FromSlash(FFMPEGPath))
+	if err != nil {
+		return err
+	}
+	err = makeDir(filepath.FromSlash(ThumbnailPath))
+	if err != nil {
+		return err
+	}
+	err = makeDir(filepath.FromSlash(LogsPath))
+	return nil
 }
 
-func makeDir(dir string) {
-	err := os.MkdirAll(dir, os.ModePerm)
+func makeDir(dir string) error {
+	err := os.MkdirAll(dir, os.ModePerm) // Create dir even if parent dir doesn't exist
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+	return nil
 }

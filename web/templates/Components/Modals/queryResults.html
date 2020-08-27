@@ -1,0 +1,53 @@
+{{ define "query_modal" }}
+	<div class="modal fade" id="queryModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content px-3">
+				<div class="row modal-header p-0 m-0 mt-3">
+					<div class="col-5 mb-2 pl-1">
+						<h4 class="modal-title">
+							Edit Title
+						</h4>
+					</div>
+					<div class="offset-4"></div>
+					<div class="col-3">
+						<button style="
+							font-size: 30px;
+							outline: none;
+							border: none;
+							box-shadow: none;
+						" type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				</div>
+				<div class="input-group mt-3 p-0">
+					<input id="query-search" style="box-shadow: none; outline: none;" type="search" class="form-control"
+						   placeholder="Enter a custom title or url to search">
+					<div class="input-group-append">
+						<button id="query-search-button" class="p-0">
+						<span
+								style="box-shadow: none; outline: none; padding-top: 10px;padding-bottom: 10px;border-radius: 0%;"
+								class="input-group-text btn">
+							<i class="fa fa-search"></i>
+						</span>
+						</button>
+						<button style="border-radius: 0px 4px 4px 0px;" class="p-0 ">
+						<span
+								style="box-shadow: none; outline: none; padding-top: 10px;padding-bottom: 10px;border-radius: 0px 4px 4px 0px;"
+								class="input-group-text btn">
+							<i class="fa fa-plus"></i>
+						</span>
+						</button>
+
+					</div>
+				</div>
+
+				<div class="modal-body px-0 mx-2">
+					<ul id="query-body"></ul>
+				</div>
+
+				<div class="modal-footer m-0 p-0 pb-2"></div>
+			</div>
+		</div>
+	</div>
+{{ end }}

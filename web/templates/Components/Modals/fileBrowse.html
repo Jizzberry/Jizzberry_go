@@ -1,0 +1,32 @@
+{{ define "filebrowse_modal"}}
+
+    <div class="modal" id="fileBrowseModal">
+        <div role="dialog" tabindex="-1" class="modal fade show" style="display: block;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">File Browser</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Paths</th>
+                                </tr>
+                                </thead>
+                                <tbody id="browseBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-light" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-primary" type="button" data-dismiss="modal" onclick="addPath()">Save</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/fileBrowse.js"></script>
+
+{{ end }}

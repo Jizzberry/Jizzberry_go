@@ -2,98 +2,86 @@ package scrapers
 
 import (
 	"context"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor"
-	"github.com/Jizzberry/Jizzberry-go/pkg/models/actor_details"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/factory"
-	"github.com/Jizzberry/Jizzberry-go/pkg/scrapers/pornhub"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
 	"sync"
 )
 
-var actorScrapers = make([]factory.ActorsImpl, 0)
-var videoScrapers = make([]factory.VideosImpl, 0)
-var studioScrapers = make([]factory.StudiosImpl, 0)
-
-func RegisterScrapers() {
-	actorScrapers = append(actorScrapers, pornhub.Pornhub{})
-	videoScrapers = append(videoScrapers, pornhub.Pornhub{})
-	studioScrapers = append(studioScrapers, pornhub.Pornhub{})
-}
-
-func ScrapeActor(sceneId int64, actors actor.Actor) *actor_details.ActorDetails {
+func ScrapeActor(actors actor.Actor) actor_details.ActorDetails {
 	detailsModel := actor_details.Initialize()
+	defer detailsModel.Close()
 
+	// If actor doesn't already exist in actor_details, scrape them
 	if !detailsModel.IsExists(actors.GeneratedID) {
-		for _, i := range actorScrapers {
-			if i.GetWebsite() == actors.Website {
-				details := i.ScrapeActor(actors.Name)
-				i.ScrapeImage(actors.Name, actors.GeneratedID)
+		if exists, index := MatchWebsite(actors.Website); exists {
+			if scrapers[index].Actor {
+				scraped := getScrapeActor(index, actors)
+				scraped.ThumbnailPath = getScrapeImage(index, actors)
+				scraped.Name = actors.Name
+				scraped.ActorId = actors.GeneratedID
 
-				//Manually set name just in case of connection error
-				details.Name = actors.Name
-				details.SceneId = sceneId
-				details.ActorId = actors.GeneratedID
-				return &details
+				return scraped
 			}
 		}
 	}
+
+	// Avoid scraping if actor already exists in actor_details
 	if actors.GeneratedID > 0 {
 		details := detailsModel.Get(actor_details.ActorDetails{ActorId: actors.GeneratedID})
 		if len(details) > 0 {
-			details[0].SceneId = sceneId
-			return &details[0]
+			return details[0]
 		}
-		return &actor_details.ActorDetails{}
-	} else {
-		details := actor_details.ActorDetails{}
-		details.Name = actors.Name
-		details.SceneId = sceneId
-		return &details
 	}
 
+	return actor_details.ActorDetails{}
 }
 
 func ScrapeActorList(ctx context.Context, progress *int) {
-	tmp := make(chan int, len(actorScrapers))
 	progressMutex := sync.Mutex{}
-	for _, i := range actorScrapers {
-		go func(i factory.ActorsImpl) {
-			i.ScrapeActorList(ctx)
-			tmp <- 1
-			progressMutex.Lock()
-			*progress = int(float32(len(tmp)) / float32(len(actorScrapers)) * 100)
-			progressMutex.Unlock()
-		}(i)
+	*progress = 1
+	for index, s := range scrapers {
+		if s.ActorList {
+			go func(index int) {
+				getScrapeActorsList(index, ctx)
+				progressMutex.Lock()
+				*progress = int(float32(index) / float32(len(scrapers)) * 100)
+				progressMutex.Unlock()
+			}(index)
+		}
 	}
 }
 
 func ScrapeStudioList(ctx context.Context, progress *int) {
-	tmp := make(chan int, len(studioScrapers))
 	progressMutex := sync.Mutex{}
-	for _, i := range studioScrapers {
-		go func(i factory.StudiosImpl) {
-			i.ScrapeStudiosList(ctx)
-			tmp <- 1
-			progressMutex.Lock()
-			*progress = int(float32(len(tmp)) / float32(len(actorScrapers)) * 100)
-			progressMutex.Unlock()
-		}(i)
-	}
-}
-
-func ScrapeVideo(url string) factory.VideoDetails {
-	for _, i := range videoScrapers {
-		if i.ParseUrl(url) {
-			return i.ScrapeVideo(url)
+	for i, s := range scrapers {
+		if s.StudioList {
+			go func(i int) {
+				getScrapeStudiosList(i, ctx)
+				progressMutex.Lock()
+				*progress = int(float32(i) / float32(len(scrapers)) * 100)
+				progressMutex.Unlock()
+			}(i)
 		}
 	}
-
-	return factory.VideoDetails{}
 }
 
-func QueryVideos(query string) map[string][]factory.Videos {
-	scrapedVideos := make(map[string][]factory.Videos)
-	for _, i := range videoScrapers {
-		scrapedVideos[i.GetWebsite()] = i.QueryVideos(query)
+func ScrapeVideo(url string) VideoDetails {
+	for i, s := range scrapers {
+		if s.Video {
+			if matchUrlToScraper(url) {
+				return getScrapedVideo(i, url)
+			}
+		}
+	}
+	return VideoDetails{}
+}
+
+func QueryVideos(query string) []Videos {
+	scrapedVideos := make([]Videos, 0)
+	for i, s := range scrapers {
+		if s.QueryVideos {
+			scrapedVideos = append(scrapedVideos, getQueryVideo(i, query)...)
+		}
 	}
 	return scrapedVideos
 }
