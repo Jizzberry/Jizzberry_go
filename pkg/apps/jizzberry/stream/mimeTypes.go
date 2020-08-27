@@ -1,7 +1,8 @@
 package stream
 
 import (
-	"github.com/Jizzberry/Jizzberry_go/pkg/models/files"
+	"fmt"
+	"github.com/Jizzberry/Jizzberry_go/pkg/ffmpeg"
 )
 
 var mimeTypes = map[string]string{
@@ -19,26 +20,9 @@ var mimeTypes = map[string]string{
 	"webm":                    "video/webm",
 }
 
-func MimeTypeFromFormat(sceneId int64) string {
-	model := files.Initialize()
-	defer model.Close()
-
-	if val := model.Get(files.Files{GeneratedID: sceneId}); len(val) > 0 {
-		if mime, ok := mimeTypes[val[0].Format]; ok {
-			return mime
-		}
+func MimeTypeFromFormat(format string, filepath string) string {
+	if mime, ok := mimeTypes[format]; ok {
+		return fmt.Sprintf("%s; %s;", mime, ffmpeg.GetCodecs(filepath))
 	}
-	return "none"
-}
-
-func IsSupportedCodec(codec string) bool {
-	switch codec {
-	case
-		"h264",
-		"vp8",
-		"vp9",
-		"av1":
-		return true
-	}
-	return false
+	return "unknown"
 }

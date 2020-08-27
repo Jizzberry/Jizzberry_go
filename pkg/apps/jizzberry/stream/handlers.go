@@ -70,21 +70,35 @@ func newURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func URLGenerator(sceneId int64, playable bool, startTime string) StreamResp {
+	helpers.LogInfo(startTime)
 	streamEncoder := ffmpeg.NewEncoder()
 
-	mapMutex.Lock()
-	streamHolder[streamEncoder.UID] = Stream{
-		Playable:  playable,
-		Encoder:   streamEncoder,
-		SceneID:   sceneId,
-		startTime: startTime,
-	}
-	mapMutex.Unlock()
+	model := files.Initialize()
+	defer model.Close()
 
-	return StreamResp{
-		URL:      fmt.Sprintf("/Jizzberry/stream/stream/%s", streamEncoder.UID),
-		MimeType: MimeTypeFromFormat(sceneId),
+	file := model.Get(files.Files{GeneratedID: sceneId})
+
+	if len(file) > 0 {
+		mapMutex.Lock()
+		streamHolder[streamEncoder.UID] = Stream{
+			Playable:  playable,
+			Encoder:   streamEncoder,
+			SceneID:   sceneId,
+			startTime: startTime,
+		}
+		mapMutex.Unlock()
+
+		return StreamResp{
+			URL: fmt.Sprintf("/Jizzberry/stream/stream/%s", streamEncoder.UID),
+			MimeType: func() string {
+				if playable {
+					return file[0].ExtraCodec
+				}
+				return "video/mp4"
+			}(),
+		}
 	}
+	return StreamResp{}
 }
 
 func streamHandler(w http.ResponseWriter, r *http.Request) {
@@ -99,12 +113,7 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 			if dets.Playable {
 				pseudoStream(w, r, file[0])
 			} else {
-				transcodeAndStream(w, dets.Encoder, file[0].FilePath, dets.startTime)
-				notify := r.Context().Done()
-				go func() {
-					<-notify
-					dets.Encoder.KillPrev()
-				}()
+				transcodeAndStream(w, r, dets.Encoder, file[0].FilePath, dets.startTime)
 			}
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
@@ -114,18 +123,19 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func transcodeAndStream(w http.ResponseWriter, encoder *ffmpeg.Encoder, path string, startTime string) {
-	stream := ffmpeg.Transcode(path, startTime, encoder)
-	_, err := io.Copy(w, stream)
-	if err != nil {
-		helpers.LogWarning(err.Error())
-	}
+func transcodeAndStream(w http.ResponseWriter, r *http.Request, encoder *ffmpeg.Encoder, path string, startTime string) {
+	stream, uid := ffmpeg.Transcode(path, startTime, encoder)
+	notify := r.Context().Done()
+	go func() {
+		<-notify
+		encoder.KillProcess(uid)
+	}()
+	_, _ = io.Copy(w, stream)
 }
 
 func pseudoStream(w http.ResponseWriter, r *http.Request, model files.Files) {
 	file, err := os.Open(model.FilePath)
 	if err != nil {
-		helpers.LogWarning(err.Error())
 		w.WriteHeader(500)
 		return
 	}
@@ -151,7 +161,7 @@ func pseudoStream(w http.ResponseWriter, r *http.Request, model files.Files) {
 		contentLength := strconv.Itoa(fileSize)
 		contentEnd := strconv.Itoa(fileSize - 1)
 
-		w.Header().Set("Content-Type", MimeTypeFromFormat(model.GeneratedID))
+		w.Header().Set("Content-Type", model.ExtraCodec)
 		w.Header().Set("Accept-Ranges", "bytes")
 		w.Header().Set("Content-Length", contentLength)
 		w.Header().Set("Content-Range", "bytes 0-"+contentEnd+"/"+contentLength)
@@ -171,10 +181,7 @@ func pseudoStream(w http.ResponseWriter, r *http.Request, model files.Files) {
 			}
 
 			data := buffer[:n]
-			_, err = w.Write(data)
-			if err != nil {
-				helpers.LogWarning(err.Error())
-			}
+			_, _ = w.Write(data)
 			w.(http.Flusher).Flush()
 		}
 
@@ -248,10 +255,7 @@ func pseudoStream(w http.ResponseWriter, r *http.Request, model files.Files) {
 			}
 
 			data := buffer[:n]
-			_, err = w.Write(data)
-			if err != nil {
-				helpers.LogWarning(err.Error())
-			}
+			_, _ = w.Write(data)
 			w.(http.Flusher).Flush()
 		}
 	}

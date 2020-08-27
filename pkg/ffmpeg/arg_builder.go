@@ -13,8 +13,6 @@ import (
 
 type ProcessType int
 
-var processMutex sync.Mutex
-
 const (
 	FFProbe         ProcessType = 0
 	TranscodeStream ProcessType = 1
@@ -27,13 +25,14 @@ const (
 )
 
 type Encoder struct {
-	UID     string
-	process *ProcessHolder
+	UID          string
+	process      map[string]*ProcessHolder
+	processMutex sync.Mutex
 }
 
 type ProcessHolder struct {
 	Type      ProcessType
-	Cmd       []*exec.Cmd
+	Cmd       *exec.Cmd
 	Timeout   int
 	forceKill chan bool
 }
@@ -41,16 +40,14 @@ type ProcessHolder struct {
 func NewEncoder() *Encoder {
 	uid := uuid.New().String()
 	e := Encoder{
-		UID: uid,
-		process: &ProcessHolder{
-			Cmd: make([]*exec.Cmd, 0),
-		},
+		UID:     uid,
+		process: make(map[string]*ProcessHolder),
 	}
 	return &e
 }
 
-func (e *Encoder) Run(args []string, Type ProcessType, timeout int, wait bool) (out bytes.Buffer, stderr bytes.Buffer) {
-	processMutex.Lock()
+func (e *Encoder) Run(args []string, Type ProcessType, timeout int, wait bool) (out bytes.Buffer, stderr bytes.Buffer, uid string) {
+	e.processMutex.Lock()
 
 	cmd := buildArg(args, Type)
 	cmd.Stdout = &out
@@ -61,6 +58,7 @@ func (e *Encoder) Run(args []string, Type ProcessType, timeout int, wait bool) (
 		if err != nil {
 			helpers.LogError(err.Error())
 		}
+		e.processMutex.Unlock()
 		return
 	}
 
@@ -69,45 +67,51 @@ func (e *Encoder) Run(args []string, Type ProcessType, timeout int, wait bool) (
 		helpers.LogError(err.Error())
 	}
 
-	e.process = &ProcessHolder{
+	uid = uuid.New().String()
+	e.process[uid] = &ProcessHolder{
 		Type:    Type,
-		Cmd:     append(e.process.Cmd, cmd),
 		Timeout: timeout,
+		Cmd:     cmd,
 	}
 
-	e.determineHold(len(e.process.Cmd) - 1)
-	processMutex.Unlock()
+	e.determineHold(uid)
+	e.processMutex.Unlock()
 
 	return
 }
 
-func (e *Encoder) Pipe(args []string, Type ProcessType, timeout int) io.ReadCloser {
-	processMutex.Lock()
+func (e *Encoder) Pipe(args []string, Type ProcessType, timeout int) (io.ReadCloser, string) {
+	e.processMutex.Lock()
 
 	cmd := buildArg(args, Type)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		helpers.LogError(err.Error())
-		return nil
+		e.processMutex.Unlock()
+		return nil, ""
 	}
 
 	err = cmd.Start()
 	if err != nil {
 		helpers.LogError(err.Error())
-		return nil
+		e.processMutex.Unlock()
+		return nil, ""
 	}
 
-	e.process = &ProcessHolder{
+	helpers.LogInfo("new stream", args)
+
+	uid := uuid.New().String()
+	e.process[uid] = &ProcessHolder{
 		Type:    Type,
-		Cmd:     append(e.process.Cmd, cmd),
 		Timeout: timeout,
+		Cmd:     cmd,
 	}
 
-	e.determineHold(len(e.process.Cmd) - 1)
-	processMutex.Unlock()
+	e.determineHold(uid)
+	e.processMutex.Unlock()
 
-	return stdout
+	return stdout, uid
 }
 
 func buildArg(args []string, Type ProcessType) *exec.Cmd {
@@ -122,8 +126,8 @@ func buildArg(args []string, Type ProcessType) *exec.Cmd {
 		args...)
 }
 
-func (e *Encoder) determineHold(index int) {
-	switch e.process.Timeout {
+func (e *Encoder) determineHold(index string) {
+	switch e.process[index].Timeout {
 	case TimeoutBlock:
 		e.blockTillEnd(index)
 		return
@@ -135,16 +139,16 @@ func (e *Encoder) determineHold(index int) {
 	}
 }
 
-func (e *Encoder) blockTillEnd(index int) {
-	err := e.process.Cmd[index].Wait()
+func (e *Encoder) blockTillEnd(index string) {
+	err := e.process[index].Cmd.Wait()
 	if err != nil {
 		helpers.LogError(err.Error())
 	}
 }
 
-func (e *Encoder) killOnTimeout(index int) {
+func (e *Encoder) killOnTimeout(index string) {
 	done := make(chan error)
-	go func() { done <- e.process.Cmd[index].Wait() }()
+	go func() { done <- e.process[index].Cmd.Wait() }()
 	select {
 	case err := <-done:
 		if err != nil {
@@ -152,32 +156,28 @@ func (e *Encoder) killOnTimeout(index int) {
 		}
 		e.deregisterProcess(index)
 		return
-	case <-time.After(time.Duration(e.process.Timeout) * time.Second):
+	case <-time.After(time.Duration(e.process[index].Timeout) * time.Second):
 		e.KillProcess(index)
 		return
 	}
 }
 
-func (e *Encoder) KillProcess(index int) {
-	processMutex.Lock()
-	if e.process.Cmd != nil && e.process.Cmd[index] != nil {
-		err := e.process.Cmd[index].Process.Kill()
+func (e *Encoder) KillProcess(index string) {
+	e.processMutex.Lock()
+	if e.process[index].Cmd != nil {
+		err := e.process[index].Cmd.Process.Kill()
 		if err != nil {
 			helpers.LogError("Unable to kill process: ", err.Error(), " The process probably exited on its own")
 			e.deregisterProcess(index)
-			processMutex.Unlock()
+			e.processMutex.Unlock()
 			return
 		}
-		helpers.LogInfo(fmt.Sprintf("Killed process [%v]: %d", e.process.Type, e.process.Cmd[index].Process.Pid))
+		helpers.LogInfo(fmt.Sprintf("Killed process [%v]: %d", e.process[index].Type, e.process[index].Cmd.Process.Pid))
 	}
 	e.deregisterProcess(index)
-	processMutex.Unlock()
+	e.processMutex.Unlock()
 }
 
-func (e *Encoder) deregisterProcess(index int) {
-	e.process.Cmd = append(e.process.Cmd[:index], e.process.Cmd[index+1:]...)
-}
-
-func (e *Encoder) KillPrev() {
-	e.KillProcess(0)
+func (e *Encoder) deregisterProcess(index string) {
+	e.process[index] = nil
 }

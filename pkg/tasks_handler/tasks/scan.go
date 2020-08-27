@@ -3,6 +3,7 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"github.com/Jizzberry/Jizzberry_go/pkg/apps/jizzberry/stream"
 	"github.com/Jizzberry/Jizzberry_go/pkg/ffmpeg"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
@@ -64,7 +65,9 @@ func worker(paths []string, ctx context.Context, progress *int) {
 							thumbnailPath := helpers.GetThumbnailPath()
 							file := createFile(f, info, filepath.Ext(f), thumbnailPath)
 							filesModel.Create(file)
+							helpers.LogInfo("created")
 							ffmpeg.GenerateThumbnail(f, int64(file.Length/2), thumbnailPath)
+							helpers.LogInfo("thumbnail done")
 							helpers.LogInfo(fmt.Sprintf("scanned %s successfully", f))
 						} else {
 							helpers.LogInfo(fmt.Sprintf("skipped %s", f))
@@ -151,6 +154,7 @@ func createFile(filepath string, info os.FileInfo, ext string, thumbnailPath str
 	file.Actors = getActors(info.Name())
 	file.Studios = getStudios(info.Name())
 	file.ThumbnailPath = thumbnailPath
+	file.ExtraCodec = stream.MimeTypeFromFormat(file.Format, filepath)
 
 	return file
 }

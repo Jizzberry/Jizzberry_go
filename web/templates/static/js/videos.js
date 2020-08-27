@@ -1,6 +1,7 @@
 let element = document.getElementById("videoPlayer")
 let player;
 let playable = false;
+let initial = true;
 
 const sessionsSocket = new WebSocket(
     "ws://" + window.location.host + "/ws/session" + ""
@@ -12,9 +13,11 @@ sessionsSocket.onopen = function () {
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (element.canPlayType(this.responseText) === "maybe" || element.canPlayType(this.responseText) === "probably") {
+            console.log(element.canPlayType(this.responseText))
+            if (element.canPlayType(this.responseText) === "probably") {
                 playable = true
             }
+            console.log(playable)
             sessionsSocket.send(JSON.stringify({
                 type: "getStreamURL",
                 data: JSON.stringify({
@@ -36,6 +39,8 @@ sessionsSocket.onmessage = function (e) {
         case "getStreamURL":
             let data = JSON.parse(parsed.data)
             if (initial) {
+                initial = false
+
                 let source = document.createElement('source');
                 source.setAttribute('src', data['URL'])
                 source.setAttribute('type', data['MimeType']);
@@ -58,23 +63,19 @@ sessionsSocket.onmessage = function (e) {
                             offset = player.currentTime
                         })
                     });
-                    initial = false
-                } else {
-                    player.source = {
-                        type: "video",
-                        sources: [
-                            {
-                                src: data['URL'],
-                                type: data['MimeType']
-                            },
-                        ]
-                    }
-                    player.offset = offset;
                 }
             }
+            player.source = {
+                type: "video",
+                sources: [
+                    {
+                        src: data['URL'],
+                        type: data['MimeType']
+                    },
+                ]
+            }
+            player.offset = offset;
     }
-
-    console.log(parsed)
 };
 
 sessionsSocket.onclose = function (e) {

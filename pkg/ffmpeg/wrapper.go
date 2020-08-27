@@ -2,10 +2,15 @@ package ffmpeg
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"io"
+	"io/ioutil"
+	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
+	"strings"
 )
 
 func GenerateThumbnail(path string, interval int64, outFile string) {
@@ -22,11 +27,11 @@ func getFFprobeJson(filepath string) map[string]interface{} {
 	var args []string
 	args = append(args, "-print_format", "json", "-show_format", "-show_streams", "-v", "quiet", filepath)
 
-	stdout, _ := NewEncoder().Run(args, FFProbe, TimeoutBlock, true)
+	stdout, _, _ := NewEncoder().Run(args, FFProbe, TimeoutBlock, true)
 	return parseJson(stdout.Bytes())
 }
 
-func Transcode(filepath string, startTime string, encoder *Encoder) io.ReadCloser {
+func Transcode(filepath string, startTime string, encoder *Encoder) (io.ReadCloser, string) {
 	var args []string
 
 	if startTime != "" {
@@ -46,9 +51,9 @@ func Transcode(filepath string, startTime string, encoder *Encoder) io.ReadClose
 		"pipe:",
 	)
 
-	stdout := encoder.Pipe(args, TranscodeStream, TimeoutForget)
+	stdout, uid := encoder.Pipe(args, TranscodeStream, TimeoutForget)
 
-	return stdout
+	return stdout, uid
 }
 
 func getLength(data map[string]interface{}) float64 {
@@ -93,61 +98,71 @@ func getVideoFormat(data map[string]interface{}) string {
 	return ""
 }
 
-//func ConvertFaststart(filepath string) *os.File {
-//	tmpfile, err := ioutil.TempFile(os.TempDir(), "tmp.*.mp4")
-//	if err != nil {
-//		helpers.LogError(err.Error())
-//		return nil
-//	}
-//	var args []string
-//
-//	// Brings moov atom to start of file
-//	args = append(args,
-//		"-i", filepath,
-//		"-c:a", "copy",
-//		"-c:v", "copy",
-//		"-movflags", "faststart",
-//		"-y",
-//		tmpfile.Name(),
-//	)
-//	cmd := exec.Command(helpers.GetConfig().FFMEPG, args...)
-//	var stderr bytes.Buffer
-//	cmd.Stderr = &stderr
-//
-//
-//	err = cmd.Run()
-//	if err != nil {
-//		helpers.LogError(err.Error())
-//	}
-//
-//	return tmpfile
-//
-//}
+func ConvertFaststart(filepath string) *os.File {
+	tmpfile, err := ioutil.TempFile(os.TempDir(), "tmp.*.mp4")
+	if err != nil {
+		helpers.LogError(err.Error())
+		return nil
+	}
+	var args []string
 
-//func Avc1ToRfc6381(filepath string) string {
-//	tmp := ffmpeg.ConvertFaststart(filepath)
-//	fmt.Println(tmp.Name())
-//	buffer := make([]byte, 8128)
-//	_, err := tmp.Read(buffer)
-//	if err != nil {
-//		helpers.LogError(err.Error())
-//		return ""
-//	}
-//
-//	var codecFlags []byte
-//	// According to http://xhelmboyx.tripod.com/formats/mp4-layout.txt
-//	r := regexp.MustCompile(string([]byte{97, 118, 99, 67})) // Byte code for "avcC"
-//	match := r.FindStringIndex(string(buffer)) // Find index for avcC box
-//	if len(match) > 1 {
-//		codecFlags = buffer[match[1]+1 : match[1]+4] // Profile, compatibility and level flags
-//	}
-//	//err = os.Remove(tmp.Name())
-//	//if err != nil {
-//	//	helpers.LogError(err.Error())
-//	//}
-//
-//	return fmt.Sprintf("codecs=\"%b\"", codecFlags)
-//}
+	// Brings moov atom to start of file
+	args = append(args,
+		"-i", filepath,
+		"-c:a", "copy",
+		"-c:v", "copy",
+		"-movflags", "faststart",
+		"-y",
+		tmpfile.Name(),
+	)
+
+	NewEncoder().Pipe(args, TranscodeStream, TimeoutBlock)
+
+	return tmpfile
+
+}
+
+func avc1ToRfc6381(tmp *os.File) string {
+	buffer := make([]byte, 8128)
+	_, err := tmp.Read(buffer)
+	if err != nil {
+		helpers.LogError(err.Error())
+		return ""
+	}
+
+	var codecFlags []byte
+	// According to http://xhelmboyx.tripod.com/formats/mp4-layout.txt
+	r := regexp.MustCompile(string([]byte{97, 118, 99, 67})) // Byte code for "avcC"
+	match := r.FindStringIndex(string(buffer))               // Find index for avcC box
+	if len(match) > 1 {
+		codecFlags = buffer[match[1]+1 : match[1]+4] // Profile, compatibility and level flags
+	}
+
+	if len(codecFlags) > 0 {
+		return fmt.Sprintf("avc1.%x", codecFlags)
+	}
+	return ""
+}
+
+func GetCodecs(filePath string) string {
+	codecs := make([]string, 0)
+	tmp := ConvertFaststart(filePath)
+	if val := avc1ToRfc6381(tmp); val != "" {
+		codecs = append(codecs, val)
+	}
+
+	defer func() {
+		err := os.Remove(tmp.Name())
+		if err != nil {
+			helpers.LogError(err.Error())
+		}
+	}()
+
+	if len(codecs) > 0 {
+		return fmt.Sprintf("codecs=\"%s\"", strings.Join(codecs, ","))
+	}
+	return ""
+}
 
 func parseJson(data []byte) map[string]interface{} {
 	jsonData := make(map[string]interface{})

@@ -85,15 +85,15 @@ func (c *Client) handleMessage(recieved data) {
 				sceneId, err2 := strconv.ParseInt(fmt.Sprintf("%v", sceneIdVal), 10, 64)
 				if err2 != nil {
 					helpers.LogError(err2.Error())
-					return -1, true, "0"
+					return -1, true, ""
 				}
 				if playable, ok := details["playable"]; ok {
 					if startTime, ok := details["start_time"]; ok {
-						return sceneId, playable.(bool), fmt.Sprintf("%v", startTime)
+						return sceneId, playable.(bool), fmt.Sprintf("%f", startTime.(float64))
 					}
 				}
 			}
-			return -1, true, "0"
+			return -1, true, ""
 		}(details)))
 
 		if err != nil {

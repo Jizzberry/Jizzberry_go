@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Jizzberry/Jizzberry_go/pkg/apps/jizzberry/stream"
 	"github.com/Jizzberry/Jizzberry_go/pkg/helpers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/middleware"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
@@ -438,9 +437,15 @@ func getMimeType(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			helpers.LogError(err.Error())
 		}
-		_, err = fmt.Fprintf(w, stream.MimeTypeFromFormat(sceneId))
-		if err != nil {
-			helpers.LogError(err.Error())
+		model := files.Initialize()
+		defer model.Close()
+
+		file := model.Get(files.Files{GeneratedID: sceneId})
+		if len(file) > 0 {
+			_, err = fmt.Fprintf(w, file[0].ExtraCodec)
+			if err != nil {
+				helpers.LogError(err.Error())
+			}
 		}
 	}
 }

@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS 'files' (
     'length' real,
     'format' varchar,
     'video0codec' varchar,
-    'audio0codec' varchar
+    'audio0codec' varchar,
+    'extra_codec' varchar
 );
 
 -- +migrate Down

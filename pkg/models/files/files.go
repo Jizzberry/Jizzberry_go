@@ -26,6 +26,7 @@ type Files struct {
 	Format        string  `row:"format" type:"like" json:"format"`
 	Video0Codec   string  `row:"video0codec" type:"like" json:"video0_codec"`
 	Audio0Codec   string  `row:"audio0codec" type:"like" json:"audio0_codec"`
+	ExtraCodec    string  `row:"extra_codec" type:"exact" json:"extra_codec"`
 }
 
 type Model struct {
