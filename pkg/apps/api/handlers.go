@@ -8,12 +8,13 @@ import (
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/actor_details"
 	"github.com/Jizzberry/Jizzberry_go/pkg/models/files"
-	studios2 "github.com/Jizzberry/Jizzberry_go/pkg/models/studios"
+	"github.com/Jizzberry/Jizzberry_go/pkg/models/studios"
 	tags2 "github.com/Jizzberry/Jizzberry_go/pkg/models/tags"
 	"github.com/Jizzberry/Jizzberry_go/pkg/scrapers"
 	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler"
 	"github.com/Jizzberry/Jizzberry_go/pkg/tasks_handler/manager"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/schema"
 	"net/http"
 	"strconv"
 )
@@ -24,6 +25,8 @@ type Api struct {
 type task struct {
 	Uid string `json:"uid"`
 }
+
+var decoder = schema.NewDecoder()
 
 func (a Api) Register(r *mux.Router) {
 
@@ -53,32 +56,16 @@ func (a Api) Register(r *mux.Router) {
 
 func filesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	queryParams := r.URL.Query()
 
-	var file []files.Files
+	var file files.Files
 	model := files.Initialize()
 	defer model.Close()
 
-	if len(queryParams["generated_id"]) > 0 {
-		genId, err := strconv.Atoi(queryParams["generated_id"][0])
-		if err != nil {
-			helpers.LogError(err.Error())
-		}
-		file = model.Get(files.Files{GeneratedID: int64(genId)})
-
-	} else if len(queryParams["file_name"]) > 0 {
-		file = model.Get(files.Files{FileName: "%" + queryParams["file_name"][0] + "%"})
-
-	} else if len(queryParams["file_path"]) > 0 {
-		file = model.Get(files.Files{FileName: "%" + queryParams["file_path"][0] + "%"})
-
-	} else {
-		file = model.Get(files.Files{})
-	}
+	err := decoder.Decode(&file, r.URL.Query())
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
-	err := encoder.Encode(&file)
+	err = encoder.Encode(model.Get(file))
 	if err != nil {
 		helpers.LogError(err.Error())
 	}
@@ -86,36 +73,16 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 
 func actorDetailHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	queryParams := r.URL.Query()
 
-	var actorDetails []actor_details.ActorDetails
+	var actorDetails actor_details.ActorDetails
 	model := actor_details.Initialize()
 	defer model.Close()
 
-	if len(queryParams["generated_id"]) > 0 {
-		genId, err := strconv.Atoi(queryParams["generated_id"][0])
-		if err != nil {
-			helpers.LogError(err.Error())
-		}
-		actorDetails = model.Get(actor_details.ActorDetails{GeneratedId: int64(genId)})
-
-	} else if len(queryParams["name"]) > 0 {
-		actorDetails = model.Get(actor_details.ActorDetails{Name: "%" + queryParams["name"][0] + "%"})
-
-	} else if len(queryParams["actor_id"]) > 0 {
-		actorId, err := strconv.Atoi(queryParams["actor_id"][0])
-		if err != nil {
-			helpers.LogError(err.Error())
-		}
-		actorDetails = model.Get(actor_details.ActorDetails{ActorId: int64(actorId)})
-
-	} else {
-		actorDetails = model.Get(actor_details.ActorDetails{})
-	}
+	err := decoder.Decode(&actorDetails, r.URL.Query())
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
-	err := encoder.Encode(&actorDetails)
+	err = encoder.Encode(model.Get(actorDetails))
 	if err != nil {
 		helpers.LogError(err.Error())
 	}
@@ -123,27 +90,16 @@ func actorDetailHandler(w http.ResponseWriter, r *http.Request) {
 
 func actorsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	queryParams := r.URL.Query()
 
-	actors := make([]actor.Actor, 0)
+	var actors actor.Actor
 	model := actor.Initialize()
 	defer model.Close()
 
-	if len(queryParams["actor_id"]) > 0 {
-		genId, err := strconv.Atoi(queryParams["generated_id"][0])
-		if err != nil {
-			helpers.LogError(err.Error())
-		}
-		actors = model.Get(actor.Actor{GeneratedID: int64(genId)})
-	} else if len(queryParams["name"]) > 0 {
-		actors = model.Get(actor.Actor{Name: "%" + queryParams["name"][0] + "%"})
-	} else if len(queryParams["title"]) > 0 {
-		actors = tasks_handler.MatchActorToTitle(queryParams["title"][0])
-	}
+	err := decoder.Decode(&actors, r.URL.Query())
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
-	err := encoder.Encode(&actors)
+	err = encoder.Encode(model.Get(actors))
 	if err != nil {
 		helpers.LogError(err.Error())
 	}
@@ -151,37 +107,30 @@ func actorsHandler(w http.ResponseWriter, r *http.Request) {
 
 func scrapeActorHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	queryParams := r.URL.Query()
 
-	actors := make([]actor_details.ActorDetails, 0)
+	var actorDet actor.Actor
+	err := decoder.Decode(&actorDet, r.URL.Query())
 
-	if len(queryParams["actor_id"]) > 0 {
-		genId, err := strconv.Atoi(queryParams["actor_id"][0])
-		if err != nil {
-			helpers.LogError(err.Error())
-		}
-		model := actor.Initialize()
-		defer model.Close()
+	model := actor.Initialize()
+	actorDetailsModel := actor_details.Initialize()
+	defer model.Close()
+	defer actorDetailsModel.Close()
 
-		tmp := model.Get(actor.Actor{GeneratedID: int64(genId)})
-		if len(tmp) > 0 {
-			actors = append(actors, scrapers.ScrapeActor(tmp[0]))
-		}
+	tmp := model.Get(actorDet)
+
+	var actors actor_details.ActorDetails
+	if len(tmp) > 0 {
+		actors = scrapers.ScrapeActor(tmp[0])
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
-	err := encoder.Encode(&actors)
+	err = encoder.Encode(&actors)
 	if err != nil {
 		helpers.LogError(err.Error())
 	}
 
-	actorDetailsModel := actor_details.Initialize()
-	defer actorDetailsModel.Close()
-
-	for _, a := range actors {
-		actorDetailsModel.Create(a)
-	}
+	actorDetailsModel.Create(actors)
 }
 
 func scanHandler(w http.ResponseWriter, _ *http.Request) {
@@ -211,27 +160,16 @@ func scrapeListHandler(w http.ResponseWriter, _ *http.Request) {
 
 func studiosHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	queryParams := r.URL.Query()
 
-	studios := make([]studios2.Studio, 0)
-	model := studios2.Initialize()
+	var studio studios.Studio
+	model := studios.Initialize()
 	defer model.Close()
 
-	if len(queryParams["generated_id"]) > 0 {
-		genId, err := strconv.Atoi(queryParams["generated_id"][0])
-		if err != nil {
-			helpers.LogError(err.Error())
-		}
-		studios = model.Get(studios2.Studio{GeneratedID: int64(genId)})
-	} else if len(queryParams["name"]) > 0 {
-		studios = model.Get(studios2.Studio{Name: "%" + queryParams["name"][0] + "%"})
-	} else {
-		studios = model.Get(studios2.Studio{})
-	}
+	err := decoder.Decode(&studio, r.URL.Query())
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
-	err := encoder.Encode(&studios)
+	err = encoder.Encode(model.Get(studio))
 	if err != nil {
 		helpers.LogError(err.Error())
 	}
@@ -239,27 +177,16 @@ func studiosHandler(w http.ResponseWriter, r *http.Request) {
 
 func tagsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	queryParams := r.URL.Query()
 
-	tags := make([]tags2.Tag, 0)
+	var tag tags2.Tag
 	model := tags2.Initialize()
 	defer model.Close()
 
-	if len(queryParams["generated_id"]) > 0 {
-		genId, err := strconv.Atoi(queryParams["generated_id"][0])
-		if err != nil {
-			helpers.LogError(err.Error())
-		}
-		tags = model.Get(tags2.Tag{GeneratedID: int64(genId)})
-	} else if len(queryParams["name"]) > 0 {
-		tags = model.Get(tags2.Tag{Name: "%" + queryParams["name"][0] + "%"})
-	} else {
-		tags = model.Get(tags2.Tag{})
-	}
+	err := decoder.Decode(&tag, r.URL.Query())
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
-	err := encoder.Encode(&tags)
+	err = encoder.Encode(model.Get(tag))
 	if err != nil {
 		helpers.LogError(err.Error())
 	}
@@ -370,24 +297,16 @@ func stopHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func parseMetadata(w http.ResponseWriter, r *http.Request) {
-	var details struct {
-		SceneId int64    `json:"generated_id,string"`
-		Title   string   `json:"title"`
-		Url     string   `json:"url"`
-		Date    string   `json:"date"`
-		Studios []string `json:"studios"`
-		Actors  []string `json:"actors"`
-		Tags    []string `json:"tags"`
-	}
-	err := json.NewDecoder(r.Body).Decode(&details)
+	var dets tasks_handler.Details
+	err := json.NewDecoder(r.Body).Decode(&dets)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		helpers.LogError(err.Error())
 		return
 	}
 
-	tasks_handler.UpdateDetails(details.SceneId, details.Title, details.Date, details.Actors, details.Tags, details.Studios)
-	manager.StartRename(details.SceneId)
+	tasks_handler.UpdateDetails(dets)
+	manager.StartRename(dets.SceneId)
 	_, err = fmt.Fprintf(w, "Success")
 	if err != nil {
 		helpers.LogError(err.Error())
@@ -440,7 +359,7 @@ func getMimeType(w http.ResponseWriter, r *http.Request) {
 		model := files.Initialize()
 		defer model.Close()
 
-		file := model.Get(files.Files{GeneratedID: sceneId})
+		file := model.Get(files.Files{SceneID: sceneId})
 		if len(file) > 0 {
 			_, err = fmt.Fprintf(w, file[0].ExtraCodec)
 			if err != nil {

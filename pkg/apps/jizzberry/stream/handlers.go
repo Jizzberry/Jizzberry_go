@@ -76,7 +76,7 @@ func URLGenerator(sceneId int64, playable bool, startTime string) StreamResp {
 	model := files.Initialize()
 	defer model.Close()
 
-	file := model.Get(files.Files{GeneratedID: sceneId})
+	file := model.Get(files.Files{SceneID: sceneId})
 
 	if len(file) > 0 {
 		mapMutex.Lock()
@@ -107,7 +107,7 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 		model := files.Initialize()
 		defer model.Close()
 
-		file := model.Get(files.Files{GeneratedID: dets.SceneID})
+		file := model.Get(files.Files{SceneID: dets.SceneID})
 
 		if len(file) > 0 {
 			if dets.Playable {

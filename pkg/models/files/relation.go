@@ -38,7 +38,7 @@ func setActorRelation(genId int64, actors string) {
 			for _, a := range actorsSli {
 				tmp := actorsModel.Get(actor.Actor{Name: a})
 				if len(tmp) > 0 {
-					relation[strconv.FormatInt(tmp[0].GeneratedID, 10)] = append(relation[strconv.FormatInt(tmp[0].GeneratedID, 10)], strconv.FormatInt(genId, 10))
+					relation[strconv.FormatInt(tmp[0].ActorID, 10)] = append(relation[strconv.FormatInt(tmp[0].ActorID, 10)], strconv.FormatInt(genId, 10))
 				}
 			}
 		}

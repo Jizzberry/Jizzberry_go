@@ -11,8 +11,8 @@ const (
 )
 
 type Tag struct {
-	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
-	Name        string `row:"tag" type:"like" json:"generated_id"`
+	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id" schema:"generated_id"`
+	Name        string `row:"tag" type:"like" json:"name" schema:"name"`
 }
 
 type Model struct {

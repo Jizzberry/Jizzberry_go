@@ -264,7 +264,7 @@ func IsTableEmpty(tableName string, conn *sql.DB) {
 }
 
 func IsValueExists(conn *sql.DB, key interface{}, keyname string, tableName string) (bool, int64) {
-	rows, err := conn.Query(fmt.Sprintf(`SELECT generated_id FROM %s WHERE  %s=?`, tableName, keyname), key)
+	rows, err := conn.Query(fmt.Sprintf(`SELECT * FROM %s WHERE  %s=?`, tableName, keyname), key)
 
 	if err != nil {
 		helpers.LogError(err.Error())

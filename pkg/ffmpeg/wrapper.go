@@ -98,11 +98,11 @@ func getVideoFormat(data map[string]interface{}) string {
 	return ""
 }
 
-func ConvertFaststart(filepath string) *os.File {
+func ConvertFaststart(encoder *Encoder, filepath string) (*os.File, string) {
 	tmpfile, err := ioutil.TempFile(os.TempDir(), "tmp.*.mp4")
 	if err != nil {
 		helpers.LogError(err.Error())
-		return nil
+		return nil, ""
 	}
 	var args []string
 
@@ -113,12 +113,13 @@ func ConvertFaststart(filepath string) *os.File {
 		"-c:v", "copy",
 		"-movflags", "faststart",
 		"-y",
-		tmpfile.Name(),
+		"-f",
+		"pipe:",
 	)
 
-	NewEncoder().Pipe(args, TranscodeStream, TimeoutBlock)
+	_, _, uid := encoder.Run(args, TranscodeStream, TimeoutBlock, true)
 
-	return tmpfile
+	return tmpfile, uid
 
 }
 
@@ -146,17 +147,23 @@ func avc1ToRfc6381(tmp *os.File) string {
 
 func GetCodecs(filePath string) string {
 	codecs := make([]string, 0)
-	tmp := ConvertFaststart(filePath)
-	if val := avc1ToRfc6381(tmp); val != "" {
+	//encoder := NewEncoder()
+	file, err := os.Open(filePath)
+	if err != nil {
+		helpers.LogError(err)
+		return ""
+	}
+	if val := avc1ToRfc6381(file); val != "" {
 		codecs = append(codecs, val)
 	}
 
-	defer func() {
-		err := os.Remove(tmp.Name())
-		if err != nil {
-			helpers.LogError(err.Error())
-		}
-	}()
+	//defer func() {
+	//	encoder.KillProcess(uid)
+	//	err := os.Remove(tmp.Name())
+	//	if err != nil {
+	//		helpers.LogError(err.Error())
+	//	}
+	//}()
 
 	if len(codecs) > 0 {
 		return fmt.Sprintf("codecs=\"%s\"", strings.Join(codecs, ","))

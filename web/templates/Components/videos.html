@@ -146,7 +146,7 @@
 
 					<div class="video-list col-md-4 d-flex flex-column">
 						{{range $val := .UpNext}}
-							<a href="/Jizzberry/scene/{{$val.GeneratedID}}">
+							<a href="/Jizzberry/scene/{{$val.SceneID}}">
 								<div class="card mb-3">
 									<div class="row no-gutters">
 										<div class="col-md-5 py-1 pl-1 pr-2">
@@ -185,7 +185,7 @@
 <script src="/static/js/query.js"></script>
 <script>
 	let offset = 0;
-	let sceneId = {{(index .Files 0).GeneratedID}};
+	let sceneId = {{(index .Files 0).SceneID}};
 	let duration = {{ (index .Files 0).Length }};
 </script>
 <script src="/static/js/videos.js"></script>

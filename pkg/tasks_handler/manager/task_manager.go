@@ -80,6 +80,6 @@ func OrganiseAll() {
 
 	file := model.Get(files2.Files{})
 	for _, f := range file {
-		StartRename(f.GeneratedID)
+		StartRename(f.SceneID)
 	}
 }
