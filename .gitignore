@@ -22,3 +22,5 @@ pkged.go
 /out/
 /logs/
 /assets/
+*.env
+*.lock

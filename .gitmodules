@@ -1,0 +1,3 @@
+[submodule "web/v2/jizzberry"]
+	path = web/v2/jizzberry
+	url = https://github.com/Jizzberry/webUI
