@@ -1,0 +1,13 @@
+{
+    "go.inferGopath": false,
+    "go.autocompleteUnimportedPackages": true,
+    "go.buildOnSave": "off",
+    "go.formatTool": "goimports",
+    "go.lintTool": "golangci-lint",
+    "go.trace.server": "verbose",
+    "go.useCodeSnippetsOnFunctionSuggest": true,
+    "go.useCodeSnippetsOnFunctionSuggestWithoutType": true,
+    "go.useLanguageServer": true,
+    "go.lintOnSave": "workspace",
+    "go.vetOnSave": "off"
+}
