@@ -12,13 +12,13 @@ func ScrapeActor(actors actor.Actor) actor_details.ActorDetails {
 	defer detailsModel.Close()
 
 	// If actor doesn't already exist in actor_details, scrape them
-	if !detailsModel.IsExists(actors.GeneratedID) {
+	if !detailsModel.IsExists(actors.ActorID) {
 		if exists, index := MatchWebsite(actors.Website); exists {
 			if scrapers[index].Actor {
 				scraped := getScrapeActor(index, actors)
 				scraped.ThumbnailPath = getScrapeImage(index, actors)
 				scraped.Name = actors.Name
-				scraped.ActorId = actors.GeneratedID
+				scraped.ActorId = actors.ActorID
 
 				return scraped
 			}
@@ -26,8 +26,8 @@ func ScrapeActor(actors actor.Actor) actor_details.ActorDetails {
 	}
 
 	// Avoid scraping if actor already exists in actor_details
-	if actors.GeneratedID > 0 {
-		details := detailsModel.Get(actor_details.ActorDetails{ActorId: actors.GeneratedID})
+	if actors.ActorID > 0 {
+		details := detailsModel.Get(actor_details.ActorDetails{ActorId: actors.ActorID})
 		if len(details) > 0 {
 			return details[0]
 		}

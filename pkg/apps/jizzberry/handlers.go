@@ -96,7 +96,7 @@ func parseFilesFromRelation(fileIds []string, ctx *Context) {
 		if err != nil {
 			helpers.LogError(err.Error())
 		}
-		ctx.Files = append(ctx.Files, filesModel.Get(files.Files{GeneratedID: i})...)
+		ctx.Files = append(ctx.Files, filesModel.Get(files.Files{SceneID: i})...)
 	}
 }
 
@@ -246,7 +246,7 @@ func singleSceneHandler(w http.ResponseWriter, r *http.Request) {
 	model := files.Initialize()
 	defer model.Close()
 
-	file := model.Get(files.Files{GeneratedID: sceneId})
+	file := model.Get(files.Files{SceneID: sceneId})
 	if len(file) <= 0 {
 		return
 	}

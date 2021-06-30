@@ -12,10 +12,10 @@ const (
 )
 
 type Actor struct {
-	GeneratedID int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
-	Name        string `row:"name" type:"like" json:"name"`
-	UrlID       string `row:"urlid" type:"like" json:"urlid"`
-	Website     string `row:"website" type:"like" json:"website"`
+	ActorID int64  `row:"actor_id" type:"exact" pk:"auto" json:"actor_id" schema:"actor_id"`
+	Name    string `row:"name" type:"like" json:"name" schema:"name"`
+	UrlID   string `row:"urlid" type:"like" json:"urlid" schema:"urlid"`
+	Website string `row:"website" type:"like" json:"website" schema:"website"`
 }
 
 type Model struct {
@@ -89,6 +89,7 @@ func (a Model) Get(actor Actor) (allActors []Actor) {
 	query, args := models.QueryBuilderGet(actor, tableName)
 
 	row, err := a.conn.Query(query, args...)
+	helpers.LogInfo(query, args)
 	if err != nil {
 		helpers.LogError(err.Error())
 		return
@@ -101,8 +102,8 @@ func (a Model) Get(actor Actor) (allActors []Actor) {
 func removeDupl(s []Actor) (list []Actor) {
 	keys := make(map[int64]bool)
 	for _, entry := range s {
-		if _, ok := keys[entry.GeneratedID]; !ok {
-			keys[entry.GeneratedID] = true
+		if _, ok := keys[entry.ActorID]; !ok {
+			keys[entry.ActorID] = true
 			list = append(list, entry)
 		}
 	}

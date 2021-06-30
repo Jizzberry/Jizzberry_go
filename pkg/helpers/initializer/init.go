@@ -44,7 +44,6 @@ func Init() error {
 
 	//fmt.Println(ffmpeg.ProbeVideo(files.Initialize().Get(files.Files{})[19].FilePath))
 	//fmt.Println(jizzberry.avc1ToRfc6381(files.Initialize().Get(files.Files{})[20].FilePath))
-	//ffmpeg.GetMoovAtom(files.Initialize().Get(files.Files{})[19].FilePath)
 
 	err = initWebApp()
 	if err != nil {

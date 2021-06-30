@@ -14,6 +14,16 @@ import (
 	"strings"
 )
 
+type Details struct {
+	SceneId int64    `json:"scene_id"`
+	Title   string   `json:"title"`
+	Url     string   `json:"url"`
+	Date    string   `json:"date"`
+	Studios []string `json:"studios"`
+	Actors  []string `json:"actors"`
+	Tags    []string `json:"tags"`
+}
+
 func Splitter(r rune) bool {
 	return r == ' ' || r == '.' || r == '-' || r == '_' || r == '[' || r == ']' || r == '(' || r == ')'
 }
@@ -103,38 +113,38 @@ func MatchActorExact(name string) *[]actor.Actor {
 	return &actors
 }
 
-func UpdateDetails(sceneId int64, title string, date string, actors []string, tags []string, studios []string) {
+func UpdateDetails(dets Details) {
 	modelFiles := files.Initialize()
 	defer modelFiles.Close()
 
 	modelTags := tags2.Initialize()
 	defer modelTags.Close()
 
-	for _, t := range tags {
+	for _, t := range dets.Tags {
 		if len(modelTags.Get(tags2.Tag{Name: t})) < 1 {
 			modelTags.Create(tags2.Tag{Name: t})
 		}
 	}
 
-	file := modelFiles.Get(files.Files{GeneratedID: sceneId})
+	file := modelFiles.Get(files.Files{SceneID: dets.SceneId})
 	if len(file) > 0 {
-		if title != "" {
-			file[0].FileName = title
+		if dets.Title != "" {
+			file[0].FileName = dets.Title
 		}
 
-		if date != "" {
-			file[0].DateCreated = date
+		if dets.Date != "" {
+			file[0].DateCreated = dets.Date
 		}
 
-		file[0].Actors = strings.Join(actors, ", ")
-		file[0].Tags = strings.Join(tags, ", ")
-		file[0].Studios = strings.Join(studios, ", ")
+		file[0].Actors = strings.Join(dets.Actors, ", ")
+		file[0].Tags = strings.Join(dets.Tags, ", ")
+		file[0].Studios = strings.Join(dets.Studios, ", ")
 		modelFiles.Update(file[0])
 
 		modelActorD := actor_details.Initialize()
 		defer modelActorD.Close()
 
-		for _, a := range actors {
+		for _, a := range dets.Actors {
 			data := MatchActorExact(a)
 			for _, a := range *data {
 				scraped := scrapers.ScrapeActor(a)
@@ -162,7 +172,7 @@ func FormatTitle(title string, sceneId int64) string {
 		model := files.Initialize()
 		defer model.Close()
 
-		file := model.Get(files.Files{GeneratedID: sceneId})
+		file := model.Get(files.Files{SceneID: sceneId})
 		if len(file) < 1 {
 			return title
 		}

@@ -99,8 +99,6 @@ func (e *Encoder) Pipe(args []string, Type ProcessType, timeout int) (io.ReadClo
 		return nil, ""
 	}
 
-	helpers.LogInfo("new stream", args)
-
 	uid := uuid.New().String()
 	e.process[uid] = &ProcessHolder{
 		Type:    Type,
@@ -164,7 +162,7 @@ func (e *Encoder) killOnTimeout(index string) {
 
 func (e *Encoder) KillProcess(index string) {
 	e.processMutex.Lock()
-	if e.process[index].Cmd != nil {
+	if e.process[index] != nil && e.process[index].Cmd != nil {
 		err := e.process[index].Cmd.Process.Kill()
 		if err != nil {
 			helpers.LogError("Unable to kill process: ", err.Error(), " The process probably exited on its own")

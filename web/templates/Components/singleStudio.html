@@ -54,21 +54,21 @@
 					<div class="row my-4">
 						{{range $val := .Files}}
 
-                            <div class="col-md-3 video-card-container">
-                                <div class="video-card">
-                                    <a href="/Jizzberry/scene/{{$val.GeneratedID}}"><img alt="Card image cap"
-                                                                                         class="card-img-top img-fluid"
-                                                                                         onerror="this.src='/static/img/txt-logo.svg'"
-                                                                                         src="/thumbnails/{{$val.ThumbnailPath}}"></a>
+							<div class="col-md-3 video-card-container">
+								<div class="video-card">
+									<a href="/Jizzberry/scene/{{$val.SceneID}}"><img alt="Card image cap"
+																					 class="card-img-top img-fluid"
+																					 onerror="this.src='/static/img/txt-logo.svg'"
+																					 src="/thumbnails/{{$val.ThumbnailPath}}"></a>
 
-                                    <div class="video-card-body card-body d-flex">
-                                        <p class="video-card-text"><a
-                                                    href="/Jizzberry/scene/{{$val.GeneratedID}}">{{$val.FileName}}</a>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        {{ end }}
+									<div class="video-card-body card-body d-flex">
+										<p class="video-card-text"><a
+													href="/Jizzberry/scene/{{$val.SceneID}}">{{$val.FileName}}</a>
+										</p>
+									</div>
+								</div>
+							</div>
+						{{ end }}
                     </div>
                 </div>
             </div>

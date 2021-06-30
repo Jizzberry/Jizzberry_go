@@ -11,14 +11,14 @@ const (
 )
 
 type ActorDetails struct {
-	GeneratedId   int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id"`
-	ActorId       int64  `row:"actor_id" type:"exact" json:"actor_id"`
-	Name          string `row:"name" type:"like" json:"name"`
-	Birthday      string `row:"born" type:"like" json:"birthday"`
-	Birthplace    string `row:"birthplace" type:"like" json:"birthplace"`
-	Height        string `row:"height" type:"like" json:"height"`
-	Weight        string `row:"weight" type:"like" json:"weight"`
-	ThumbnailPath string `row:"thumbnail" type:"exact" json:"thumbnail"`
+	GeneratedId   int64  `row:"generated_id" type:"exact" pk:"auto" json:"generated_id" schema:"generated_id"`
+	ActorId       int64  `row:"actor_id" type:"exact" json:"actor_id" schema:"actor_id"`
+	Name          string `row:"name" type:"like" json:"name" schema:"name"`
+	Birthday      string `row:"born" type:"like" json:"birthday" schema:"birthday"`
+	Birthplace    string `row:"birthplace" type:"like" json:"birthplace" schema:"birthplace"`
+	Height        string `row:"height" type:"like" json:"height" schema:"height"`
+	Weight        string `row:"weight" type:"like" json:"weight" schema:"weight"`
+	ThumbnailPath string `row:"thumbnail" type:"exact" json:"thumbnail" schema:"thumbnail"`
 }
 
 type Model struct {
